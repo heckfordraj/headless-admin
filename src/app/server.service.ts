@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { catchError, map, flatMap } from 'rxjs/operators';
+import { catchError, tap, map, flatMap } from 'rxjs/operators';
+import 'rxjs/add/observable/throw';
 
 import { Page } from './page';
 
@@ -22,13 +23,23 @@ export class ServerService {
 
     return this.http.get<Page[]>(url)
     .pipe(
-      flatMap((res: Page[]) => {
-
-        console.dir(res)
-        return res;
-      }),
+      tap((res: Page[]) => console.dir(res)),
+      flatMap((res: Page[]) => res),
       map((res: Page) => new Page(res.name)),
       catchError(this.handleError<any>(`getPages`))
+    );
+  }
+
+  addPage(page: Page): Observable<any> {
+
+    const url = 'http://localhost:4100/api/add';
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    };
+
+    return this.http.post<Page>(url, page, httpOptions).pipe(
+      tap(_ => console.log(`added page`)),
+      catchError(this.handleError<any>('addPage'))
     );
   }
 
@@ -36,7 +47,7 @@ export class ServerService {
     return (error: any): Observable<T> => {
 
       console.error(error);
-      return of(result as T);
+      return Observable.throw(error as T);
     };
   }
 

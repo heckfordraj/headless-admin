@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { ServerService } from './server.service';
 import { Page } from './page';
@@ -15,6 +16,23 @@ export class AppComponent implements OnInit {
   ){}
 
   pages: Page[] = [];
+
+
+  addPage(page: Page){
+
+    this.serverService.addPage(page)
+    .subscribe(
+      (page:Page) => {
+
+        console.log(page);
+        this.pages.push(page);
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
 
 
   ngOnInit(){
