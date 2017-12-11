@@ -3,12 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { catchError, map, retry } from 'rxjs/operators';
+import { catchError, map, flatMap } from 'rxjs/operators';
 
-
-interface Response {
-  data: any[];
-}
+import { Page } from './page';
 
 
 @Injectable()
@@ -19,14 +16,19 @@ export class ServerService {
   ){}
 
 
-  getPages(): Observable<any> {
+  getPages(): Observable<Page> {
 
     const url = 'http://localhost:4100/api/get/pages';
 
-    return this.http.get<Response>(url)
+    return this.http.get<Page[]>(url)
     .pipe(
-      map((res: Response) => res.data),
-      catchError(this.handleError<Response>(`getPages`))
+      flatMap((res: Page[]) => {
+
+        console.dir(res)
+        return res;
+      }),
+      map((res: Page) => new Page(res.name)),
+      catchError(this.handleError<any>(`getPages`))
     );
   }
 

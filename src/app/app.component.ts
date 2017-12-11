@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+
 import { ServerService } from './server.service';
+import { Page } from './page';
 
 @Component({
   selector: 'app-root',
@@ -12,16 +14,16 @@ export class AppComponent implements OnInit {
     private serverService: ServerService
   ){}
 
-  pages: string[];
+  pages: Page[] = [];
 
 
   ngOnInit(){
 
     this.serverService.getPages()
-    .subscribe((res: string[]) => {
+    .subscribe((page: Page) => {
 
-      console.dir(res);
-      this.pages = res;
+      console.log(page);
+      this.pages.push(page);
     })
   }
 
