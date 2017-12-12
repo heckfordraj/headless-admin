@@ -34,6 +34,30 @@ export class AppComponent implements OnInit {
     )
   }
 
+  updatePage(page: Page, name){
+
+    let pageUpdate = new Page(name, page.id);
+
+    this.serverService.updatePage(pageUpdate)
+    .subscribe(
+      (page: Page) => {
+
+        this.pages = this.pages.map((pages: Page) => {
+
+          if (pages.id === page.id) {
+            pages = page;
+          }
+
+          return pages;
+        })
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
+
   removePage(page: Page){
 
     this.serverService.removePage(page)

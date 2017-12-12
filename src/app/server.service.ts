@@ -51,6 +51,20 @@ export class ServerService {
     );
   }
 
+  updatePage(page: Page): Observable<Page> {
+
+    const url = 'http://localhost:4100/api/update';
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    };
+
+    return this.http.put<Response>(url, page, httpOptions).pipe(
+      tap((res: Response) => console.log(`updated page ${res.name}`)),
+      map((res: Response) => new Page(res.name, res._id)),
+      catchError(this.handleError<Page>('updatePage'))
+    );
+  }
+
   removePage(page: Page): Observable<any> {
 
     const url = `http://localhost:4100/api/remove/${page.id}`;

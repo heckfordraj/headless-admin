@@ -2,13 +2,9 @@
 
 <ul>
   <li *ngFor="let page of pages">
+    <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     {{ page?.name }}
     <button (click)="removePage(page)">&times;</button>
-  </li>
-
-  <li>
-    <strong>fail removePage</strong>
-    <button (click)="removePage({ id: 'aaaaaaaaaaaaaaaaaaaaaaaa' })">&times;</button>
   </li>
 </ul>
 
