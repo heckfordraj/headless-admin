@@ -9,6 +9,13 @@ import 'rxjs/add/observable/throw';
 import { Page } from './page';
 
 
+interface Response {
+  _id: string;
+  name: string;
+  __v: boolean;
+}
+
+
 @Injectable()
 export class ServerService {
 
@@ -21,12 +28,12 @@ export class ServerService {
 
     const url = 'http://localhost:4100/api/get/pages';
 
-    return this.http.get<Page[]>(url)
+    return this.http.get<Response[]>(url)
     .pipe(
-      tap((res: any) => console.dir(res)),
-      flatMap((res: any) => res),
-      map((res: any) => new Page(res.name, res._id)),
-      catchError(this.handleError<any>(`getPages`))
+      tap((res: Response[]) => console.dir(res)),
+      flatMap((res: Response[]) => res),
+      map((res: Response) => new Page(res.name, res._id)),
+      catchError(this.handleError<Page>(`getPages`))
     );
   }
 
@@ -37,10 +44,20 @@ export class ServerService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.post<Page>(url, page, httpOptions).pipe(
-      tap((res: any) => console.log(`added page ${res.name}`)),
-      map((res: any) => new Page(res.name, res._id)),
+    return this.http.post<Response>(url, page, httpOptions).pipe(
+      tap((res: Response) => console.log(`added page ${res.name}`)),
+      map((res: Response) => new Page(res.name, res._id)),
       catchError(this.handleError<Page>('addPage'))
+    );
+  }
+
+  removePage(page: Page): Observable<any> {
+
+    const url = `http://localhost:4100/api/remove/${page.id}`;
+
+    return this.http.delete<Page>(url).pipe(
+      tap((res: any) => console.log(`removed page ${page.name}`)),
+      catchError(this.handleError<any>('removePage'))
     );
   }
 

@@ -2,7 +2,13 @@
 
 <ul>
   <li *ngFor="let page of pages">
-    {{page?.name}}
+    {{ page?.name }}
+    <button (click)="removePage(page)">&times;</button>
+  </li>
+
+  <li>
+    <strong>fail removePage</strong>
+    <button (click)="removePage({ id: 'aaaaaaaaaaaaaaaaaaaaaaaa' })">&times;</button>
   </li>
 </ul>
 

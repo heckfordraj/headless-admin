@@ -34,6 +34,21 @@ export class AppComponent implements OnInit {
     )
   }
 
+  removePage(page: Page){
+
+    this.serverService.removePage(page)
+    .subscribe(
+      () => {
+
+        this.pages = this.pages.filter((pages: Page) => pages !== page)
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
+
   ngOnInit(){
 
     this.serverService.getPages()
