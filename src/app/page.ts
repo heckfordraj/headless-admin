@@ -1,7 +1,7 @@
 export class Page {
-  name: boolean;
 
-  constructor(name){
-    this.name = name;
-  }
+  constructor(
+    public name: string,
+    public id: boolean
+  ){}
 }

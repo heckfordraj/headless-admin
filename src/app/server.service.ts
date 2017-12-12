@@ -23,9 +23,9 @@ export class ServerService {
 
     return this.http.get<Page[]>(url)
     .pipe(
-      tap((res: Page[]) => console.dir(res)),
-      flatMap((res: Page[]) => res),
-      map((res: Page) => new Page(res.name)),
+      tap((res: any) => console.dir(res)),
+      flatMap((res: any) => res),
+      map((res: any) => new Page(res.name, res._id)),
       catchError(this.handleError<any>(`getPages`))
     );
   }
