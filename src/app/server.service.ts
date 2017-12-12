@@ -30,7 +30,7 @@ export class ServerService {
     );
   }
 
-  addPage(page: Page): Observable<any> {
+  addPage(page: Page): Observable<Page> {
 
     const url = 'http://localhost:4100/api/add';
     const httpOptions = {
@@ -38,8 +38,9 @@ export class ServerService {
     };
 
     return this.http.post<Page>(url, page, httpOptions).pipe(
-      tap(_ => console.log(`added page`)),
-      catchError(this.handleError<any>('addPage'))
+      tap((res: any) => console.log(`added page ${res.name}`)),
+      map((res: any) => new Page(res.name, res._id)),
+      catchError(this.handleError<Page>('addPage'))
     );
   }
 

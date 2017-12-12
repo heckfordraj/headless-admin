@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
 
     this.serverService.addPage(page)
     .subscribe(
-      (page:Page) => {
+      (page: Page) => {
 
         console.log(page);
         this.pages.push(page);
