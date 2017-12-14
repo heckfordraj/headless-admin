@@ -18,7 +18,9 @@ export class AppComponent implements OnInit {
   pages: Page[] = [];
 
 
-  addPage(page: Page){
+  addPage(name: string){
+
+    let page = new Page(name);
 
     this.serverService.addPage(page)
     .subscribe(
