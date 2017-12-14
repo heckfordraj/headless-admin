@@ -13,6 +13,7 @@ interface Response {
   _id: string;
   name: string;
   slug: string;
+  type: string;
   __v: boolean;
 }
 
@@ -33,7 +34,7 @@ export class ServerService {
     .pipe(
       tap((res: Response[]) => console.dir(res)),
       flatMap((res: Response[]) => res),
-      map((res: Response) => new Page(res.name, res.slug, res._id)),
+      map((res: Response) => new Page(res.type, res.name, res.slug, res._id)),
       catchError(this.handleError<Page>(`getPages`))
     );
   }
@@ -47,7 +48,7 @@ export class ServerService {
 
     return this.http.post<Response>(url, page, httpOptions).pipe(
       tap((res: Response) => console.log(`added page ${res.name}`)),
-      map((res: Response) => new Page(res.name, res.slug, res._id)),
+      map((res: Response) => new Page(res.type, res.name, res.slug, res._id)),
       catchError(this.handleError<Page>('addPage'))
     );
   }
@@ -61,7 +62,7 @@ export class ServerService {
 
     return this.http.put<Response>(url, page, httpOptions).pipe(
       tap((res: Response) => console.log(`updated page ${res.name}`)),
-      map((res: Response) => new Page(res.name, res.slug, res._id)),
+      map((res: Response) => new Page(res.type, res.name, res.slug, res._id)),
       catchError(this.handleError<Page>('updatePage'))
     );
   }
