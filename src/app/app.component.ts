@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
 
   addPage(type: string, name: string){
 
-    let page = new Page(type, name);
+    let page = new Page(type, 'id', name, [{ type: 'text', data: 'sadasdasd' }, { type: 'image', url: 'http' }]);
 
     this.serverService.addPage(page)
     .subscribe(
@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
 
   updatePage(page: Page, name){
 
-    let pageUpdate = new Page(name, page.id);
+    let pageUpdate = new Page('page', page.id, name);
 
     this.serverService.updatePage(pageUpdate)
     .subscribe(
