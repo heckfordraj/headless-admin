@@ -14,7 +14,7 @@ import { ServerService } from './server.service';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [ServerService ],
+  providers: [ServerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

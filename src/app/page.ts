@@ -5,7 +5,7 @@ export class text {
   data: string;
 
   constructor(
-  public id: string
+    public id: string
   ){}
 }
 
@@ -23,7 +23,7 @@ export class image {
 export const Blocks = {
   data: [
     new Block['text'](undefined),
-    new Block['image'](undefined),
+    new Block['image'](undefined)
   ]
 }
 
