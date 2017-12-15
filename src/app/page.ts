@@ -14,12 +14,19 @@ export class Image {
   ){}
 }
 
+export const Blocks = {
+  data: [
+    new Text(null),
+    new Image(null)
+  ]
+}
+
 export class Page {
 
   constructor(
     public type: string,
     public id: string,
-    public name: string,
+    public name?: string,
     public data?: Array<any>,
     public slug?: string
   ){}

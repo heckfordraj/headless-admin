@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ServerService } from './server.service';
-import { Page } from './page';
+import { Page, Blocks } from './page';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
 
@@ -17,10 +17,12 @@ export class AppComponent implements OnInit {
 
   pages: Page[] = [];
 
+  blocks: {} = Blocks;
+
 
   addPage(type: string, name: string){
 
-    let page = new Page(type, 'id', name, [{ type: 'text', data: 'sadasdasd' }, { type: 'image', url: 'http' }]);
+    let page = new Page(type, 'id', name);
 
     this.serverService.addPage(page)
     .subscribe(
@@ -28,6 +30,30 @@ export class AppComponent implements OnInit {
 
         console.log(page);
         this.pages.push(page);
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
+
+  addBlock(page: Page, block: any){
+
+    let pageUpdate = new Page('page', page.id, undefined, block);
+
+    this.serverService.addBlock(pageUpdate)
+    .subscribe(
+      (page: Page) => {
+
+        this.pages = this.pages.map((pages: Page) => {
+
+          if (pages.id === page.id) {
+            pages = page;
+          }
+
+          return pages;
+        })
       },
       (err: HttpErrorResponse) => {
 

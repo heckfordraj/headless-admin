@@ -54,6 +54,20 @@ export class ServerService {
     );
   }
 
+  addBlock(page: Page): Observable<Page> {
+
+    const url = 'http://localhost:4100/api/add/field';
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    };
+
+    return this.http.post<Response>(url, page, httpOptions).pipe(
+      tap((res: Response) => console.log(res)),
+      map((res: Response) => new Page(res.type, res._id, res.name, res.data, res.slug)),
+      catchError(this.handleError<Page>('addBlock'))
+    );
+  }
+
   updatePage(page: Page): Observable<Page> {
 
     const url = 'http://localhost:4100/api/update';

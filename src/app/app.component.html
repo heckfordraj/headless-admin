@@ -5,6 +5,11 @@
     <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     {{ page?.name }}
     <button (click)="removePage(page)">&times;</button>
+    <br>
+    <button *ngFor="let block of blocks?.data" (click)="addBlock(page, block)">+ {{ block.type }}</button>
+    <ul>
+      <li *ngFor="let data of page?.data">{{ data?.type }}</li>
+    </ul>
   </li>
 </ul>
 
