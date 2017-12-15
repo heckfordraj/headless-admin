@@ -7,9 +7,24 @@
     <button (click)="removePage(page)">&times;</button>
     <br>
     <button *ngFor="let block of blocks?.data" (click)="addBlock(page, block)">+ {{ block.type }}</button>
+
     <ul>
-      <li *ngFor="let data of page?.data">{{ data?.type }}</li>
+      <li *ngFor="let data of page?.data">
+        {{ data?.type }}
+
+        <ng-container *ngIf="data?.type === 'text'">
+          <input #textInput type="text" value="{{ data?.data }}" placeholder="data" (keyup.enter)="updateBlock(page, data, { data: textInput.value})">
+          {{ data?.data }}
+        </ng-container>
+
+        <ng-container *ngIf="data?.type === 'image'">
+          <input #imageInput type="text" value="{{ data?.url }}" placeholder="url" (keyup.enter)="updateBlock(page, data, { url: imageInput.value})">
+          {{ data?.url }}
+        </ng-container>
+
+      </li>
     </ul>
+
   </li>
 </ul>
 

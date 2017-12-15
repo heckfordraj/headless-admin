@@ -1,23 +1,29 @@
-export class Text {
+export namespace Block {
+
+export class text {
   type: string = 'text';
+  data: string;
 
   constructor(
-    public data: string
+  public id: string
   ){}
 }
 
-export class Image {
+export class image {
   type: string = 'image';
+  url: string;
 
   constructor(
-    public url: string
+    public id: string
   ){}
+}
+
 }
 
 export const Blocks = {
   data: [
-    new Text(null),
-    new Image(null)
+    new Block['text'](undefined),
+    new Block['image'](undefined),
   ]
 }
 

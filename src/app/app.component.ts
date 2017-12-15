@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ServerService } from './server.service';
-import { Page, Blocks } from './page';
+import { Page, Blocks, Block } from './page';
 
 @Component({
   selector: 'app-root',
@@ -62,11 +62,36 @@ export class AppComponent implements OnInit {
     )
   }
 
-  updatePage(page: Page, name){
+  updatePage(page: Page, name: string){
 
     let pageUpdate = new Page('page', page.id, name);
 
     this.serverService.updatePage(pageUpdate)
+    .subscribe(
+      (page: Page) => {
+
+        this.pages = this.pages.map((pages: Page) => {
+
+          if (pages.id === page.id) {
+            pages = page;
+          }
+
+          return pages;
+        })
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
+
+  updateBlock(page: Page, block: any, blockUpdate: {}){
+
+    let blockBase = new Block[block.type](block._id);
+    let pageUpdate = new Page('page', page.id, undefined, Object.assign(blockBase, blockUpdate));
+
+    this.serverService.updateBlock(pageUpdate)
     .subscribe(
       (page: Page) => {
 
