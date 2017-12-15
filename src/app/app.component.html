@@ -9,19 +9,20 @@
     <button *ngFor="let block of blocks?.data" (click)="addBlock(page, block)">+ {{ block.type }}</button>
 
     <ul>
-      <li *ngFor="let data of page?.data">
-        {{ data?.type }}
+      <li *ngFor="let block of page?.data">
+        {{ block?.type }}
 
-        <ng-container *ngIf="data?.type === 'text'">
-          <input #textInput type="text" value="{{ data?.data }}" placeholder="data" (keyup.enter)="updateBlock(page, data, { data: textInput.value })">
-          {{ data?.data }}
+        <ng-container *ngIf="block?.type === 'text'">
+          <input #textInput type="text" value="{{ block?.data }}" placeholder="data" (keyup.enter)="updateBlock(page, block, { data: textInput.value })">
+          {{ block?.data }}
         </ng-container>
 
-        <ng-container *ngIf="data?.type === 'image'">
-          <input #imageInput type="text" value="{{ data?.url }}" placeholder="url" (keyup.enter)="updateBlock(page, data, { url: imageInput.value })">
-          {{ data?.url }}
+        <ng-container *ngIf="block?.type === 'image'">
+          <input #imageInput type="text" value="{{ block?.url }}" placeholder="url" (keyup.enter)="updateBlock(page, block, { url: imageInput.value })">
+          {{ block?.url }}
         </ng-container>
 
+        <button (click)="removeBlock(page, block)">&times;</button>
       </li>
     </ul>
 

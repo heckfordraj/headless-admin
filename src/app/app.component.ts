@@ -126,6 +126,21 @@ export class AppComponent implements OnInit {
     )
   }
 
+  removeBlock(page: Page, block: any){
+
+    this.serverService.removeBlock(page, block)
+    .subscribe(
+      () => {
+
+        page.data = page.data.filter((blocks: any) => blocks !== block)
+      },
+      (err: HttpErrorResponse) => {
+
+        console.log(err.statusText)
+      }
+    )
+  }
+
   ngOnInit(){
 
     this.serverService.getPages()

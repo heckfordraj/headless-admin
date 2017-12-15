@@ -11,7 +11,7 @@ import { Page } from './page';
 
 interface Response {
   _id: string;
-  data: Array<any>;
+  data: any[] | any;
   name: string;
   slug: string;
   type: string;
@@ -62,7 +62,7 @@ export class ServerService {
     };
 
     return this.http.post<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(res)),
+      tap((res: Response) => console.log(`added block ${res.data[0].type}`)),
       map((res: Response) => new Page(res.type, res._id, res.name, res.data, res.slug)),
       catchError(this.handleError<Page>('addBlock'))
     );
@@ -90,7 +90,7 @@ export class ServerService {
     };
 
     return this.http.put<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(res)),
+      tap((res: Response) => console.log(`updated block ${res.data[0].type}`)),
       map((res: Response) => new Page(res.type, res._id, res.name, res.data, res.slug)),
       catchError(this.handleError<Page>('updateBlock'))
     );
@@ -103,6 +103,16 @@ export class ServerService {
     return this.http.delete<Page>(url).pipe(
       tap((res: any) => console.log(`removed page ${page.name}`)),
       catchError(this.handleError<any>('removePage'))
+    );
+  }
+
+  removeBlock(page: Page, block: any): Observable<any> {
+
+    const url = `http://localhost:4100/api/remove/${page.id}/${block._id}`;
+
+    return this.http.delete<Page>(url).pipe(
+      tap((res: any) => console.log(`removed block ${page.name} ${block.type}`)),
+      catchError(this.handleError<any>('removeBlock'))
     );
   }
 
