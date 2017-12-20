@@ -8,6 +8,7 @@ import { EditorComponent } from './editor/editor.component';
 const routes: Routes = [
   { path: 'pages', component: PagesComponent },
   { path: 'page/:id', component: EditorComponent },
+  { path: 'page', redirectTo: '/pages', pathMatch: 'full' },
   { path: '', redirectTo: '/pages', pathMatch: 'full' }
 ];
 

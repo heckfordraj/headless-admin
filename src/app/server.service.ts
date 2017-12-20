@@ -27,9 +27,9 @@ export class ServerService {
   ){}
 
 
-  getPages(): Observable<Page> {
+  getPages(id: string = ''): Observable<Page> {
 
-    const url = 'http://localhost:4100/api/get/pages';
+    const url = `http://localhost:4100/api/get/pages/${id}`;
 
     return this.http.get<Response[]>(url)
     .pipe(

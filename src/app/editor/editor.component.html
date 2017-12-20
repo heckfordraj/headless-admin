@@ -1,3 +1,23 @@
-<p>
-  editor works!
-</p>
+<input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)"><button (click)="removePage(page)">&times;</button>
+
+<h1>{{ page?.name }}</h1>
+
+<button *ngFor="let block of blocks?.data" (click)="addBlock(page, block)">+ {{ block.type }}</button>
+
+<ul>
+  <li *ngFor="let block of page?.data">
+    {{ block?.type }}
+
+    <ng-container *ngIf="block?.type === 'text'">
+      <input #textInput type="text" value="{{ block?.data }}" placeholder="data" (keyup.enter)="updateBlock(page, block, { data: textInput.value })">
+      {{ block?.data }}
+    </ng-container>
+
+    <ng-container *ngIf="block?.type === 'image'">
+      <input #imageInput type="text" value="{{ block?.url }}" placeholder="url" (keyup.enter)="updateBlock(page, block, { url: imageInput.value })">
+      {{ block?.url }}
+    </ng-container>
+
+    <button (click)="removeBlock(page, block)">&times;</button>
+  </li>
+</ul>
