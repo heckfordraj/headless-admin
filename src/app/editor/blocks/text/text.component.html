@@ -1,0 +1,2 @@
+<input #textInput type="text" value="{{ block?.data }}" placeholder="data" (keyup.enter)="this.editorComponent.updateBlock(block, { data: textInput.value })">
+{{ block?.data }}

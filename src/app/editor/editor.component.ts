@@ -22,10 +22,11 @@ export class EditorComponent implements OnInit {
 
   page: Page;
 
+  // TODO: Dynamically load block template https://angular.io/guide/dynamic-component-loader
 
-  updatePage(page: Page, name: string){
+  updatePage(name: string){
 
-    let pageUpdate = new Page('page', page.id, name);
+    let pageUpdate = new Page('page', this.page.id, name);
 
     this.serverService.updatePage(pageUpdate)
     .subscribe(
@@ -37,9 +38,9 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  removePage(page: Page){
+  removePage(){
 
-    this.serverService.removePage(page)
+    this.serverService.removePage(this.page)
     .subscribe(
       () => this.page = null,
       (err: HttpErrorResponse) => {
@@ -49,9 +50,9 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  addBlock(page: Page, block: any){
+  addBlock(block: any){
 
-    let pageUpdate = new Page('page', page.id, undefined, block);
+    let pageUpdate = new Page('page', this.page.id, undefined, block);
 
     this.serverService.addBlock(pageUpdate)
     .subscribe(
@@ -63,10 +64,10 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  updateBlock(page: Page, block: any, blockUpdate: {}){
+  updateBlock(block: any, blockUpdate: {}){
 
     let blockBase = new Block[block.type](block._id);
-    let pageUpdate = new Page('page', page.id, undefined, Object.assign(blockBase, blockUpdate));
+    let pageUpdate = new Page('page', this.page.id, undefined, Object.assign(blockBase, blockUpdate));
 
     this.serverService.updateBlock(pageUpdate)
     .subscribe(
@@ -78,13 +79,13 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  removeBlock(page: Page, block: any){
+  removeBlock(block: any){
 
-    this.serverService.removeBlock(page, block)
+    this.serverService.removeBlock(this.page, block)
     .subscribe(
       () => {
 
-        page.data = page.data.filter((blocks: any) => blocks !== block)
+        this.page.data = this.page.data.filter((blocks: any) => blocks !== block)
       },
       (err: HttpErrorResponse) => {
 

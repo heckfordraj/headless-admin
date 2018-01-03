@@ -8,12 +8,16 @@ import { ServerService } from './server.service';
 import { AppComponent } from './app.component';
 import { PagesComponent } from './pages/pages.component';
 import { EditorComponent } from './editor/editor.component';
+import { TextComponent } from './editor/blocks/text/text.component';
+import { ImageComponent } from './editor/blocks/image/image.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PagesComponent,
-    EditorComponent
+    EditorComponent,
+    TextComponent,
+    ImageComponent
   ],
   imports: [
     BrowserModule,
