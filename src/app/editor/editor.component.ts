@@ -19,10 +19,8 @@ export class EditorComponent implements OnInit {
   ) { }
 
   blocks: {} = Blocks;
-
   page: Page;
 
-  // TODO: Dynamically load block template https://angular.io/guide/dynamic-component-loader
 
   updatePage(name: string){
 

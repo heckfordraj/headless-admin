@@ -8,12 +8,9 @@
   <li *ngFor="let block of page?.data">
     {{ block?.type }}
 
-    <ng-container *ngIf="block?.type === 'text'">
-      <text [block]="block"></text>
-    </ng-container>
-
-    <ng-container *ngIf="block?.type === 'image'">
-      <image [block]="block"></image>
+    <ng-container [ngSwitch]="block?.type">
+      <text *ngSwitchCase="'text'" [block]="block"></text>
+      <image *ngSwitchCase="'image'" [block]="block"></image>
     </ng-container>
 
     <button (click)="removeBlock(block)">&times;</button>
