@@ -1,19 +1,40 @@
 export namespace Block {
 
-  class textdata {
-    text: string = null;
-  }
-
-  export class text {
-    type: string = 'text';
+  export class Base {
+    type: string;
 
     constructor(
       public id: string,
-      public data: textdata[] = []
+      public data: any[]
     ){}
   }
 
-  class imagedata {
+  export class BaseData {
+    constructor(
+      public text: string
+    ){}
+  }
+
+  export class textdata extends BaseData {
+    constructor(
+      public text = null
+    ){
+      super(text)
+    }
+  }
+
+  export class text extends Base {
+    type: string = 'text';
+
+    constructor(
+      public id,
+      public data: textdata[]
+    ){
+      super(id, data);
+    }
+  }
+
+  export class imagedata {
     url: string = null;
   }
 
@@ -30,7 +51,7 @@ export namespace Block {
 
 export const Blocks = {
   data: [
-    new Block['text'](null),
+    new Block['text'](null, [ new Block['textdata']() ]),
     new Block['image'](null)
   ]
 }

@@ -10,13 +10,23 @@ import { Page } from './page';
 import { Block } from './block';
 
 
-interface Response {
-  _id: string;
-  data: any[] | any;
-  name: string;
-  slug: string;
-  type: string;
-  __v: boolean;
+namespace Response {
+
+  export interface Page {
+    _id: string;
+    data: any[] | any;
+    name: string;
+    slug: string;
+    type: string;
+    __v: boolean;
+  };
+
+  export interface Block {
+    _id: string;
+    type: string;
+    data: any[] | any;
+  }
+
 }
 
 
@@ -32,11 +42,11 @@ export class ServerService {
 
     const url = `http://localhost:4100/api/get/pages/${id}`;
 
-    return this.http.get<Response[]>(url)
+    return this.http.get<Response.Page[]>(url)
     .pipe(
-      tap((res: Response[]) => console.dir(res)),
-      flatMap((res: Response[]) => res),
-      map((res: Response) => new Page(res.type, res._id, res.name,
+      tap((res: Response.Page[]) => console.dir(res)),
+      flatMap((res: Response.Page[]) => res),
+      map((res: Response.Page) => new Page(res.type, res._id, res.name,
         res.data.map((block) => new Block[block.type](block._id, block.data)),
         res.slug)),
       catchError(this.handleError<Page>(`getPages`))
@@ -50,9 +60,9 @@ export class ServerService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.post<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(`added page ${res.name}`)),
-      map((res: Response) => new Page(res.type, res._id, res.name, res.data, res.slug)),
+    return this.http.post<Response.Page>(url, page, httpOptions).pipe(
+      tap((res: Response.Page) => console.log(`added page ${res.name}`)),
+      map((res: Response.Page) => new Page(res.type, res._id, res.name, res.data, res.slug)),
       catchError(this.handleError<Page>('addPage'))
     );
   }
@@ -64,23 +74,23 @@ export class ServerService {
     let formData = new FormData();
     formData.append('image', file);
 
-    return this.http.post<Response>(url, formData).pipe(
-      tap((res: Response) => console.log('addFile')),
-      catchError(this.handleError<Page>('addFile'))
+    return this.http.post<any>(url, formData).pipe(
+      tap((res: any) => console.log('addFile')),
+      catchError(this.handleError<any>('addFile'))
     );
   }
 
-  addBlock(page: Page): Observable<any> {
+  addBlock(page: Page): Observable<Block.Base> {
 
     const url = 'http://localhost:4100/api/add/field';
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.post<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(`added block ${res.type}`)),
-      map((res: Response) => new Block[res.type](res._id)),
-      catchError(this.handleError<any>('addBlock'))
+    return this.http.post<Response.Block>(url, page, httpOptions).pipe(
+      tap((res: Response.Block) => console.log(`added block ${res.type}`)),
+      map((res: Response.Block) => new Block[res.type](res._id, res.data)),
+      catchError(this.handleError<Block.Base>('addBlock'))
     );
   }
 
@@ -91,9 +101,9 @@ export class ServerService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.put<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(`updated page ${res.name}`)),
-      map((res: Response) => new Page(res.type, res._id, res.name, res.data, res.slug)),
+    return this.http.put<Response.Page>(url, page, httpOptions).pipe(
+      tap((res: Response.Page) => console.log(`updated page ${res.name}`)),
+      map((res: Response.Page) => new Page(res.type, res._id, res.name, res.data, res.slug)),
       catchError(this.handleError<Page>('updatePage'))
     );
   }
@@ -105,9 +115,9 @@ export class ServerService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.put<Response>(url, page, httpOptions).pipe(
-      tap((res: Response) => console.log(`updated block ${res.type}`)),
-      map((res: Response) => new Block[res.type](res._id, res.data)),
+    return this.http.put<Response.Block>(url, page, httpOptions).pipe(
+      tap((res: Response.Block) => console.log(`updated block ${res.type}`)),
+      map((res: Response.Block) => new Block[res.type](res._id, res.data)),
       catchError(this.handleError<any>('updateBlock'))
     );
   }

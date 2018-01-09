@@ -60,9 +60,9 @@ export class EditorComponent implements OnInit {
 
   addBlock(block: any){
 
-    let pageUpdate = new Page('page', this.page.id, undefined, block);
+    let page = new Page('page', this.page.id, undefined, block);
 
-    this.serverService.addBlock(pageUpdate)
+    this.serverService.addBlock(page)
     .subscribe(
       (block: any) => this.page.data.push(block),
       (err: HttpErrorResponse) => {
@@ -72,12 +72,11 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  updateBlock(block: any, blockUpdate: any[]){
+  updateBlock(block: any){
 
-    let blockBase = new Block[block.type](block.id);
-    let pageUpdate = new Page('page', this.page.id, undefined, Object.assign(blockBase, { data: blockUpdate }));
+    let page = new Page('page', this.page.id, undefined, block);
 
-    this.serverService.updateBlock(pageUpdate)
+    this.serverService.updateBlock(page)
     .subscribe(
       (block: any) => this.page.data = this.page.data.map((blocks: any) => {
 
