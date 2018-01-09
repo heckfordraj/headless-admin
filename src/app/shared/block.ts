@@ -1,35 +1,28 @@
 export namespace Block {
 
+  export namespace Data {
+
+    export class TextData {
+      constructor(
+        public text: string = null
+      ){ }
+    }
+
+    export class ImageData {
+      constructor(
+        public url: string = null
+      ){ }
+    }
+  }
+
   export class Base {
 
     constructor(
       public type: string,
       public id: string,
       public data: any[]
-    ){}
+    ){ }
   }
-
-export namespace Data {
-
-  export class Base {
-    constructor(
-      public text: string
-    ){}
-  }
-
-  export class TextData extends Base {
-    constructor(
-      public text = null
-    ){
-      super(text)
-    }
-  }
-
-}
-
-
-
-
 
   export class Text extends Base {
 
@@ -42,24 +35,21 @@ export namespace Data {
     }
   }
 
-  export class imagedata {
-    url: string = null;
-  }
-
-  export class image {
-    type: string = 'image';
+  export class Image extends Base {
 
     constructor(
-      public id: string,
-      public data: imagedata[] = []
-    ){}
+      public id,
+      public data: Data.ImageData[],
+      public type = 'image'
+    ){
+      super(type, id, data);
+    }
   }
-
 }
 
 export const Blocks = {
   data: [
     new Block.Text(null, [ new Block.Data.TextData() ]),
-    new Block['image'](null)
+    new Block.Image(null, [ new Block.Data.ImageData() ])
   ]
-}
+};

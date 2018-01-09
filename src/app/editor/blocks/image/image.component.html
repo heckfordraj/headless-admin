@@ -1,2 +1,4 @@
-<input #imageInput type="text" value="{{ block?.data[0]?.url }}" placeholder="url" (keyup.enter)="this.editorComponent.updateBlock(block, [{ url: imageInput.value }])">
+{{ block | json }}
+
+<input #imageInput type="text" value="{{ block?.data[0]?.url }}" placeholder="url" (keyup.enter)="updateURL(imageInput.value)">
 {{ block?.data[0]?.url }}

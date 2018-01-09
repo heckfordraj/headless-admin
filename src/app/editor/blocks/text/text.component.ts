@@ -21,11 +21,11 @@ export class TextComponent implements BlockInterface {
   set block(block: Block.Base) {
 
     this._block = new Block.Text(block.id,
-      block.data.map((data: Block.Data.Base) =>
+      block.data.map((data: Block.Data.TextData) =>
       new Block.Data.TextData(data.text)
     ));
   }
-  get block(): Block.Base { return this._block; }
+  get block() { return this._block; }
 
 
   updateText(text: string) {

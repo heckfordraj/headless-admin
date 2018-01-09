@@ -1,4 +1,4 @@
 {{ block | json }}
 
-<input #textInput type="text" value="{{ block?.data[0]?.text }}" placeholder="text" (keyup.enter)="this.updateText(textInput.value)">
+<input #textInput type="text" value="{{ block?.data[0]?.text }}" placeholder="text" (keyup.enter)="updateText(textInput.value)">
 {{ block?.data[0]?.text }}

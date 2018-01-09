@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 import { BlockInterface } from '../block.interface';
 import { EditorComponent } from '../../editor.component';
+import { Block } from '../../../shared/block';
 
 @Component({
   selector: 'image',
@@ -14,6 +15,23 @@ export class ImageComponent implements BlockInterface {
     private editorComponent: EditorComponent
   ){ }
 
-  @Input() block: any;
+  private _block: Block.Image;
+
+  @Input()
+  set block(block: Block.Base) {
+
+    this._block = new Block.Image(block.id,
+      block.data.map((data: Block.Data.ImageData) =>
+      new Block.Data.ImageData(data.url)
+    ));
+  }
+  get block() { return this._block; }
+
+
+  updateURL(url: string) {
+
+    let block = new Block.Image(this.block.id, [ new Block.Data.ImageData(url) ]);
+    this.editorComponent.updateBlock(block);
+  }
 
 }
