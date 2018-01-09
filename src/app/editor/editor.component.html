@@ -16,3 +16,5 @@
     <button (click)="removeBlock(block)">&times;</button>
   </li>
 </ul>
+
+<input type="file" (change)="addFile($event.target.files)" accept="image/*">

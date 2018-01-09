@@ -1,2 +1,2 @@
-<input #textInput type="text" value="{{ block?.data }}" placeholder="data" (keyup.enter)="this.editorComponent.updateBlock(block, { data: textInput.value })">
-{{ block?.data }}
+<input #textInput type="text" value="{{ block?.data[0]?.text }}" placeholder="data" (keyup.enter)="this.editorComponent.updateBlock(block, [{ text: textInput.value }])">
+{{ block?.data[0]?.text }}

@@ -22,6 +22,15 @@ export class EditorComponent implements OnInit {
   page: Page;
 
 
+  addFile(files: FileList) {
+
+    this.serverService.addFile(files[0])
+    .subscribe((res: any) => {
+
+      console.log(res);
+    });
+  }
+
   updatePage(name: string){
 
     let pageUpdate = new Page('page', this.page.id, name);
@@ -54,7 +63,7 @@ export class EditorComponent implements OnInit {
 
     this.serverService.addBlock(pageUpdate)
     .subscribe(
-      (page: Page) => this.page = page,
+      (block: any) => this.page.data.push(block),
       (err: HttpErrorResponse) => {
 
         console.log(err.statusText)
@@ -62,14 +71,21 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  updateBlock(block: any, blockUpdate: {}){
+  updateBlock(block: any, blockUpdate: any[]){
 
-    let blockBase = new Block[block.type](block._id);
-    let pageUpdate = new Page('page', this.page.id, undefined, Object.assign(blockBase, blockUpdate));
+    let blockBase = new Block[block.type](block.id);
+    let pageUpdate = new Page('page', this.page.id, undefined, Object.assign(blockBase, { data: blockUpdate }));
 
     this.serverService.updateBlock(pageUpdate)
     .subscribe(
-      (page: Page) => this.page = page,
+      (block: any) => this.page.data = this.page.data.map((blocks: any) => {
+
+        if (blocks.id === block.id) {
+          blocks = block;
+        }
+
+        return blocks;
+      }),
       (err: HttpErrorResponse) => {
 
         console.log(err.statusText)
