@@ -47,7 +47,7 @@ export class ServerService {
       tap((res: Response.Page[]) => console.dir(res)),
       flatMap((res: Response.Page[]) => res),
       map((res: Response.Page) => new Page(res.type, res._id, res.name,
-        res.data.map((block) => new Block[block.type](block._id, block.data)),
+        res.data.map((block: Response.Block) => new Block.Base(block.type, block._id, block.data)),
         res.slug)),
       catchError(this.handleError<Page>(`getPages`))
     );

@@ -15,14 +15,14 @@ export class TextComponent implements BlockInterface {
     private editorComponent: EditorComponent
   ){ }
 
-  private _block: Block.text;
+  private _block: Block.Text;
 
   @Input()
   set block(block: Block.Base) {
 
-    this._block = new Block.text(block.id,
-      block.data.map((data: Block.BaseData) =>
-      new Block.textdata(data.text)
+    this._block = new Block.Text(block.id,
+      block.data.map((data: Block.Data.Base) =>
+      new Block.Data.TextData(data.text)
     ));
   }
   get block(): Block.Base { return this._block; }
@@ -30,7 +30,7 @@ export class TextComponent implements BlockInterface {
 
   updateText(text: string) {
 
-    let block = new Block.text(this.block.id, [ new Block.textdata(text) ]);
+    let block = new Block.Text(this.block.id, [ new Block.Data.TextData(text) ]);
     this.editorComponent.updateBlock(block);
   }
 

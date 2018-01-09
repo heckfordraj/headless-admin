@@ -9,13 +9,15 @@ export namespace Block {
     ){}
   }
 
-  export class BaseData {
+export namespace Data {
+
+  export class Base {
     constructor(
       public text: string
     ){}
   }
 
-  export class textdata extends BaseData {
+  export class TextData extends Base {
     constructor(
       public text = null
     ){
@@ -23,11 +25,17 @@ export namespace Block {
     }
   }
 
-  export class text extends Base {
+}
+
+
+
+
+
+  export class Text extends Base {
 
     constructor(
       public id,
-      public data: textdata[],
+      public data: Data.TextData[],
       public type = 'text'
     ){
       super(type, id, data);
@@ -51,7 +59,7 @@ export namespace Block {
 
 export const Blocks = {
   data: [
-    new Block['text'](null, [ new Block['textdata']() ]),
+    new Block.Text(null, [ new Block.Data.TextData() ]),
     new Block['image'](null)
   ]
 }
