@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ServerService } from '../server.service';
-import { Page, Blocks, Block } from '../page';
+import { ServerService } from '../shared/server.service';
+import { Page } from '../shared/page';
+import { Blocks, Block } from '../shared/block';
 
 @Component({
   selector: 'app-editor',

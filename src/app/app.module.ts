@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
 import { RoutingModule } from './routing.module';
-import { ServerService } from './server.service';
+import { ServerService } from './shared/server.service';
 
 import { AppComponent } from './app.component';
 import { PagesComponent } from './pages/pages.component';

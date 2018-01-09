@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ServerService } from '../server.service';
-import { Page } from '../page';
+import { ServerService } from '../shared/server.service';
+import { Page } from '../shared/page';
 
 @Component({
   selector: 'app-pages',

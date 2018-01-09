@@ -6,7 +6,8 @@ import { of } from 'rxjs/observable/of';
 import { catchError, tap, map, flatMap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
-import { Page, Block } from './page';
+import { Page } from './page';
+import { Block } from './block';
 
 
 interface Response {
