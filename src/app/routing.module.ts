@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { PagesComponent } from './pages/pages.component';
 import { EditorComponent } from './editor/editor.component';
 
-
 const routes: Routes = [
   { path: 'pages', component: PagesComponent },
   { path: 'page/:id', component: EditorComponent },
@@ -13,12 +12,8 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes)
-  ],
-  exports: [
-    RouterModule
-  ],
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
   declarations: []
 })
-export class RoutingModule { }
+export class RoutingModule {}

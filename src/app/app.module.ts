@@ -19,12 +19,8 @@ import { ImageComponent } from './editor/blocks/image/image.component';
     TextComponent,
     ImageComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    RoutingModule
-  ],
+  imports: [BrowserModule, HttpClientModule, RoutingModule],
   providers: [ServerService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
