@@ -1,4 +1,4 @@
 {{ block | json }}
 
-<input #imageInput type="text" value="{{ block?.data[0]?.url }}" placeholder="url" (keyup.enter)="updateURL(imageInput.value)">
-{{ block?.data[0]?.url }}
+<input type="file" (change)="addFile($event.target.files)" accept="image/*">
+<img *ngFor="let image of block?.data" src="http://localhost:4100/image/{{ image?.xs }}">

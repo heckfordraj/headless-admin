@@ -17,13 +17,12 @@ export class PagesComponent implements OnInit {
   addPage(type: string, name: string) {
     const pageBase = new Page(type, null, name);
 
-    this.serverService.addPage(pageBase).subscribe(
-      (page: Page) => {
-        console.log(page);
-        this.pages.push(page);
-      },
-      (err: HttpErrorResponse) => console.log(err.statusText)
-    );
+    this.serverService
+      .addPage(pageBase)
+      .subscribe(
+        (page: Page) => this.pages.push(page),
+        (err: HttpErrorResponse) => console.log(err.statusText)
+      );
   }
 
   updatePage(page: Page, name: string) {

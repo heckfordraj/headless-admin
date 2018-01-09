@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 import { BlockInterface } from '../block.interface';
+import { ServerService } from '../../../shared/server.service';
 import { EditorComponent } from '../../editor.component';
 import { Block } from '../../../shared/block';
 
@@ -10,7 +11,10 @@ import { Block } from '../../../shared/block';
   styleUrls: ['./image.component.scss']
 })
 export class ImageComponent implements BlockInterface {
-  constructor(private editorComponent: EditorComponent) {}
+  constructor(
+    private serverService: ServerService,
+    private editorComponent: EditorComponent
+  ) {}
 
   private _block: Block.Image;
 
@@ -19,7 +23,8 @@ export class ImageComponent implements BlockInterface {
     this._block = new Block.Image(
       block.id,
       block.data.map(
-        (data: Block.Data.ImageData) => new Block.Data.ImageData(data.url)
+        (data: Block.Data.ImageData) =>
+          new Block.Data.ImageData(data.xs, data.sm, data.md, data.lg)
       )
     );
   }
@@ -27,10 +32,14 @@ export class ImageComponent implements BlockInterface {
     return this._block;
   }
 
-  updateURL(url: string) {
-    const block = new Block.Image(this.block.id, [
-      new Block.Data.ImageData(url)
-    ]);
-    this.editorComponent.updateBlock(block);
+  addFile(files: FileList) {
+    this.serverService
+      .addFile(files[0])
+      .subscribe((res: Block.Data.ImageData) => {
+        const block = new Block.Image(this.block.id, [
+          new Block.Data.ImageData(res.xs, res.sm, res.md, res.lg)
+        ]);
+        this.editorComponent.updateBlock(block);
+      });
   }
 }

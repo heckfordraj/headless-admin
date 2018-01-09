@@ -21,12 +21,6 @@ export class EditorComponent implements OnInit {
   blocks: {} = Blocks;
   page: Page;
 
-  addFile(files: FileList) {
-    this.serverService.addFile(files[0]).subscribe((res: any) => {
-      console.log(res);
-    });
-  }
-
   updatePage(name: string) {
     const pageUpdate = new Page('page', this.page.id, name);
 

@@ -5,7 +5,12 @@ export namespace Block {
     }
 
     export class ImageData {
-      constructor(public url: string = null) {}
+      constructor(
+        public xs: string,
+        public sm: string,
+        public md: string,
+        public lg: string
+      ) {}
     }
   }
 
@@ -33,6 +38,6 @@ export namespace Block {
 export const Blocks = {
   data: [
     new Block.Text(null, [new Block.Data.TextData()]),
-    new Block.Image(null, [new Block.Data.ImageData()])
+    new Block.Image(null, [new Block.Data.ImageData(null, null, null, null)])
   ]
 };
