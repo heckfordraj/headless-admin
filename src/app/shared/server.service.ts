@@ -89,7 +89,7 @@ export class ServerService {
 
     return this.http.post<Response.Block>(url, page, httpOptions).pipe(
       tap((res: Response.Block) => console.log(`added block ${res.type}`)),
-      map((res: Response.Block) => new Block[res.type](res._id, res.data)),
+      map((res: Response.Block) => new Block.Base(res.type, res._id, res.data)),
       catchError(this.handleError<Block.Base>('addBlock'))
     );
   }
@@ -108,7 +108,7 @@ export class ServerService {
     );
   }
 
-  updateBlock(page: Page): Observable<any> {
+  updateBlock(page: Page): Observable<Block.Base> {
 
     const url = 'http://localhost:4100/api/update/field';
     const httpOptions = {
@@ -117,8 +117,8 @@ export class ServerService {
 
     return this.http.put<Response.Block>(url, page, httpOptions).pipe(
       tap((res: Response.Block) => console.log(`updated block ${res.type}`)),
-      map((res: Response.Block) => new Block[res.type](res._id, res.data)),
-      catchError(this.handleError<any>('updateBlock'))
+      map((res: Response.Block) => new Block.Base(res.type, res._id, res.data)),
+      catchError(this.handleError<Block.Base>('updateBlock'))
     );
   }
 
@@ -126,17 +126,17 @@ export class ServerService {
 
     const url = `http://localhost:4100/api/remove/${page.id}`;
 
-    return this.http.delete<Page>(url).pipe(
+    return this.http.delete(url).pipe(
       tap((res: any) => console.log(`removed page ${page.name}`)),
       catchError(this.handleError<any>('removePage'))
     );
   }
 
-  removeBlock(page: Page, block: any): Observable<any> {
+  removeBlock(page: Page, block: Block.Base): Observable<any> {
 
     const url = `http://localhost:4100/api/remove/${page.id}/${block.id}`;
 
-    return this.http.delete<Page>(url).pipe(
+    return this.http.delete(url).pipe(
       tap((res: any) => console.log(`removed block ${page.name} ${block.type}`)),
       catchError(this.handleError<any>('removeBlock'))
     );

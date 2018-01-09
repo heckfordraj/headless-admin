@@ -58,13 +58,13 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  addBlock(block: any){
+  addBlock(block: Block.Base){
 
     let page = new Page('page', this.page.id, undefined, block);
 
     this.serverService.addBlock(page)
     .subscribe(
-      (block: any) => this.page.data.push(block),
+      (block: Block.Base) => (<Block.Base[]>this.page.data).push(block),
       (err: HttpErrorResponse) => {
 
         console.log(err.statusText)
@@ -72,13 +72,13 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  updateBlock(block: any){
+  updateBlock(block: Block.Base){
 
     let page = new Page('page', this.page.id, undefined, block);
 
     this.serverService.updateBlock(page)
     .subscribe(
-      (block: any) => this.page.data = this.page.data.map((blocks: any) => {
+      (block: Block.Base) => this.page.data = (<Block.Base[]>this.page.data).map((blocks: Block.Base) => {
 
         if (blocks.id === block.id) {
           blocks = block;
@@ -93,13 +93,13 @@ export class EditorComponent implements OnInit {
     )
   }
 
-  removeBlock(block: any){
+  removeBlock(block: Block.Base){
 
     this.serverService.removeBlock(this.page, block)
     .subscribe(
       () => {
 
-        this.page.data = this.page.data.filter((blocks: any) => blocks !== block)
+        this.page.data = (<Block.Base[]>this.page.data).filter((blocks: Block.Base) => blocks !== block)
       },
       (err: HttpErrorResponse) => {
 

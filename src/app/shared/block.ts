@@ -1,9 +1,9 @@
 export namespace Block {
 
   export class Base {
-    type: string;
 
     constructor(
+      public type: string,
       public id: string,
       public data: any[]
     ){}
@@ -24,13 +24,13 @@ export namespace Block {
   }
 
   export class text extends Base {
-    type: string = 'text';
 
     constructor(
       public id,
-      public data: textdata[]
+      public data: textdata[],
+      public type = 'text'
     ){
-      super(id, data);
+      super(type, id, data);
     }
   }
 

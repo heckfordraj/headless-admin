@@ -15,7 +15,7 @@ export class TextComponent implements BlockInterface {
     private editorComponent: EditorComponent
   ){ }
 
-  private _block: any;
+  private _block: Block.text;
 
   @Input()
   set block(block: Block.Base) {
