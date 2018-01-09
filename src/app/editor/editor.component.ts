@@ -32,49 +32,40 @@ export class EditorComponent implements OnInit {
     });
   }
 
-  updatePage(name: string){
+  updatePage(name: string) {
 
-    let pageUpdate = new Page('page', this.page.id, name);
+    const pageUpdate = new Page('page', this.page.id, name);
 
     this.serverService.updatePage(pageUpdate)
     .subscribe(
       (page: Page) => this.page = page,
-      (err: HttpErrorResponse) => {
-
-        console.log(err.statusText)
-      }
-    )
+      (err: HttpErrorResponse) => console.log(err.statusText)
+    );
   }
 
-  removePage(){
+  removePage() {
 
     this.serverService.removePage(this.page)
     .subscribe(
       () => this.page = null,
-      (err: HttpErrorResponse) => {
-
-        console.log(err.statusText)
-      }
-    )
+      (err: HttpErrorResponse) => console.log(err.statusText)
+    );
   }
 
-  addBlock(block: Block.Base){
+  addBlock(block: Block.Base) {
 
-    let page = new Page('page', this.page.id, undefined, block);
+    const page = new Page('page', this.page.id, undefined, block);
 
     this.serverService.addBlock(page)
     .subscribe(
       (block: Block.Base) => (<Block.Base[]>this.page.data).push(block),
-      (err: HttpErrorResponse) => {
-
-        console.log(err.statusText)
-      }
-    )
+      (err: HttpErrorResponse) => console.log(err.statusText)
+    );
   }
 
-  updateBlock(block: Block.Base){
+  updateBlock(block: Block.Base) {
 
-    let page = new Page('page', this.page.id, undefined, block);
+    const page = new Page('page', this.page.id, undefined, block);
 
     this.serverService.updateBlock(page)
     .subscribe(
@@ -86,34 +77,25 @@ export class EditorComponent implements OnInit {
 
         return blocks;
       }),
-      (err: HttpErrorResponse) => {
-
-        console.log(err.statusText)
-      }
-    )
+      (err: HttpErrorResponse) => console.log(err.statusText)
+    );
   }
 
-  removeBlock(block: Block.Base){
+  removeBlock(block: Block.Base) {
 
     this.serverService.removeBlock(this.page, block)
     .subscribe(
-      () => {
-
-        this.page.data = (<Block.Base[]>this.page.data).filter((blocks: Block.Base) => blocks !== block)
-      },
-      (err: HttpErrorResponse) => {
-
-        console.log(err.statusText)
-      }
-    )
+      () => this.page.data = (<Block.Base[]>this.page.data).filter((blocks: Block.Base) => blocks !== block),
+      (err: HttpErrorResponse) => console.log(err.statusText)
+    );
   }
 
   ngOnInit() {
 
-    let id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
 
     this.serverService.getPages(id)
-    .subscribe((page: Page) => this.page = page)
+    .subscribe((page: Page) => this.page = page);
   }
 
 }

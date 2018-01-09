@@ -5,7 +5,7 @@ import { EditorComponent } from '../../editor.component';
 import { Block } from '../../../shared/block';
 
 @Component({
-  selector: 'image',
+  selector: 'app-image',
   templateUrl: './image.component.html',
   styleUrls: ['./image.component.scss']
 })
@@ -13,7 +13,7 @@ export class ImageComponent implements BlockInterface {
 
   constructor(
     private editorComponent: EditorComponent
-  ){ }
+  ) { }
 
   private _block: Block.Image;
 
@@ -30,7 +30,7 @@ export class ImageComponent implements BlockInterface {
 
   updateURL(url: string) {
 
-    let block = new Block.Image(this.block.id, [ new Block.Data.ImageData(url) ]);
+    const block = new Block.Image(this.block.id, [ new Block.Data.ImageData(url) ]);
     this.editorComponent.updateBlock(block);
   }
 

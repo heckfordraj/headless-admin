@@ -5,13 +5,13 @@ export namespace Block {
     export class TextData {
       constructor(
         public text: string = null
-      ){ }
+      ) { }
     }
 
     export class ImageData {
       constructor(
         public url: string = null
-      ){ }
+      ) { }
     }
   }
 
@@ -21,7 +21,7 @@ export namespace Block {
       public type: string,
       public id: string,
       public data: any[]
-    ){ }
+    ) { }
   }
 
   export class Text extends Base {
@@ -30,7 +30,7 @@ export namespace Block {
       public id,
       public data: Data.TextData[],
       public type = 'text'
-    ){
+    ) {
       super(type, id, data);
     }
   }
@@ -41,7 +41,7 @@ export namespace Block {
       public id,
       public data: Data.ImageData[],
       public type = 'image'
-    ){
+    ) {
       super(type, id, data);
     }
   }

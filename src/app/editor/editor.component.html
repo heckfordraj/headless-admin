@@ -9,8 +9,8 @@
     {{ block?.type }}
 
     <ng-container [ngSwitch]="block?.type">
-      <text *ngSwitchCase="'text'" [block]="block"></text>
-      <image *ngSwitchCase="'image'" [block]="block"></image>
+      <app-text *ngSwitchCase="'text'" [block]="block"></app-text>
+      <app-image *ngSwitchCase="'image'" [block]="block"></app-image>
     </ng-container>
 
     <button (click)="removeBlock(block)">&times;</button>

@@ -19,7 +19,7 @@ namespace Response {
     slug: string;
     type: string;
     __v: boolean;
-  };
+  }
 
   export interface Block {
     _id: string;
@@ -35,7 +35,7 @@ export class ServerService {
 
   constructor(
     private http: HttpClient
-  ){}
+  ) { }
 
 
   getPages(id: string = ''): Observable<Page> {
@@ -71,7 +71,7 @@ export class ServerService {
 
     const url = 'http://localhost:4100/upload';
 
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append('image', file);
 
     return this.http.post<any>(url, formData).pipe(

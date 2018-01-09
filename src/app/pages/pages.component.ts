@@ -13,76 +13,57 @@ export class PagesComponent implements OnInit {
 
     constructor(
       private serverService: ServerService
-    ){}
+    ) { }
 
     pages: Page[] = [];
 
 
-    addPage(type: string, name: string){
+    addPage(type: string, name: string) {
 
-      let page = new Page(type, 'id', name);
+      const pageBase = new Page(type, null, name);
 
-      this.serverService.addPage(page)
+      this.serverService.addPage(pageBase)
       .subscribe(
         (page: Page) => {
 
           console.log(page);
           this.pages.push(page);
         },
-        (err: HttpErrorResponse) => {
-
-          console.log(err.statusText)
-        }
-      )
+        (err: HttpErrorResponse) => console.log(err.statusText)
+      );
     }
 
-    updatePage(page: Page, name: string){
+    updatePage(page: Page, name: string) {
 
-      let pageUpdate = new Page('page', page.id, name);
+      const pageUpdate = new Page('page', page.id, name);
 
       this.serverService.updatePage(pageUpdate)
       .subscribe(
-        (page: Page) => {
-
-          this.pages = this.pages.map((pages: Page) => {
+        (page: Page) => this.pages = this.pages.map((pages: Page) => {
 
             if (pages.id === page.id) {
               pages = page;
             }
 
             return pages;
-          })
-        },
-        (err: HttpErrorResponse) => {
-
-          console.log(err.statusText)
-        }
-      )
+          }),
+        (err: HttpErrorResponse) => console.log(err.statusText)
+      );
     }
 
-    removePage(page: Page){
+    removePage(page: Page) {
 
       this.serverService.removePage(page)
       .subscribe(
-        () => {
-
-          this.pages = this.pages.filter((pages: Page) => pages !== page)
-        },
-        (err: HttpErrorResponse) => {
-
-          console.log(err.statusText)
-        }
-      )
+        () => this.pages = this.pages.filter((pages: Page) => pages !== page),
+        (err: HttpErrorResponse) => console.log(err.statusText)
+      );
     }
 
-    ngOnInit(){
+    ngOnInit() {
 
       this.serverService.getPages()
-      .subscribe((page: Page) => {
-
-        console.log(page);
-        this.pages.push(page);
-      })
+      .subscribe((page: Page) => this.pages.push(page));
     }
 
   }

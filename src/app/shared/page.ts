@@ -8,5 +8,5 @@ export class Page {
     public name?: string,
     public data?: Block.Base[] | Block.Base,
     public slug?: string
-  ){}
+  ) { }
 }

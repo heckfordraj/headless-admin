@@ -5,7 +5,7 @@ import { EditorComponent } from '../../editor.component';
 import { Block } from '../../../shared/block';
 
 @Component({
-  selector: 'text',
+  selector: 'app-text',
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.scss']
 })
@@ -13,7 +13,7 @@ export class TextComponent implements BlockInterface {
 
   constructor(
     private editorComponent: EditorComponent
-  ){ }
+  ) { }
 
   private _block: Block.Text;
 
@@ -30,7 +30,7 @@ export class TextComponent implements BlockInterface {
 
   updateText(text: string) {
 
-    let block = new Block.Text(this.block.id, [ new Block.Data.TextData(text) ]);
+    const block = new Block.Text(this.block.id, [ new Block.Data.TextData(text) ]);
     this.editorComponent.updateBlock(block);
   }
 

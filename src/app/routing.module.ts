@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes }  from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { PagesComponent } from './pages/pages.component';
 import { EditorComponent } from './editor/editor.component';
