@@ -2,6 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
+import { AngularFireModule } from 'angularfire2';
+import { AngularFirestoreModule } from 'angularfire2/firestore';
+import { AngularFireAuthModule } from 'angularfire2/auth';
+import { environment } from '../environments/environment';
+
 import { RoutingModule } from './routing.module';
 import { ServerService } from './shared/server.service';
 
@@ -19,7 +24,14 @@ import { ImageComponent } from './editor/blocks/image/image.component';
     TextComponent,
     ImageComponent
   ],
-  imports: [BrowserModule, HttpClientModule, RoutingModule],
+  imports: [
+    BrowserModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireAuthModule,
+    HttpClientModule,
+    RoutingModule
+  ],
   providers: [ServerService],
   bootstrap: [AppComponent]
 })
