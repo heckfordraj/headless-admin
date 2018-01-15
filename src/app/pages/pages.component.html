@@ -1,11 +1,13 @@
 <h1>pages:</h1>
 
 <ul>
-  <li *ngFor="let page of pages">
-    <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
-    <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
-    <button (click)="removePage(page)">&times;</button>
+  <li *ngFor="let page of pages$ | async">
+    {{ page | json }}
+    
+     <input #pageInput type="text" value="{{ page?.title }}" (keyup.enter)="updatePage(page, pageInput.value)">
+    <!--<a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
+    <button (click)="removePage(page)">&times;</button> -->
   </li>
 </ul>
 
-<input #text type="text" placeholder="Add Page" (keyup.enter)="addPage('page', text.value)">
+<input #text type="text" placeholder="Add Page" (keyup.enter)="addPage(text.value)">
