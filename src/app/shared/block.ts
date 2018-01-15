@@ -1,43 +1,35 @@
 export namespace Block {
   export namespace Data {
-    export class TextData {
-      constructor(public text: string = null) {}
+    export interface TextData {
+      text: string;
     }
 
-    export class ImageData {
-      constructor(
-        public xs: string,
-        public sm: string,
-        public md: string,
-        public lg: string
-      ) {}
+    export interface ImageData {
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
     }
   }
 
-  export class Base {
-    constructor(public type: string, public id: string, public data: any[]) {}
+  export interface Base {
+    readonly id: string;
+    type: string;
+    data: any[];
   }
 
-  export class Text extends Base {
-    constructor(public id, public data: Data.TextData[], public type = 'text') {
-      super(type, id, data);
-    }
+  export interface Text extends Base {
+    data: Data.TextData[];
   }
 
-  export class Image extends Base {
-    constructor(
-      public id,
-      public data: Data.ImageData[],
-      public type = 'image'
-    ) {
-      super(type, id, data);
-    }
+  export interface Image extends Base {
+    data: Data.ImageData[];
   }
 }
 
 export const Blocks = {
   data: [
-    new Block.Text(null, [new Block.Data.TextData()]),
-    new Block.Image(null, [new Block.Data.ImageData(null, null, null, null)])
+    <Block.Text>{ type: 'text', id: null, data: null },
+    <Block.Image>{ type: 'image', id: null, data: null }
   ]
 };

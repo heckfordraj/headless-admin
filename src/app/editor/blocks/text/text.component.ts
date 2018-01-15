@@ -15,22 +15,23 @@ export class TextComponent implements BlockInterface {
   private _block: Block.Text;
 
   @Input()
-  set block(block: Block.Base) {
-    this._block = new Block.Text(
-      block.id,
-      block.data.map(
-        (data: Block.Data.TextData) => new Block.Data.TextData(data.text)
-      )
-    );
+  set block(block: Block.Text) {
+    this._block = {
+      type: 'text',
+      id: block.id,
+      data: block.data.map((data: Block.Data.TextData) => {
+        return { text: data.text };
+      })
+    };
   }
   get block() {
     return this._block;
   }
 
   updateText(text: string) {
-    const block = new Block.Text(this.block.id, [
-      new Block.Data.TextData(text)
-    ]);
-    this.editorComponent.updateBlock(block);
+    // const block = new Block.Text(this.block.id, [
+    //   new Block.Data.TextData(text)
+    // ]);
+    // this.editorComponent.updateBlock(block);
   }
 }
