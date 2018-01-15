@@ -81,22 +81,13 @@ export class ServerService {
     //   );
   }
 
-  addBlock(page: Page): Observable<Block.Base> {
-    return;
-    // const url = 'http://localhost:4100/api/add/field';
-    // const httpOptions = {
-    //   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    // };
-    //
-    // return this.http
-    //   .post<Response.Block>(url, page, httpOptions)
-    //   .pipe(
-    //     tap((res: Response.Block) => console.log(`added block ${res.type}`)),
-    //     map(
-    //       (res: Response.Block) => new Block.Base(res.type, res._id, res.data)
-    //     ),
-    //     catchError(this.handleError<Block.Base>('addBlock'))
-    //   );
+  addBlock(page: Page, block: Block.Base) {
+    return this.db
+      .collection<Page[]>('pages')
+      .doc(page.slug)
+      .collection('data')
+      .doc(block.id)
+      .set(block);
   }
 
   updatePage(page: Page, current: string = '') {

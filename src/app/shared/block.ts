@@ -29,7 +29,7 @@ export namespace Block {
 
 export const Blocks = {
   data: [
-    <Block.Text>{ type: 'text', id: null, data: null },
-    <Block.Image>{ type: 'image', id: null, data: null }
+    <Block.Text>{ type: 'text', data: null },
+    <Block.Image>{ type: 'image', data: null }
   ]
 };

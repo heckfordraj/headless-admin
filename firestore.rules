@@ -3,6 +3,9 @@ service cloud.firestore {
     match /pages/{page} {
       allow create, update: if (!exists(/databases/$(database)/documents/pages/$(page)));
       allow read, delete;
+      match /{data=**} {
+        allow read, write;
+      }
     }
   }
 }

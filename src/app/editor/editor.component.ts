@@ -3,6 +3,8 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
 import { Subscription } from 'rxjs/Subscription';
 
+import { AngularFirestore } from 'angularfire2/firestore';
+
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
 import { Blocks, Block } from '../shared/block';
@@ -16,7 +18,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private serverService: ServerService
+    private serverService: ServerService,
+    private db: AngularFirestore
   ) {}
 
   blocks: {} = Blocks;
@@ -44,17 +47,13 @@ export class EditorComponent implements OnInit, OnDestroy {
   //     );
   // }
   //
-  // addBlock(block: Block.Base) {
-  //   const page = new Page('page', this.page.id, undefined, block);
-  //
-  //   this.serverService
-  //     .addBlock(page)
-  //     .subscribe(
-  //       (block: Block.Base) => (<Block.Base[]>this.page.data).push(block),
-  //       (err: HttpErrorResponse) => console.log(err.statusText)
-  //     );
-  // }
-  //
+  addBlock(base: Block.Base) {
+    const id = this.db.createId();
+    const block = { id: id, ...base };
+
+    this.serverService.addBlock(this.page, block);
+  }
+
   updateBlock(block: Block.Base) {
     return;
     //   const page = new Page('page', this.page.id, undefined, block);
