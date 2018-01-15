@@ -1,7 +1,7 @@
 import { Block } from './block';
 
 export interface Page {
+  id: string;
   title: string;
-  slug: string;
   data?: Block.Base[] | Block.Base;
 }

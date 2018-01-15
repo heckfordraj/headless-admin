@@ -61,7 +61,7 @@ export class ServerService {
   addPage(page: Page) {
     return this.db
       .collection<Page[]>('pages')
-      .doc(page.slug)
+      .doc(page.id)
       .set(page)
       .catch((err: Error) => console.error(err));
   }
@@ -84,7 +84,7 @@ export class ServerService {
   addBlock(page: Page, block: Block.Base) {
     return this.db
       .collection<Page[]>('pages')
-      .doc(page.slug)
+      .doc(page.id)
       .collection('data')
       .doc(block.id)
       .set(block);
@@ -92,7 +92,7 @@ export class ServerService {
 
   updatePage(page: Page, current: string = '') {
     const pages = this.fb.firestore().collection('pages');
-    const newPageRef = pages.doc(page.slug);
+    const newPageRef = pages.doc(page.id);
 
     return this.fb
       .firestore()
@@ -130,7 +130,7 @@ export class ServerService {
   removePage(page: Page) {
     return this.db
       .collection<Page[]>('pages')
-      .doc(page.slug)
+      .doc(page.id)
       .delete()
       .catch((err: Error) => console.error(err));
   }
