@@ -47,30 +47,16 @@ export class ServerService {
       );
   }
 
-  // getPages(id: string = ''): Observable<Page> {
-  //   const url = `http://localhost:4100/api/get/pages/${id}`;
-  //
-  //   return this.http
-  //     .get<Response.Page[]>(url)
-  //     .pipe(
-  //       tap((res: Response.Page[]) => console.dir(res)),
-  //       flatMap((res: Response.Page[]) => res),
-  //       map(
-  //         (res: Response.Page) =>
-  //           new Page(
-  //             res.type,
-  //             res._id,
-  //             res.name,
-  //             res.data.map(
-  //               (block: Response.Block) =>
-  //                 new Block.Base(block.type, block._id, block.data)
-  //             ),
-  //             res.slug
-  //           )
-  //       ),
-  //       catchError(this.handleError<Page>(`getPages`))
-  //     );
-  // }
+  getPage(slug: string): Observable<Page> {
+    return this.db
+      .collection<Page[]>('pages')
+      .doc(slug)
+      .valueChanges()
+      .pipe(
+        tap((res: any) => console.log(res)),
+        catchError(this.handleError<Page>('getPage'))
+      );
+  }
 
   addPage(page: Page) {
     return this.db

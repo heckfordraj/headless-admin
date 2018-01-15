@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 
-import { AngularFirestore } from 'angularfire2/firestore';
 import { slugify } from 'underscore.string';
 
 import { ServerService } from '../shared/server.service';
@@ -16,10 +15,7 @@ import { Page } from '../shared/page';
 export class PagesComponent implements OnInit {
   pages$: Observable<Page[]>;
 
-  constructor(
-    private serverService: ServerService,
-    private db: AngularFirestore
-  ) {}
+  constructor(private serverService: ServerService) {}
 
   updatePage(page: Page, newtitle: string) {
     const newPage: Page = { title: newtitle, slug: slugify(newtitle) };
