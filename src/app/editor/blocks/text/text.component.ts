@@ -21,7 +21,8 @@ export class TextComponent implements BlockInterface {
       id: block.id,
       data: block.data.map((data: Block.Data.TextData) => {
         return { text: data.text };
-      })
+      }),
+      timestamp: block.timestamp
     };
   }
   get block() {

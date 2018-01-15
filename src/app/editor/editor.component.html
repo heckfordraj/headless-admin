@@ -1,3 +1,5 @@
+{{ page | json }}
+
 <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)"><button (click)="removePage()">&times;</button>
 
 <h1>{{ page?.title }}</h1>
@@ -5,7 +7,7 @@
 <button *ngFor="let block of blocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
 
 <ul>
-  <li *ngFor="let block of page?.data">
+  <li *ngFor="let block of pageBlocks | async">
     {{ block?.type }}
 
     <ng-container [ngSwitch]="block?.type">

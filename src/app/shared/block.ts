@@ -16,6 +16,7 @@ export namespace Block {
     readonly id: string;
     type: string;
     data: any[];
+    readonly timestamp: string;
   }
 
   export interface Text extends Base {
@@ -29,7 +30,7 @@ export namespace Block {
 
 export const Blocks = {
   data: [
-    <Block.Text>{ type: 'text', data: null },
-    <Block.Image>{ type: 'image', data: null }
+    <Block.Text>{ type: 'text', data: [] },
+    <Block.Image>{ type: 'image', data: [] }
   ]
 };

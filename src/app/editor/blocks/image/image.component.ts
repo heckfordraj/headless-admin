@@ -30,7 +30,8 @@ export class ImageComponent implements BlockInterface {
           md: data.md,
           lg: data.lg
         };
-      })
+      }),
+      timestamp: block.timestamp
     };
   }
   get block() {

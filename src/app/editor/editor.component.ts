@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
+import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { AngularFirestore } from 'angularfire2/firestore';
@@ -8,6 +9,7 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
 import { Blocks, Block } from '../shared/block';
+import * as firebase from 'firebase';
 
 @Component({
   selector: 'app-editor',
@@ -26,6 +28,8 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   page$: Subscription;
   page: Page;
+
+  pageBlocks: Observable<Block.Base[]>;
 
   // updatePage(name: string) {
   //   const pageUpdate = new Page('page', this.page.id, name);
@@ -49,7 +53,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   //
   addBlock(base: Block.Base) {
     const id = this.db.createId();
-    const block = { id: id, ...base };
+    const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+    const block = { id: id, timestamp: timestamp, ...base };
 
     this.serverService.addBlock(this.page, block);
   }
@@ -90,6 +95,8 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.page$ = this.serverService
       .getPage(id)
       .subscribe((page: Page) => (this.page = page));
+
+    this.pageBlocks = this.serverService.getBlocks(id);
   }
 
   ngOnDestroy() {

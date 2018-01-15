@@ -47,14 +47,26 @@ export class ServerService {
       );
   }
 
-  getPage(slug: string): Observable<Page> {
+  getPage(id: string): Observable<Page> {
     return this.db
       .collection<Page[]>('pages')
-      .doc(slug)
+      .doc(id)
       .valueChanges()
       .pipe(
         tap((res: any) => console.log(res)),
         catchError(this.handleError<Page>('getPage'))
+      );
+  }
+
+  getBlocks(id: string): Observable<Block.Base[]> {
+    return this.db
+      .collection<Page[]>('pages')
+      .doc(id)
+      .collection('data', ref => ref.orderBy('timestamp'))
+      .valueChanges()
+      .pipe(
+        tap((res: any) => console.log(res)),
+        catchError(this.handleError<Page>('getBlocks'))
       );
   }
 
