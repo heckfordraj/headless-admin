@@ -21,15 +21,6 @@ export class PagesComponent implements OnInit {
     private db: AngularFirestore
   ) {}
 
-  // removePage(page: Page) {
-  //   this.serverService
-  //     .removePage(page)
-  //     .subscribe(
-  //       () => (this.pages = this.pages.filter((pages: Page) => pages !== page)),
-  //       (err: HttpErrorResponse) => console.log(err.statusText)
-  //     );
-  // }
-
   updatePage(page: Page, newtitle: string) {
     const newPage: Page = { title: newtitle, slug: slugify(newtitle) };
     this.serverService.updatePage(newPage, page.slug);

@@ -150,16 +150,12 @@ export class ServerService {
     //   );
   }
 
-  removePage(page: Page): Observable<any> {
-    return;
-    // const url = `http://localhost:4100/api/remove/${page.id}`;
-    //
-    // return this.http
-    //   .delete(url)
-    //   .pipe(
-    //     tap((res: any) => console.log(`removed page ${page.name}`)),
-    //     catchError(this.handleError<any>('removePage'))
-    //   );
+  removePage(page: Page) {
+    return this.db
+      .collection<Page[]>('pages')
+      .doc(page.slug)
+      .delete()
+      .catch((err: Error) => console.error(err));
   }
 
   removeBlock(page: Page, block: Block.Base): Observable<any> {
