@@ -7,6 +7,7 @@ import { catchError, tap, map, flatMap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
 import { AngularFireDatabase } from 'angularfire2/database';
+import { slugify } from 'underscore.string';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -31,6 +32,10 @@ namespace Response {
 @Injectable()
 export class ServerService {
   constructor(private http: HttpClient, private db: AngularFireDatabase) {}
+
+  createId(): string {
+    return this.db.createPushId();
+  }
 
   getCollection(name: string): Observable<Page[]> {
     return;
@@ -70,8 +75,8 @@ export class ServerService {
 
   addPage(page: Page) {
     return this.db
-      .object<Page>('pages/page3')
-      .set({ title: 'Page 3', id: 'asdasd' })
+      .object<Page>(`pages/${slugify(page.title)}`)
+      .set(page)
       .catch((err: Error) => console.error(err));
   }
 

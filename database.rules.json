@@ -1,6 +1,10 @@
 {
   "rules": {
-    ".read": "auth == null",
-    ".write": "auth == null"
+    "pages": {
+      "$page": {
+        ".read": "auth == null",
+        ".write": "auth == null && !data.exists()"
+      }
+    }
   }
 }

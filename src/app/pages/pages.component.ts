@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 
-import { slugify } from 'underscore.string';
-
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
 
@@ -18,12 +16,12 @@ export class PagesComponent implements OnInit {
   constructor(private serverService: ServerService) {}
 
   updatePage(page: Page, newtitle: string) {
-    const newPage: Page = { title: newtitle, id: slugify(newtitle) };
-    this.serverService.updatePage(newPage, page.id);
+    // const newPage: Page = { title: newtitle, id: slugify(newtitle) };
+    // this.serverService.updatePage(newPage, page.id);
   }
 
   addPage(title: string) {
-    const newPage: Page = { title: title, id: slugify(title) };
+    const newPage: Page = { title: title, id: this.serverService.createId() };
     this.serverService.addPage(newPage);
   }
 
