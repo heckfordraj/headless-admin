@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { AngularFirestore } from 'angularfire2/firestore';
+import { slugify } from 'underscore.string';
 
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
@@ -41,6 +42,11 @@ export class EditorComponent implements OnInit, OnDestroy {
   //       (err: HttpErrorResponse) => console.log(err.statusText)
   //     );
   // }
+
+  updatePage(newtitle: string) {
+    const newPage: Page = { title: newtitle, id: slugify(newtitle) };
+    this.serverService.updatePage(newPage, this.page.id);
+  }
   //
   // removePage() {
   //   this.serverService

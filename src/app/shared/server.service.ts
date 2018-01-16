@@ -7,7 +7,6 @@ import { catchError, tap, map, flatMap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
 import { AngularFirestore } from 'angularfire2/firestore';
-import { FirebaseApp } from 'angularfire2';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -31,11 +30,7 @@ namespace Response {
 
 @Injectable()
 export class ServerService {
-  constructor(
-    private http: HttpClient,
-    private db: AngularFirestore,
-    private fb: FirebaseApp
-  ) {}
+  constructor(private http: HttpClient, private db: AngularFirestore) {}
 
   getCollection(name: string): Observable<Page[]> {
     return this.db
@@ -103,21 +98,28 @@ export class ServerService {
   }
 
   updatePage(page: Page, current: string = '') {
-    const pages = this.fb.firestore().collection('pages');
-    const newPageRef = pages.doc(page.id);
+    this.addPage(page);
 
-    return this.fb
-      .firestore()
-      .runTransaction(transaction =>
-        transaction.get(newPageRef).then(doc => {
-          if (doc.exists) {
-            return Promise.reject(null);
-          }
+    const pages = this.db.collection('pages');
+    const newPageRef = pages.doc(page.id).ref;
+    const currentPageRef = pages.doc(current).ref;
 
-          transaction.set(newPageRef, page);
-        })
-      )
-      .then(() => pages.doc(current).delete())
+    const batch = this.db.firestore.batch();
+
+    pages
+      .doc(current)
+      .collection('data')
+      .ref.get()
+      .then(res => {
+        var collection = pages.doc(page.id).collection('data');
+
+        return res.docs.forEach(doc => {
+          let docRef = collection.doc(doc.id).ref;
+
+          return batch.set(docRef, doc.data());
+        });
+      })
+      .then(() => batch.commit())
       .catch(err => console.error(err));
   }
 
