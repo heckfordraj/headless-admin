@@ -1,0 +1,14 @@
+<button *ngFor="let block of blocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
+
+<ul>
+  <li *ngFor="let block of blocks$ | async">
+    {{ block?.type }}
+
+    <ng-container [ngSwitch]="block?.type">
+      <app-text *ngSwitchCase="'text'" [block]="block"></app-text>
+      <app-image *ngSwitchCase="'image'" [block]="block"></app-image>
+    </ng-container>
+
+    <button (click)="removeBlock(block)">&times;</button>
+  </li>
+</ul>

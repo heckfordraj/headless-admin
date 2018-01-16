@@ -14,6 +14,7 @@ import { PagesComponent } from './pages/pages.component';
 import { EditorComponent } from './editor/editor.component';
 import { TextComponent } from './editor/blocks/text/text.component';
 import { ImageComponent } from './editor/blocks/image/image.component';
+import { BlocksComponent } from './editor/blocks/blocks.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { ImageComponent } from './editor/blocks/image/image.component';
     PagesComponent,
     EditorComponent,
     TextComponent,
-    ImageComponent
+    ImageComponent,
+    BlocksComponent
   ],
   imports: [
     BrowserModule,

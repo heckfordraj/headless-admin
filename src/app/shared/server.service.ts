@@ -47,15 +47,13 @@ export class ServerService {
   }
 
   getPage(id: string): Observable<Page> {
-    return;
-    // return this.db
-    //   .collection<Page[]>('pages')
-    //   .doc(id)
-    //   .valueChanges()
-    //   .pipe(
-    //     tap((res: any) => console.log(res)),
-    //     catchError(this.handleError<Page>('getPage'))
-    //   );
+    return this.db
+      .object<Page>(`pages/${id}`)
+      .valueChanges()
+      .pipe(
+        tap((res: any) => console.log(res)),
+        catchError(this.handleError<Page>('getPage'))
+      );
   }
 
   getBlocks(id: string): Observable<Block.Base[]> {
@@ -109,10 +107,7 @@ export class ServerService {
       [currentPage.id]: null
     };
 
-    return this.db.database
-      .ref('pages')
-      .update(updates)
-      .catch((err: Error) => console.error(err));
+    return this.db.database.ref('pages').update(updates);
   }
 
   updateBlock(page: Page): Observable<Block.Base> {

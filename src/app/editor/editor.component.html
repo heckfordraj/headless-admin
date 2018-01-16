@@ -4,17 +4,4 @@
 
 <h1>{{ page?.title }}</h1>
 
-<button *ngFor="let block of blocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
-
-<ul>
-  <li *ngFor="let block of pageBlocks | async">
-    {{ block?.type }}
-
-    <ng-container [ngSwitch]="block?.type">
-      <app-text *ngSwitchCase="'text'" [block]="block"></app-text>
-      <app-image *ngSwitchCase="'image'" [block]="block"></app-image>
-    </ng-container>
-
-    <button (click)="removeBlock(block)">&times;</button>
-  </li>
-</ul>
+<app-blocks [dataId]="page?.data"></app-blocks>
