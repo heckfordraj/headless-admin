@@ -44,8 +44,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   // }
 
   updatePage(newtitle: string) {
-    const newPage: Page = { title: newtitle, id: slugify(newtitle) };
-    this.serverService.updatePage(newPage, this.page.id);
+    // const newPage: Page = { title: newtitle, id: slugify(newtitle) };
+    // this.serverService.updatePage(newPage, this.page.id);
   }
   //
   // removePage() {
