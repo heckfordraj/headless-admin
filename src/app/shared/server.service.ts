@@ -129,12 +129,12 @@ export class ServerService {
   }
 
   removePage(page: Page) {
-    return;
-    // return this.db
-    //   .collection<Page[]>('pages')
-    //   .doc(page.id)
-    //   .delete()
-    //   .catch((err: Error) => console.error(err));
+    const updates = {
+      [`pages/${page.id}`]: null,
+      [`data/${page.data}`]: null
+    };
+
+    return this.db.database.ref().update(updates);
   }
 
   removeBlock(page: Page, block: Block.Base): Observable<any> {

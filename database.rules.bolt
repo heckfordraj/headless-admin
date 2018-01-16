@@ -14,3 +14,8 @@ path /pages {
       delete() { true }
   }
 }
+
+path /data {
+  read() { true }
+  write() { true }
+}
