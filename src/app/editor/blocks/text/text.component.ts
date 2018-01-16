@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 
-import { BlockInterface } from '../block.interface';
 import { EditorComponent } from '../../editor.component';
 import { Block } from '../../../shared/block';
 
@@ -9,7 +8,7 @@ import { Block } from '../../../shared/block';
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.scss']
 })
-export class TextComponent implements BlockInterface {
+export class TextComponent {
   constructor(private editorComponent: EditorComponent) {}
 
   private _block: Block.Text;

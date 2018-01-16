@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 
-import { BlockInterface } from '../block.interface';
 import { ServerService } from '../../../shared/server.service';
 import { EditorComponent } from '../../editor.component';
 import { Block } from '../../../shared/block';
@@ -10,7 +9,7 @@ import { Block } from '../../../shared/block';
   templateUrl: './image.component.html',
   styleUrls: ['./image.component.scss']
 })
-export class ImageComponent implements BlockInterface {
+export class ImageComponent {
   constructor(
     private serverService: ServerService,
     private editorComponent: EditorComponent
