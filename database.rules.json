@@ -3,7 +3,7 @@
     "pages": {
       ".read": true,
       "$page": {
-        ".write": "!data.exists()"
+        ".write": "!newData.exists() || !data.exists()"
       }
     }
   }

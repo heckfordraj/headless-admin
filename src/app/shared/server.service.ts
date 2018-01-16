@@ -103,31 +103,16 @@ export class ServerService {
     //   .set(block);
   }
 
-  updatePage(page: Page, current: string = '') {
-    return;
-    // this.addPage(page);
-    //
-    // const pages = this.db.collection('pages');
-    // const newPageRef = pages.doc(page.id).ref;
-    // const currentPageRef = pages.doc(current).ref;
-    //
-    // const batch = this.db.firestore.batch();
-    //
-    // pages
-    //   .doc(current)
-    //   .collection('data')
-    //   .ref.get()
-    //   .then(res => {
-    //     var collection = pages.doc(page.id).collection('data');
-    //
-    //     return res.docs.forEach(doc => {
-    //       let docRef = collection.doc(doc.id).ref;
-    //
-    //       return batch.set(docRef, doc.data());
-    //     });
-    //   })
-    //   .then(() => batch.commit())
-    //   .catch(err => console.error(err));
+  updatePage(currentPage: Page, newPage: Page) {
+    const updates = {
+      [newPage.id]: newPage,
+      [currentPage.id]: null
+    };
+
+    return this.db.database
+      .ref('pages')
+      .update(updates)
+      .catch((err: Error) => console.error(err));
   }
 
   updateBlock(page: Page): Observable<Block.Base> {
