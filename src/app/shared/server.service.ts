@@ -6,7 +6,7 @@ import { of } from 'rxjs/observable/of';
 import { catchError, tap, map, flatMap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
-import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFireDatabase } from 'angularfire2/database';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -30,46 +30,48 @@ namespace Response {
 
 @Injectable()
 export class ServerService {
-  constructor(private http: HttpClient, private db: AngularFirestore) {}
+  constructor(private http: HttpClient, private db: AngularFireDatabase) {}
 
   getCollection(name: string): Observable<Page[]> {
-    return this.db
-      .collection<Page>(name)
-      .valueChanges()
-      .pipe(
-        tap((res: any) => console.log(res)),
-        catchError(this.handleError<Page>('getCollection'))
-      );
+    return;
+    // return this.db
+    //   .object<Page>(name)
+    //   .valueChanges()
+    //   .pipe(
+    //     tap((res: any) => console.dir(res)),
+    //     catchError(this.handleError<Page>('getCollection'))
+    //   );
   }
 
   getPage(id: string): Observable<Page> {
-    return this.db
-      .collection<Page[]>('pages')
-      .doc(id)
-      .valueChanges()
-      .pipe(
-        tap((res: any) => console.log(res)),
-        catchError(this.handleError<Page>('getPage'))
-      );
+    return;
+    // return this.db
+    //   .collection<Page[]>('pages')
+    //   .doc(id)
+    //   .valueChanges()
+    //   .pipe(
+    //     tap((res: any) => console.log(res)),
+    //     catchError(this.handleError<Page>('getPage'))
+    //   );
   }
 
   getBlocks(id: string): Observable<Block.Base[]> {
-    return this.db
-      .collection<Page[]>('pages')
-      .doc(id)
-      .collection('data', ref => ref.orderBy('timestamp'))
-      .valueChanges()
-      .pipe(
-        tap((res: any) => console.log(res)),
-        catchError(this.handleError<Page>('getBlocks'))
-      );
+    return;
+    // return this.db
+    //   .collection<Page[]>('pages')
+    //   .doc(id)
+    //   .collection('data', ref => ref.orderBy('timestamp'))
+    //   .valueChanges()
+    //   .pipe(
+    //     tap((res: any) => console.log(res)),
+    //     catchError(this.handleError<Page>('getBlocks'))
+    //   );
   }
 
   addPage(page: Page) {
     return this.db
-      .collection<Page[]>('pages')
-      .doc(page.id)
-      .set(page)
+      .object<Page>('pages/page3')
+      .set({ title: 'Page 3', id: 'asdasd' })
       .catch((err: Error) => console.error(err));
   }
 
@@ -89,38 +91,40 @@ export class ServerService {
   }
 
   addBlock(page: Page, block: Block.Base) {
-    return this.db
-      .collection<Page[]>('pages')
-      .doc(page.id)
-      .collection('data')
-      .doc(block.id)
-      .set(block);
+    return;
+    // return this.db
+    //   .collection<Page[]>('pages')
+    //   .doc(page.id)
+    //   .collection('data')
+    //   .doc(block.id)
+    //   .set(block);
   }
 
   updatePage(page: Page, current: string = '') {
-    this.addPage(page);
-
-    const pages = this.db.collection('pages');
-    const newPageRef = pages.doc(page.id).ref;
-    const currentPageRef = pages.doc(current).ref;
-
-    const batch = this.db.firestore.batch();
-
-    pages
-      .doc(current)
-      .collection('data')
-      .ref.get()
-      .then(res => {
-        var collection = pages.doc(page.id).collection('data');
-
-        return res.docs.forEach(doc => {
-          let docRef = collection.doc(doc.id).ref;
-
-          return batch.set(docRef, doc.data());
-        });
-      })
-      .then(() => batch.commit())
-      .catch(err => console.error(err));
+    return;
+    // this.addPage(page);
+    //
+    // const pages = this.db.collection('pages');
+    // const newPageRef = pages.doc(page.id).ref;
+    // const currentPageRef = pages.doc(current).ref;
+    //
+    // const batch = this.db.firestore.batch();
+    //
+    // pages
+    //   .doc(current)
+    //   .collection('data')
+    //   .ref.get()
+    //   .then(res => {
+    //     var collection = pages.doc(page.id).collection('data');
+    //
+    //     return res.docs.forEach(doc => {
+    //       let docRef = collection.doc(doc.id).ref;
+    //
+    //       return batch.set(docRef, doc.data());
+    //     });
+    //   })
+    //   .then(() => batch.commit())
+    //   .catch(err => console.error(err));
   }
 
   updateBlock(page: Page): Observable<Block.Base> {
@@ -142,11 +146,12 @@ export class ServerService {
   }
 
   removePage(page: Page) {
-    return this.db
-      .collection<Page[]>('pages')
-      .doc(page.id)
-      .delete()
-      .catch((err: Error) => console.error(err));
+    return;
+    // return this.db
+    //   .collection<Page[]>('pages')
+    //   .doc(page.id)
+    //   .delete()
+    //   .catch((err: Error) => console.error(err));
   }
 
   removeBlock(page: Page, block: Block.Base): Observable<any> {
