@@ -38,14 +38,13 @@ export class ServerService {
   }
 
   getCollection(name: string): Observable<Page[]> {
-    return;
-    // return this.db
-    //   .object<Page>(name)
-    //   .valueChanges()
-    //   .pipe(
-    //     tap((res: any) => console.dir(res)),
-    //     catchError(this.handleError<Page>('getCollection'))
-    //   );
+    return this.db
+      .list<Page>('pages')
+      .valueChanges()
+      .pipe(
+        tap((res: any) => console.dir(res)),
+        catchError(this.handleError<Page>('getCollection'))
+      );
   }
 
   getPage(id: string): Observable<Page> {

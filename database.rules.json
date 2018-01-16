@@ -1,9 +1,9 @@
 {
   "rules": {
     "pages": {
+      ".read": true,
       "$page": {
-        ".read": "auth == null",
-        ".write": "auth == null && !data.exists()"
+        ".write": "!data.exists()"
       }
     }
   }
