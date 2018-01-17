@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
-import { catchError, tap, map, flatMap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
 import { AngularFireDatabase } from 'angularfire2/database';
@@ -11,26 +9,9 @@ import { AngularFireDatabase } from 'angularfire2/database';
 import { Page } from './page';
 import { Block } from './block';
 
-namespace Response {
-  export interface Page {
-    _id: string;
-    data: any[] | any;
-    name: string;
-    slug: string;
-    type: string;
-    __v: boolean;
-  }
-
-  export interface Block {
-    _id: string;
-    type: string;
-    data: any[] | any;
-  }
-}
-
 @Injectable()
 export class ServerService {
-  constructor(private http: HttpClient, private db: AngularFireDatabase) {}
+  constructor(private db: AngularFireDatabase) {}
 
   createId(): string {
     return this.db.createPushId();
@@ -71,21 +52,6 @@ export class ServerService {
       .object<Page>(`pages/${page.id}`)
       .set(page)
       .catch((err: Error) => console.error(err));
-  }
-
-  addFile(file: File): Observable<any> {
-    return;
-    // const url = 'http://localhost:4100/upload';
-    //
-    // const formData = new FormData();
-    // formData.append('image', file);
-    //
-    // return this.http
-    //   .post<any>(url, formData)
-    //   .pipe(
-    //     tap((res: any) => console.log('addFile')),
-    //     catchError(this.handleError<any>('addFile'))
-    //   );
   }
 
   addBlock(dataId: string, block: Block.Base) {
