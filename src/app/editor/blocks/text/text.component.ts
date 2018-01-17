@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { EditorComponent } from '../../editor.component';
+import { ServerService } from '../../../shared/server.service';
+import { BlocksComponent } from '../blocks.component';
 import { Block } from '../../../shared/block';
 
 @Component({
@@ -9,7 +10,10 @@ import { Block } from '../../../shared/block';
   styleUrls: ['./text.component.scss']
 })
 export class TextComponent {
-  constructor(private editorComponent: EditorComponent) {}
+  constructor(
+    private serverService: ServerService,
+    private blocksComponent: BlocksComponent
+  ) {}
 
   private _block: Block.Text;
 
@@ -26,9 +30,11 @@ export class TextComponent {
   }
 
   updateText(text: string) {
-    // const block = new Block.Text(this.block.id, [
-    //   new Block.Data.TextData(text)
-    // ]);
-    // this.editorComponent.updateBlock(block);
+    const data: Block.Data.TextData = {
+      id: this.serverService.createId(),
+      text: text
+    };
+
+    this.blocksComponent.updateBlock(this.block.id, data);
   }
 }

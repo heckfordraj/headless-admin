@@ -25,17 +25,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   page$: Subscription;
   page: Page;
 
-  // updatePage(name: string) {
-  //   const pageUpdate = new Page('page', this.page.id, name);
-  //
-  //   this.serverService
-  //     .updatePage(pageUpdate)
-  //     .subscribe(
-  //       (page: Page) => (this.page = page),
-  //       (err: HttpErrorResponse) => console.log(err.statusText)
-  //     );
-  // }
-
   updatePage(newtitle: string) {
     const newPage: Page = {
       id: slugify(newtitle),
@@ -48,35 +37,6 @@ export class EditorComponent implements OnInit, OnDestroy {
       .then(_ => this.router.navigate(['/page', newPage.id]))
       .catch((err: any) => console.error(err));
   }
-  //
-  // removePage() {
-  //   this.serverService
-  //     .removePage(this.page)
-  //     .subscribe(
-  //       () => (this.page = null),
-  //       (err: HttpErrorResponse) => console.log(err.statusText)
-  //     );
-  // }
-  //
-
-  // updateBlock(block: Block.Base) {
-  // return;
-  //   const page = new Page('page', this.page.id, undefined, block);
-  //
-  //   this.serverService.updateBlock(page).subscribe(
-  //     (block: Block.Base) =>
-  //       (this.page.data = (<Block.Base[]>this.page.data).map(
-  //         (blocks: Block.Base) => {
-  //           if (blocks.id === block.id) {
-  //             blocks = block;
-  //           }
-  //           return blocks;
-  //         }
-  //       )),
-  //     (err: HttpErrorResponse) => console.log(err.statusText)
-  //   );
-  // }
-  //
 
   ngOnInit() {
     this.page$ = this.route.paramMap

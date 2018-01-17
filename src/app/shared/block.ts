@@ -1,10 +1,14 @@
 export namespace Block {
   export namespace Data {
-    export interface TextData {
+    export interface Base {
+      readonly id: string;
+    }
+
+    export interface TextData extends Base {
       text: string;
     }
 
-    export interface ImageData {
+    export interface ImageData extends Base {
       xs: string;
       sm: string;
       md: string;

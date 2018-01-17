@@ -105,22 +105,12 @@ export class ServerService {
     return this.db.database.ref('pages').update(updates);
   }
 
-  updateBlock(page: Page): Observable<Block.Base> {
-    return;
-    // const url = 'http://localhost:4100/api/update/field';
-    // const httpOptions = {
-    //   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    // };
-    //
-    // return this.http
-    //   .put<Response.Block>(url, page, httpOptions)
-    //   .pipe(
-    //     tap((res: Response.Block) => console.log(`updated block ${res.type}`)),
-    //     map(
-    //       (res: Response.Block) => new Block.Base(res.type, res._id, res.data)
-    //     ),
-    //     catchError(this.handleError<Block.Base>('updateBlock'))
-    //   );
+  updateBlock(dataId: string, blockId: string, data: Block.Data.Base) {
+    return this.db
+      .list<Block.Data.Base>(`data/${dataId}/${blockId}/data`)
+      .set(data.id, data)
+      .then((res: any) => console.log(res))
+      .catch((err: Error) => console.error(err));
   }
 
   removePage(page: Page) {

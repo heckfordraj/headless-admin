@@ -1,7 +1,7 @@
 import { Block } from './block';
 
 export interface Page {
-  id: string;
+  readonly id: string;
   title: string;
   data: string;
 }
