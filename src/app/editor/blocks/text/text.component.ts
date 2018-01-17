@@ -18,9 +18,7 @@ export class TextComponent {
     this._block = {
       type: 'text',
       id: block.id,
-      data: block.data.map((data: Block.Data.TextData) => {
-        return { text: data.text };
-      })
+      data: block.data || []
     };
   }
   get block() {

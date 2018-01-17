@@ -57,16 +57,13 @@ export class ServerService {
   }
 
   getBlocks(id: string): Observable<Block.Base[]> {
-    return;
-    // return this.db
-    //   .collection<Page[]>('pages')
-    //   .doc(id)
-    //   .collection('data', ref => ref.orderBy('timestamp'))
-    //   .valueChanges()
-    //   .pipe(
-    //     tap((res: any) => console.log(res)),
-    //     catchError(this.handleError<Page>('getBlocks'))
-    //   );
+    return this.db
+      .list<Block.Base>(`data/${id}`)
+      .valueChanges()
+      .pipe(
+        tap((res: any) => console.log(res)),
+        catchError(this.handleError<Block.Base>('getBlocks'))
+      );
   }
 
   addPage(page: Page) {
@@ -93,7 +90,7 @@ export class ServerService {
 
   addBlock(dataId: string, block: Block.Base) {
     return this.db
-      .list(`data/${dataId}`)
+      .list<Block.Base>(`data/${dataId}`)
       .set(block.id, block)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));

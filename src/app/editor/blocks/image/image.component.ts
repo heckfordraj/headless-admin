@@ -22,14 +22,7 @@ export class ImageComponent {
     this._block = {
       type: 'image',
       id: block.id,
-      data: block.data.map((data: Block.Data.ImageData) => {
-        return {
-          xs: data.xs,
-          sm: data.sm,
-          md: data.md,
-          lg: data.lg
-        };
-      })
+      data: block.data || []
     };
   }
   get block() {
