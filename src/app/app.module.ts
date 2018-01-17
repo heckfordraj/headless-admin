@@ -8,6 +8,7 @@ import { environment } from '../environments/environment';
 
 import { RoutingModule } from './routing.module';
 import { ServerService } from './shared/server.service';
+import { ImageService } from './editor/blocks/image/image.service';
 
 import { AppComponent } from './app.component';
 import { PagesComponent } from './pages/pages.component';
@@ -32,7 +33,7 @@ import { BlocksComponent } from './editor/blocks/blocks.component';
     HttpClientModule,
     RoutingModule
   ],
-  providers: [ServerService],
+  providers: [ServerService, ImageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

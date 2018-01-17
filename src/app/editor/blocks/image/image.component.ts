@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 
 import { ServerService } from '../../../shared/server.service';
-import { EditorComponent } from '../../editor.component';
+import { ImageService } from './image.service';
+import { BlocksComponent } from '../blocks.component';
 import { Block } from '../../../shared/block';
 
 @Component({
@@ -12,7 +13,8 @@ import { Block } from '../../../shared/block';
 export class ImageComponent {
   constructor(
     private serverService: ServerService,
-    private editorComponent: EditorComponent
+    private imageService: ImageService,
+    private blocksComponent: BlocksComponent
   ) {}
 
   private _block: Block.Image;
@@ -29,14 +31,16 @@ export class ImageComponent {
     return this._block;
   }
 
-  addFile(files: FileList) {
-    // this.serverService
-    //   .addFile(files[0])
-    //   .subscribe((res: Block.Data.ImageData) => {
-    //     const block = new Block.Image(this.block.id, [
-    //       new Block.Data.ImageData(res.xs, res.sm, res.md, res.lg)
-    //     ]);
-    //     this.editorComponent.updateBlock(block);
-    //   });
+  addImage(files: FileList) {
+    const id = this.serverService.createId();
+
+    this.imageService.uploadImage(id, files[0]).subscribe(res => {
+      const data: Block.Data.ImageData = {
+        id: res.public_id,
+        url: res.secure_url
+      };
+
+      this.blocksComponent.updateBlock(this.block.id, data);
+    });
   }
 }

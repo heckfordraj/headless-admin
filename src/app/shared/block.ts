@@ -9,10 +9,7 @@ export namespace Block {
     }
 
     export interface ImageData extends Base {
-      xs: string;
-      sm: string;
-      md: string;
-      lg: string;
+      url: string;
     }
   }
 
