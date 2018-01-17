@@ -29,7 +29,7 @@ export class TextComponent {
     return this._block;
   }
 
-  updateText(text: string) {
+  addText(text: string) {
     const data: Block.Data.TextData = {
       id: this.serverService.createId(),
       text: text
