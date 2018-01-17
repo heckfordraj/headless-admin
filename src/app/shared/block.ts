@@ -16,7 +16,6 @@ export namespace Block {
     readonly id: string;
     type: string;
     data: any[];
-    readonly timestamp: string;
   }
 
   export interface Text extends Base {

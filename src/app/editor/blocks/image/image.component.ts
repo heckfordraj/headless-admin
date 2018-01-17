@@ -29,8 +29,7 @@ export class ImageComponent {
           md: data.md,
           lg: data.lg
         };
-      }),
-      timestamp: block.timestamp
+      })
     };
   }
   get block() {

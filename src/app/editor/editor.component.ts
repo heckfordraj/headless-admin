@@ -58,13 +58,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   //     );
   // }
   //
-  // addBlock(base: Block.Base) {
-  // const id = this.db.createId();
-  // const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-  // const block = { id: id, timestamp: timestamp, ...base };
-  //
-  // this.serverService.addBlock(this.page, block);
-  // }
 
   // updateBlock(block: Block.Base) {
   // return;

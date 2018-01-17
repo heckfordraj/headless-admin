@@ -91,14 +91,12 @@ export class ServerService {
     //   );
   }
 
-  addBlock(page: Page, block: Block.Base) {
-    return;
-    // return this.db
-    //   .collection<Page[]>('pages')
-    //   .doc(page.id)
-    //   .collection('data')
-    //   .doc(block.id)
-    //   .set(block);
+  addBlock(dataId: string, block: Block.Base) {
+    return this.db
+      .list(`data/${dataId}`)
+      .set(block.id, block)
+      .then((res: any) => console.log(res))
+      .catch((err: Error) => console.error(err));
   }
 
   updatePage(currentPage: Page, newPage: Page) {
