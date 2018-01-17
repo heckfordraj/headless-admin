@@ -132,18 +132,12 @@ export class ServerService {
     return this.db.database.ref().update(updates);
   }
 
-  removeBlock(page: Page, block: Block.Base): Observable<any> {
-    return;
-    // const url = `http://localhost:4100/api/remove/${page.id}/${block.id}`;
-    //
-    // return this.http
-    //   .delete(url)
-    //   .pipe(
-    //     tap((res: any) =>
-    //       console.log(`removed block ${page.name} ${block.type}`)
-    //     ),
-    //     catchError(this.handleError<any>('removeBlock'))
-    //   );
+  removeBlock(dataId: string, block: Block.Base) {
+    return this.db
+      .list<Block.Base>(`data/${dataId}`)
+      .remove(block.id)
+      .then((res: any) => console.log(res))
+      .catch((err: Error) => console.error(err));
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

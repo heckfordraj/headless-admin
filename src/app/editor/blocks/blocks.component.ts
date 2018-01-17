@@ -18,6 +18,10 @@ export class BlocksComponent implements OnChanges {
 
   constructor(private serverService: ServerService) {}
 
+  removeBlock(block: Block.Base) {
+    this.serverService.removeBlock(this.id, block);
+  }
+
   addBlock(base: Block.Base) {
     const block = { id: this.serverService.createId(), ...base };
     this.serverService.addBlock(this.id, block);

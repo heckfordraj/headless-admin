@@ -77,17 +77,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   //   );
   // }
   //
-  // removeBlock(block: Block.Base) {
-  //   this.serverService
-  //     .removeBlock(this.page, block)
-  //     .subscribe(
-  //       () =>
-  //         (this.page.data = (<Block.Base[]>this.page.data).filter(
-  //           (blocks: Block.Base) => blocks !== block
-  //         )),
-  //       (err: HttpErrorResponse) => console.log(err.statusText)
-  //     );
-  // }
 
   ngOnInit() {
     this.page$ = this.route.paramMap
