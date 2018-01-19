@@ -43,8 +43,11 @@ export class BlocksComponent implements OnChanges, OnDestroy {
     const blockReplaced = this.blocks[index + indexReplaced];
 
     if (blockReplaced) {
-      block.order = block.order + indexReplaced;
-      blockReplaced.order = blockReplaced.order - indexReplaced;
+      const blockOrder = block.order;
+      const blockReplacedOrder = blockReplaced.order;
+
+      block.order = blockReplacedOrder;
+      blockReplaced.order = blockOrder;
 
       this.serverService.orderBlock(this.id, block, blockReplaced);
     }
