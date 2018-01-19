@@ -1,6 +1,6 @@
 type Page {
   id: String;
-  title: String;
+  name: String;
   data: String;
   validate() { this.id == key() }
 }

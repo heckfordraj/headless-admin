@@ -17,19 +17,19 @@ export class PagesComponent implements OnInit {
 
   constructor(private serverService: ServerService) {}
 
-  updatePage(page: Page, newtitle: string) {
+  updatePage(page: Page, newname: string) {
     const newPage: Page = {
-      id: slugify(newtitle),
-      title: newtitle,
+      id: slugify(newname),
+      name: newname,
       data: page.data
     };
     this.serverService.updatePage(page, newPage);
   }
 
-  addPage(title: string) {
+  addPage(name: string) {
     const newPage: Page = {
-      id: slugify(title),
-      title: title,
+      id: slugify(name),
+      name: name,
       data: this.serverService.createId()
     };
     this.serverService.addPage(newPage);

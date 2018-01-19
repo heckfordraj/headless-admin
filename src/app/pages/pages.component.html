@@ -4,8 +4,8 @@
   <li *ngFor="let page of pages$ | async">
     {{ page | json }}
 
-     <input #pageInput type="text" value="{{ page?.title }}" (keyup.enter)="updatePage(page, pageInput.value)">
-    <a [routerLink]="['/page', page?.id]">{{ page?.title }}</a>
+     <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
+    <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
     <button (click)="serverService.removePage(page)">&times;</button>
   </li>
 </ul>

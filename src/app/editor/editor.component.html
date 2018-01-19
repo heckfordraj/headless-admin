@@ -1,7 +1,5 @@
 {{ page | json }}
 
-<input #pageInput type="text" value="{{ page?.title }}" (keyup.enter)="updatePage(pageInput.value)"><button (click)="removePage()">&times;</button>
-
-<h1>{{ page?.title }}</h1>
+<input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)"><button (click)="removePage()">&times;</button>
 
 <app-blocks [dataId]="page?.data"></app-blocks>
