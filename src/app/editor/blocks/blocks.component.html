@@ -2,10 +2,11 @@
 
 <ul>
   <li *ngFor="let block of blocks; let i = index">
-    {{ block?.type }}
 
     <button (click)="orderBlock(i, 'up')">&uarr;</button>
     <button (click)="orderBlock(i, 'down')">&darr;</button>
+
+    {{ block?.type }}
 
     <ng-container [ngSwitch]="block?.type">
       <app-text *ngSwitchCase="'text'" [block]="block"></app-text>

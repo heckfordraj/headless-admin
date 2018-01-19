@@ -40,10 +40,7 @@ export class ServerService {
   getBlocks(id: string): Observable<Block.Base[]> {
     return this.db
       .list<Block.Base>(`data/${id}`, ref => ref.orderByChild('order'))
-      .snapshotChanges()
-      .map(changes => {
-        return changes.map(c => ({ ...c.payload.val() }));
-      })
+      .valueChanges()
       .pipe(
         tap((res: any) => console.log(res)),
         catchError(this.handleError<Block.Base>('getBlocks'))
