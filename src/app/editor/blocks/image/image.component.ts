@@ -24,7 +24,8 @@ export class ImageComponent {
     this._block = {
       type: 'image',
       id: block.id,
-      data: block.data || []
+      data: block.data || [],
+      order: block.order
     };
   }
   get block() {

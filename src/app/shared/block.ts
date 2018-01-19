@@ -17,6 +17,7 @@ export namespace Block {
     readonly id: string;
     type: string;
     data: any[];
+    order: number;
   }
 
   export interface Text extends Base {

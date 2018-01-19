@@ -39,8 +39,11 @@ export class ServerService {
 
   getBlocks(id: string): Observable<Block.Base[]> {
     return this.db
-      .list<Block.Base>(`data/${id}`)
-      .valueChanges()
+      .list<Block.Base>(`data/${id}`, ref => ref.orderByChild('order'))
+      .snapshotChanges()
+      .map(changes => {
+        return changes.map(c => ({ ...c.payload.val() }));
+      })
       .pipe(
         tap((res: any) => console.log(res)),
         catchError(this.handleError<Block.Base>('getBlocks'))
@@ -51,6 +54,19 @@ export class ServerService {
     return this.db
       .object<Page>(`pages/${page.id}`)
       .set(page)
+      .catch((err: Error) => console.error(err));
+  }
+
+  orderBlock(dataId: string, block: Block.Base, blockReplaced: Block.Base) {
+    const updates = {
+      [`${block.id}/order`]: block.order,
+      [`${blockReplaced.id}/order`]: blockReplaced.order
+    };
+
+    return this.db.database
+      .ref(`data/${dataId}`)
+      .update(updates)
+      .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
   }
 

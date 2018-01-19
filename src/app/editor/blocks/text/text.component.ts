@@ -22,7 +22,8 @@ export class TextComponent {
     this._block = {
       type: 'text',
       id: block.id,
-      data: block.data || []
+      data: block.data || [],
+      order: block.order
     };
   }
   get block() {
