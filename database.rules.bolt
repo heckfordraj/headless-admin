@@ -5,17 +5,32 @@ type Page {
   validate() { this.id == key() }
 }
 
+type Block {
+  id: String;
+  type: String;
+  data: Object | Null;
+  order: Number;
+  validate() { this.id == key() }
+}
+
 path /pages {
   read() { true }
 
   /{page} is Page {
-      create() { prior(this) == null }
-      update() { prior(this) == null }
-      delete() { true }
+    create() { prior(this) == null }
+    update() { prior(this) == null }
+    delete() { true }
   }
 }
 
 path /data {
   read() { true }
   write() { true }
+
+  /{pageId} {
+
+    /{blockId} is Block {
+      index() { 'order' }
+    }
+  }
 }
