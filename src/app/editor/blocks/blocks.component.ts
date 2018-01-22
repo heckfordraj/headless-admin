@@ -55,11 +55,11 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   }
 
   updateBlock(blockId: string, data: Block.Data.Base) {
-    this.serverService.updateBlock(this.page.dataId, blockId, data);
+    this.serverService.updateBlock(this.page, blockId, data);
   }
 
   removeBlock(block: Block.Base) {
-    this.serverService.removeBlock(this.page.dataId, block);
+    this.serverService.removeBlock(this.page, block);
   }
 
   addBlock(base: Block.Base) {
@@ -68,7 +68,7 @@ export class BlocksComponent implements OnChanges, OnDestroy {
       order: this.blocks.length + 1,
       ...base
     };
-    this.serverService.addBlock(this.page.dataId, block);
+    this.serverService.addBlock(this.page, block);
   }
 
   ngOnChanges(changes: SimpleChanges) {

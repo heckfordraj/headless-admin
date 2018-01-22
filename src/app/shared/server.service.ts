@@ -67,9 +67,9 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  addBlock(dataId: string, block: Block.Base) {
+  addBlock(page: Page, block: Block.Base) {
     return this.db
-      .list<Block.Base>(`data/${dataId}`)
+      .list<Block.Base>(`data/${page.dataId}`)
       .set(block.id, block)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
@@ -84,9 +84,9 @@ export class ServerService {
     return this.db.database.ref('pages').update(updates);
   }
 
-  updateBlock(dataId: string, blockId: string, data: Block.Data.Base) {
+  updateBlock(page: Page, blockId: string, data: Block.Data.Base) {
     return this.db
-      .list<Block.Data.Base>(`data/${dataId}/${blockId}/data`)
+      .list<Block.Data.Base>(`data/${page.dataId}/${blockId}/data`)
       .set(data.id, data)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
@@ -101,9 +101,9 @@ export class ServerService {
     return this.db.database.ref().update(updates);
   }
 
-  removeBlock(dataId: string, block: Block.Base) {
+  removeBlock(page: Page, block: Block.Base) {
     return this.db
-      .list<Block.Base>(`data/${dataId}`)
+      .list<Block.Base>(`data/${page.dataId}`)
       .remove(block.id)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
