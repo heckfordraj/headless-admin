@@ -37,9 +37,12 @@ export class ServerService {
       );
   }
 
-  getBlocks(id: string): Observable<Block.Base[]> {
+  getBlocks(page: Page): Observable<Block.Base[]> {
     return this.db
-      .list<Block.Base>(`data/${id}`, ref => ref.orderByChild('order'))
+      .list<Block.Base>(
+        `data/${page.dataId}/${page.revisions.currentId}`,
+        ref => ref.orderByChild('order')
+      )
       .valueChanges()
       .pipe(
         tap((res: any) => console.log(res)),
@@ -61,7 +64,7 @@ export class ServerService {
     };
 
     return this.db.database
-      .ref(`data/${page.dataId}`)
+      .ref(`data/${page.dataId}/${page.revisions.currentId}`)
       .update(updates)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
@@ -69,7 +72,7 @@ export class ServerService {
 
   addBlock(page: Page, block: Block.Base) {
     return this.db
-      .list<Block.Base>(`data/${page.dataId}`)
+      .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .set(block.id, block)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
@@ -86,7 +89,9 @@ export class ServerService {
 
   updateBlock(page: Page, blockId: string, data: Block.Data.Base) {
     return this.db
-      .list<Block.Data.Base>(`data/${page.dataId}/${blockId}/data`)
+      .list<Block.Data.Base>(
+        `data/${page.dataId}/${page.revisions.currentId}/${blockId}/data`
+      )
       .set(data.id, data)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
@@ -103,7 +108,7 @@ export class ServerService {
 
   removeBlock(page: Page, block: Block.Base) {
     return this.db
-      .list<Block.Base>(`data/${page.dataId}`)
+      .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .remove(block.id)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));

@@ -74,7 +74,7 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.page.currentValue) {
       this.blocks$ = this.serverService
-        .getBlocks(this.page.dataId)
+        .getBlocks(this.page)
         .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
     }
   }

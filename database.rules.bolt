@@ -1,7 +1,13 @@
+type Revision {
+  currentId: String;
+  publishedId: String | Null;
+}
+
 type Page {
   id: String;
   name: String;
   dataId: String;
+  revisions: Revision;
   validate() { this.id == key() }
 }
 
@@ -28,9 +34,11 @@ path /data {
   write() { true }
 
   /{pageId} {
-
-    /{blockId} is Block {
-      index() { 'order' }
+    /{revisionId} {
+      
+      /{blockId} is Block {
+        index() { 'order' }
+      }
     }
   }
 }
