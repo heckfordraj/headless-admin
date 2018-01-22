@@ -54,14 +54,14 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  orderBlock(dataId: string, block: Block.Base, blockReplaced: Block.Base) {
+  orderBlock(page: Page, block: Block.Base, blockReplaced: Block.Base) {
     const updates = {
       [`${block.id}/order`]: block.order,
       [`${blockReplaced.id}/order`]: blockReplaced.order
     };
 
     return this.db.database
-      .ref(`data/${dataId}`)
+      .ref(`data/${page.dataId}`)
       .update(updates)
       .then((res: any) => console.log(res))
       .catch((err: Error) => console.error(err));
