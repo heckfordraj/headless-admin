@@ -1,7 +1,7 @@
 type Page {
   id: String;
   name: String;
-  data: String;
+  dataId: String;
   validate() { this.id == key() }
 }
 

@@ -95,7 +95,7 @@ export class ServerService {
   removePage(page: Page) {
     const updates = {
       [`pages/${page.id}`]: null,
-      [`data/${page.data}`]: null
+      [`data/${page.dataId}`]: null
     };
 
     return this.db.database.ref().update(updates);

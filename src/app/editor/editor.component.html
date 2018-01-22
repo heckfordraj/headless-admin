@@ -2,4 +2,4 @@
 
 <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)"><button (click)="removePage()">&times;</button>
 
-<app-blocks [dataId]="page?.data"></app-blocks>
+<app-blocks [dataId]="page?.dataId"></app-blocks>

@@ -29,7 +29,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     const newPage: Page = {
       id: slugify(newname),
       name: newname,
-      data: this.page.data
+      dataId: this.page.dataId
     };
 
     this.serverService

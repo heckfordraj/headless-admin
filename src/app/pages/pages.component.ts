@@ -21,7 +21,7 @@ export class PagesComponent implements OnInit {
     const newPage: Page = {
       id: slugify(newname),
       name: newname,
-      data: page.data
+      dataId: page.dataId
     };
     this.serverService.updatePage(page, newPage);
   }
@@ -30,7 +30,7 @@ export class PagesComponent implements OnInit {
     const newPage: Page = {
       id: slugify(name),
       name: name,
-      data: this.serverService.createId()
+      dataId: this.serverService.createId()
     };
     this.serverService.addPage(newPage);
   }

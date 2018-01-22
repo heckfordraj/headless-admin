@@ -22,7 +22,7 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   baseBlocks: {} = Blocks;
 
   blocks$: Subscription;
-  blocks: Block.Base[];
+  blocks: Block.Base[] = [];
 
   constructor(private serverService: ServerService) {}
 
@@ -64,7 +64,7 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   addBlock(base: Block.Base) {
     const block = {
       id: this.serverService.createId(),
-      order: (this.blocks.length || 0) + 1,
+      order: this.blocks.length + 1,
       ...base
     };
     this.serverService.addBlock(this.id, block);
