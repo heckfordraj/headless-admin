@@ -9,6 +9,7 @@ import {
 import { Subscription } from 'rxjs/Subscription';
 
 import { ServerService } from '../../shared/server.service';
+import { Page } from '../../shared/page';
 import { Blocks, Block } from '../../shared/block';
 
 @Component({
@@ -17,7 +18,7 @@ import { Blocks, Block } from '../../shared/block';
   styleUrls: ['./blocks.component.scss']
 })
 export class BlocksComponent implements OnChanges, OnDestroy {
-  @Input('dataId') id: string;
+  @Input() page: Page;
 
   baseBlocks: {} = Blocks;
 
@@ -49,16 +50,16 @@ export class BlocksComponent implements OnChanges, OnDestroy {
       block.order = blockReplacedOrder;
       blockReplaced.order = blockOrder;
 
-      this.serverService.orderBlock(this.id, block, blockReplaced);
+      this.serverService.orderBlock(this.page.dataId, block, blockReplaced);
     }
   }
 
   updateBlock(blockId: string, data: Block.Data.Base) {
-    this.serverService.updateBlock(this.id, blockId, data);
+    this.serverService.updateBlock(this.page.dataId, blockId, data);
   }
 
   removeBlock(block: Block.Base) {
-    this.serverService.removeBlock(this.id, block);
+    this.serverService.removeBlock(this.page.dataId, block);
   }
 
   addBlock(base: Block.Base) {
@@ -67,13 +68,13 @@ export class BlocksComponent implements OnChanges, OnDestroy {
       order: this.blocks.length + 1,
       ...base
     };
-    this.serverService.addBlock(this.id, block);
+    this.serverService.addBlock(this.page.dataId, block);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.id.currentValue) {
+    if (changes.page.currentValue) {
       this.blocks$ = this.serverService
-        .getBlocks(this.id)
+        .getBlocks(this.page.dataId)
         .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
     }
   }
