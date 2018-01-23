@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 import { slugify } from 'underscore.string';
 
@@ -12,8 +12,9 @@ import { Page } from '../shared/page';
   templateUrl: './pages.component.html',
   styleUrls: ['./pages.component.scss']
 })
-export class PagesComponent implements OnInit {
-  pages$: Observable<Page[]>;
+export class PagesComponent implements OnInit, OnDestroy {
+  pages$: Subscription;
+  pages: Page[];
 
   constructor(private serverService: ServerService) {}
 
@@ -38,6 +39,12 @@ export class PagesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.pages$ = this.serverService.getCollection('pages');
+    this.pages$ = this.serverService
+      .getCollection('pages')
+      .subscribe((pages: Page[]) => (this.pages = pages));
+  }
+
+  ngOnDestroy() {
+    this.pages$.unsubscribe();
   }
 }

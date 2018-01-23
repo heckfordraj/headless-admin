@@ -1,7 +1,7 @@
 <h1>pages:</h1>
 
 <ul>
-  <li *ngFor="let page of pages$ | async">
+  <li *ngFor="let page of pages">
     {{ page | json }}
 
      <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
