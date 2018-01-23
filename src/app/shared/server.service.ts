@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { catchError, tap } from 'rxjs/operators';
 import 'rxjs/add/observable/throw';
 
-import { AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -45,7 +45,7 @@ export class ServerService {
       )
       .valueChanges()
       .pipe(
-        tap((res: any) => console.log(res)),
+        tap((res: any) => console.dir(res)),
         catchError(this.handleError<Block.Base>('getBlocks'))
       );
   }
@@ -111,6 +111,24 @@ export class ServerService {
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .remove(block.id)
       .then((res: any) => console.log(res))
+      .catch((err: Error) => console.error(err));
+  }
+
+  publishPage(page: Page) {
+    const newId = this.createId();
+
+    return this.db.database
+      .ref(`data/${page.dataId}/${page.revisions.currentId}`)
+      .once('value')
+      .then((blocks: DatabaseSnapshot) =>
+        this.db.database.ref(`data/${page.dataId}/${newId}`).set(blocks.val())
+      )
+      .then(_ =>
+        this.db.database.ref(`pages/${page.id}/revisions/`).update({
+          publishedId: page.revisions.currentId,
+          currentId: newId
+        })
+      )
       .catch((err: Error) => console.error(err));
   }
 

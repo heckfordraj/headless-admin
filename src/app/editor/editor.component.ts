@@ -25,6 +25,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   page$: Subscription;
   page: Page;
 
+  publishPage() {
+    this.serverService.publishPage(this.page);
+  }
+
   updatePage(newname: string) {
     const newPage: Page = {
       id: slugify(newname),

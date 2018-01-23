@@ -23,8 +23,8 @@ path /pages {
   read() { true }
 
   /{page} is Page {
-    create() { prior(this) == null }
-    update() { prior(this) == null }
+    create() { prior(this.id) == this.id || prior(this) == null }
+    update() { prior(this.id) == this.id || prior(this) == null }
     delete() { true }
   }
 }
@@ -35,7 +35,7 @@ path /data {
 
   /{pageId} {
     /{revisionId} {
-      
+
       /{blockId} is Block {
         index() { 'order' }
       }
