@@ -23,8 +23,12 @@ beforeEach(
 describe('PagesComponent', () => {
   beforeEach(async(() => createComponent()));
 
-  it('true', () => {
-    expect(true).toBe(true);
+  it('should set pages', () => {
+    expect(comp.pages.length).toBe(5);
+  });
+
+  it('should display pages', () => {
+    expect(pages.pages.length).toBe(5);
   });
 });
 
@@ -43,8 +47,9 @@ function createComponent() {
 class Pages {
   addPage: jasmine.Spy;
 
-  pageNames: HTMLElement;
-  pageInputs: HTMLInputElement;
+  pages: DebugElement[];
+  pageName: HTMLElement;
+  pageInput: HTMLInputElement;
 
   constructor() {
     const serverService = fixture.debugElement.injector.get(ServerService);
@@ -54,8 +59,9 @@ class Pages {
 
   addElements() {
     if (comp.pages) {
-      this.pageNames = fixture.debugElement.query(By.css('a')).nativeElement;
-      this.pageInputs = fixture.debugElement.query(
+      this.pages = fixture.debugElement.queryAll(By.css('li'));
+      this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
+      this.pageInput = fixture.debugElement.query(
         By.css('input')
       ).nativeElement;
     }
