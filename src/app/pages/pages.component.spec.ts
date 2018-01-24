@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterLinkStub } from '../../testing/router';
 import { ServerServiceStub } from '../../testing/server.service';
+import { isPage } from '../../testing/page';
 
 import { PagesComponent } from './pages.component';
 import { ServerService } from '../shared/server.service';
@@ -56,6 +57,55 @@ describe('PagesComponent', () => {
       expect(pages.links[4].linkParams).toEqual(['/page', 'page-5']);
     });
   });
+
+  describe('Page Add', () => {
+    it('should have empty text value', () => {
+      expect(pages.pageAdd.nativeElement.value).toBe('');
+    });
+
+    it('should not call addPage on key press', () => {
+      pages.pageAdd.triggerEventHandler('keyup', null);
+      pages.pageAdd.triggerEventHandler('input', null);
+
+      expect(pages.addPage.calls.any()).toBeFalsy();
+    });
+
+    it('should call addPage on enter press', () => {
+      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+      expect(pages.addPage.calls.count()).toBe(1);
+    });
+
+    it('should get text value from input', () => {
+      pages.pageAdd.nativeElement.value = 'abc';
+      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+
+      expect(pages.addPage.calls.mostRecent().args).toEqual(['abc']);
+    });
+
+    xdescribe('create new Page', () => {
+      xit('should set name as input value', () => {});
+
+      xit('should set id as slugified input value', () => {});
+
+      xit('should set revisions currentId', () => {});
+
+      xit('should not set revisions publishedId', () => {});
+    });
+
+    it('should call addPage', () => {
+      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+      expect(pages.serverAddPage.calls.count()).toEqual(1);
+    });
+
+    it('should call addPage with Page object', () => {
+      pages.pageAdd.nativeElement.value = 'abc';
+      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+
+      let arg = pages.serverAddPage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+  });
 });
 
 function createComponent() {
@@ -74,11 +124,13 @@ class Pages {
   onInit: jasmine.Spy;
   addPage: jasmine.Spy;
 
+  serverAddPage: jasmine.Spy;
+
   pages: DebugElement[];
   pageName: HTMLElement;
   pageInput: HTMLInputElement;
   pageDelete: HTMLInputElement;
-  pageAdd: HTMLInputElement;
+  pageAdd: DebugElement;
   links: RouterLinkStub[];
   linkDes: DebugElement[];
 
@@ -87,6 +139,7 @@ class Pages {
 
     this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
+    this.serverAddPage = spyOn(serverService, 'addPage').and.callThrough();
   }
 
   addElements() {
@@ -103,9 +156,7 @@ class Pages {
         By.css('button')
       ).nativeElement;
 
-      this.pageAdd = fixture.debugElement.query(
-        de => de.references['add']
-      ).nativeElement;
+      this.pageAdd = fixture.debugElement.query(de => de.references['add']);
 
       this.linkDes = fixture.debugElement.queryAll(
         By.directive(RouterLinkStub)

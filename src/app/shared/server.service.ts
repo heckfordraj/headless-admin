@@ -50,7 +50,7 @@ export class ServerService {
       );
   }
 
-  addPage(page: Page) {
+  addPage(page: Page): Promise<void> {
     return this.db
       .object<Page>(`pages/${page.id}`)
       .set(page)

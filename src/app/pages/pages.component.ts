@@ -25,7 +25,7 @@ export class PagesComponent implements OnInit, OnDestroy {
       dataId: page.dataId,
       revisions: { currentId: page.revisions.currentId }
     };
-    this.serverService.updatePage(page, newPage);
+    return this.serverService.updatePage(page, newPage);
   }
 
   addPage(name: string) {
@@ -35,7 +35,7 @@ export class PagesComponent implements OnInit, OnDestroy {
       dataId: this.serverService.createId(),
       revisions: { currentId: this.serverService.createId() }
     };
-    this.serverService.addPage(newPage);
+    return this.serverService.addPage(newPage);
   }
 
   ngOnInit() {
