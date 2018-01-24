@@ -78,7 +78,7 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  updatePage(currentPage: Page, newPage: Page) {
+  updatePage(currentPage: Page, newPage: Page): Promise<void> {
     const updates = {
       [newPage.id]: newPage,
       [currentPage.id]: null
@@ -100,13 +100,16 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  removePage(page: Page) {
+  removePage(page: Page): Promise<void> {
     const updates = {
       [`pages/${page.id}`]: null,
       [`data/${page.dataId}`]: null
     };
 
-    return this.db.database.ref().update(updates);
+    return this.db.database
+      .ref()
+      .update(updates)
+      .catch((err: Error) => console.error(err));
   }
 
   removeBlock(page: Page, block: Block.Base) {

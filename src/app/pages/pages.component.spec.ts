@@ -213,6 +213,41 @@ describe('PagesComponent', () => {
       expect(isPage(arg)).toBeTruthy();
     });
   });
+
+  describe('Page Remove', () => {
+    it('should call removePage', () => {
+      page.pageDelete.triggerEventHandler('click', null);
+
+      expect(page.removePage.calls.count()).toBe(1);
+    });
+
+    it('should call removePage with Page object', () => {
+      page.pageDelete.triggerEventHandler('click', null);
+      let arg = page.removePage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+
+    it('should call removePage with correct Page', () => {
+      page.pageDelete.triggerEventHandler('click', null);
+      let arg = page.removePage.calls.mostRecent().args[0];
+
+      expect(arg.name).toBe('Page 1');
+    });
+
+    it('should call ServerService removePage', () => {
+      page.pageDelete.triggerEventHandler('click', null);
+
+      expect(page.serverRemovePage.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService removePage with Page object', () => {
+      page.pageDelete.triggerEventHandler('click', null);
+      let arg = page.serverRemovePage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+  });
 });
 
 function createComponent() {
@@ -231,14 +266,16 @@ class Page {
   onInit: jasmine.Spy;
   addPage: jasmine.Spy;
   updatePage: jasmine.Spy;
+  removePage: jasmine.Spy;
 
   serverAddPage: jasmine.Spy;
   serverUpdatePage: jasmine.Spy;
+  serverRemovePage: jasmine.Spy;
 
   pages: DebugElement[];
   pageName: HTMLElement;
   pageInput: DebugElement;
-  pageDelete: HTMLInputElement;
+  pageDelete: DebugElement;
   pageAdd: DebugElement;
   links: RouterLinkStub[];
   linkDes: DebugElement[];
@@ -249,10 +286,15 @@ class Page {
     this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
+    this.removePage = spyOn(comp, 'removePage').and.callThrough();
     this.serverAddPage = spyOn(serverService, 'addPage').and.callThrough();
     this.serverUpdatePage = spyOn(
       serverService,
       'updatePage'
+    ).and.callThrough();
+    this.serverRemovePage = spyOn(
+      serverService,
+      'removePage'
     ).and.callThrough();
   }
 
@@ -264,9 +306,7 @@ class Page {
 
       this.pageInput = fixture.debugElement.query(By.css('input'));
 
-      this.pageDelete = fixture.debugElement.query(
-        By.css('button')
-      ).nativeElement;
+      this.pageDelete = fixture.debugElement.query(By.css('button'));
 
       this.pageAdd = fixture.debugElement.query(de => de.references['add']);
 

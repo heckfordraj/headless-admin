@@ -19,4 +19,8 @@ export class ServerServiceStub {
   updatePage(currentPage: Page, newPage: Page): Promise<void> {
     return Promise.resolve(null);
   }
+
+  removePage(page: Page): Promise<void> {
+    return Promise.resolve(null);
+  }
 }

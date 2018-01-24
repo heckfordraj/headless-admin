@@ -38,6 +38,10 @@ export class PagesComponent implements OnInit, OnDestroy {
     return this.serverService.addPage(newPage);
   }
 
+  removePage(page: Page) {
+    return this.serverService.removePage(page);
+  }
+
   ngOnInit() {
     this.pages$ = this.serverService
       .getCollection('pages')

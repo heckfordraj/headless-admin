@@ -6,7 +6,7 @@
 
     <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
-    <button (click)="serverService.removePage(page)">&times;</button>
+    <button (click)="removePage(page)">&times;</button>
   </li>
 </ul>
 
