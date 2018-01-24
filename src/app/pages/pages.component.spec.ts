@@ -44,6 +44,8 @@ describe('PagesComponent', () => {
     expect(pages.pageInput.value).toBe('Page 1');
   });
 
+  xit('should display newly added page', () => {});
+
   describe('Routing', () => {
     it('should display links in template', () => {
       expect(pages.links.length).toBe(5);
@@ -82,19 +84,9 @@ describe('PagesComponent', () => {
       expect(pages.addPage.calls.mostRecent().args).toEqual(['abc']);
     });
 
-    xdescribe('create new Page', () => {
-      xit('should set name as input value', () => {});
-
-      xit('should set id as slugified input value', () => {});
-
-      xit('should set revisions currentId', () => {});
-
-      xit('should not set revisions publishedId', () => {});
-    });
-
     it('should call addPage', () => {
       pages.pageAdd.triggerEventHandler('keyup.enter', null);
-      expect(pages.serverAddPage.calls.count()).toEqual(1);
+      expect(pages.serverAddPage.calls.count()).toBe(1);
     });
 
     it('should call addPage with Page object', () => {
@@ -104,6 +96,39 @@ describe('PagesComponent', () => {
       let arg = pages.serverAddPage.calls.mostRecent().args[0];
 
       expect(isPage(arg)).toBeTruthy();
+    });
+
+    describe('create new Page', () => {
+      let newPage;
+
+      beforeEach(() => {
+        pages.pageAdd.nativeElement.value = 'New Title';
+        pages.pageAdd.triggerEventHandler('keyup.enter', null);
+
+        newPage = pages.serverAddPage.calls.mostRecent().args[0];
+      });
+
+      it('should set name as input value', () => {
+        expect(newPage.name).toBe('New Title');
+      });
+
+      xit('should set name as escaped input value', () => {});
+
+      it('should set id as slugified input value', () => {
+        expect(newPage.id).toBe('new-title');
+      });
+
+      it('should set dataId', () => {
+        expect(newPage.dataId).toBe('abcdefg');
+      });
+
+      it('should set revisions currentId', () => {
+        expect(newPage.revisions.currentId).toBe('abcdefg');
+      });
+
+      it('should not set revisions publishedId', () => {
+        expect(newPage.revisions.publishedId).toBeUndefined();
+      });
     });
   });
 });
