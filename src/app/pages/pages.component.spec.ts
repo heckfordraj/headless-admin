@@ -10,7 +10,7 @@ import { ServerService } from '../shared/server.service';
 
 let comp: PagesComponent;
 let fixture: ComponentFixture<PagesComponent>;
-let pages: Pages;
+let page: Page;
 
 beforeEach(
   async(() => {
@@ -25,7 +25,7 @@ describe('PagesComponent', () => {
   beforeEach(async(() => createComponent()));
 
   it('should call getCollection on load', () => {
-    expect(pages.onInit.calls.any()).toBe(true);
+    expect(page.onInit.calls.any()).toBe(true);
   });
 
   it('should get pages', () => {
@@ -33,67 +33,63 @@ describe('PagesComponent', () => {
   });
 
   it('should display pages', () => {
-    expect(pages.pages.length).toBe(5);
+    expect(page.pages.length).toBe(5);
   });
 
   it('should display page name', () => {
-    expect(pages.pageName.textContent).toBe('Page 1');
+    expect(page.pageName.textContent).toBe('Page 1');
   });
 
   it('should display initial page name in input', () => {
-    expect(pages.pageInput.value).toBe('Page 1');
+    expect(page.pageInput.value).toBe('Page 1');
   });
 
   xit('should display newly added page', () => {});
 
   describe('Routing', () => {
     it('should display links in template', () => {
-      expect(pages.links.length).toBe(5);
+      expect(page.links.length).toBe(5);
     });
 
     it('should display correct link url', () => {
-      expect(pages.links[0].linkParams).toEqual(['/page', 'page-1']);
-      expect(pages.links[1].linkParams).toEqual(['/page', 'page-2']);
-      expect(pages.links[2].linkParams).toEqual(['/page', 'page-3']);
-      expect(pages.links[3].linkParams).toEqual(['/page', 'page-4']);
-      expect(pages.links[4].linkParams).toEqual(['/page', 'page-5']);
+      expect(page.links[0].linkParams).toEqual(['/page', 'page-1']);
     });
   });
 
   describe('Page Add', () => {
     it('should have empty text value', () => {
-      expect(pages.pageAdd.nativeElement.value).toBe('');
+      expect(page.pageAdd.nativeElement.value).toBe('');
     });
 
     it('should not call addPage on key press', () => {
-      pages.pageAdd.triggerEventHandler('keyup', null);
-      pages.pageAdd.triggerEventHandler('input', null);
+      page.pageAdd.triggerEventHandler('keyup', null);
+      page.pageAdd.triggerEventHandler('input', null);
 
-      expect(pages.addPage.calls.any()).toBeFalsy();
+      expect(page.addPage.calls.any()).toBeFalsy();
     });
 
     it('should call addPage on enter press', () => {
-      pages.pageAdd.triggerEventHandler('keyup.enter', null);
-      expect(pages.addPage.calls.count()).toBe(1);
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
+      expect(page.addPage.calls.count()).toBe(1);
     });
 
     it('should get text value from input', () => {
-      pages.pageAdd.nativeElement.value = 'abc';
-      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+      page.pageAdd.nativeElement.value = 'abc';
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-      expect(pages.addPage.calls.mostRecent().args).toEqual(['abc']);
+      expect(page.addPage.calls.mostRecent().args).toEqual(['abc']);
     });
 
     it('should call addPage', () => {
-      pages.pageAdd.triggerEventHandler('keyup.enter', null);
-      expect(pages.serverAddPage.calls.count()).toBe(1);
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
+      expect(page.serverAddPage.calls.count()).toBe(1);
     });
 
     it('should call addPage with Page object', () => {
-      pages.pageAdd.nativeElement.value = 'abc';
-      pages.pageAdd.triggerEventHandler('keyup.enter', null);
+      page.pageAdd.nativeElement.value = 'abc';
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-      let arg = pages.serverAddPage.calls.mostRecent().args[0];
+      let arg = page.serverAddPage.calls.mostRecent().args[0];
 
       expect(isPage(arg)).toBeTruthy();
     });
@@ -102,17 +98,15 @@ describe('PagesComponent', () => {
       let newPage;
 
       beforeEach(() => {
-        pages.pageAdd.nativeElement.value = 'New Title';
-        pages.pageAdd.triggerEventHandler('keyup.enter', null);
+        page.pageAdd.nativeElement.value = 'New Title';
+        page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-        newPage = pages.serverAddPage.calls.mostRecent().args[0];
+        newPage = page.serverAddPage.calls.mostRecent().args[0];
       });
 
       it('should set name as input value', () => {
         expect(newPage.name).toBe('New Title');
       });
-
-      xit('should set name as escaped input value', () => {});
 
       it('should set id as slugified input value', () => {
         expect(newPage.id).toBe('new-title');
@@ -136,16 +130,16 @@ describe('PagesComponent', () => {
 function createComponent() {
   fixture = TestBed.createComponent(PagesComponent);
   comp = fixture.componentInstance;
-  pages = new Pages();
+  page = new Page();
 
   fixture.detectChanges();
   return fixture.whenStable().then(() => {
     fixture.detectChanges();
-    pages.addElements();
+    page.addElements();
   });
 }
 
-class Pages {
+class Page {
   onInit: jasmine.Spy;
   addPage: jasmine.Spy;
 
