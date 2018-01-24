@@ -23,12 +23,24 @@ beforeEach(
 describe('PagesComponent', () => {
   beforeEach(async(() => createComponent()));
 
-  it('should set pages', () => {
+  it('should call getCollection on load', () => {
+    expect(pages.onInit.calls.any()).toBe(true);
+  });
+
+  it('should get pages', () => {
     expect(comp.pages.length).toBe(5);
   });
 
   it('should display pages', () => {
     expect(pages.pages.length).toBe(5);
+  });
+
+  it('should display page name', () => {
+    expect(pages.pageName.textContent).toBe('Page 1');
+  });
+
+  it('should display initial page name in input', () => {
+    expect(pages.pageInput.value).toBe('Page 1');
   });
 });
 
@@ -45,15 +57,19 @@ function createComponent() {
 }
 
 class Pages {
+  onInit: jasmine.Spy;
   addPage: jasmine.Spy;
 
   pages: DebugElement[];
   pageName: HTMLElement;
   pageInput: HTMLInputElement;
+  pageDelete: HTMLInputElement;
+  pageAdd: HTMLInputElement;
 
   constructor() {
     const serverService = fixture.debugElement.injector.get(ServerService);
 
+    this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
   }
 
@@ -63,6 +79,12 @@ class Pages {
       this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
       this.pageInput = fixture.debugElement.query(
         By.css('input')
+      ).nativeElement;
+      this.pageDelete = fixture.debugElement.query(
+        By.css('button')
+      ).nativeElement;
+      this.pageAdd = fixture.debugElement.query(
+        de => de.references['add']
       ).nativeElement;
     }
   }
