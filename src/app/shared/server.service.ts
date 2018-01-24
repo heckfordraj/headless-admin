@@ -84,7 +84,10 @@ export class ServerService {
       [currentPage.id]: null
     };
 
-    return this.db.database.ref('pages').update(updates);
+    return this.db.database
+      .ref('pages')
+      .update(updates)
+      .catch((err: Error) => console.error(err));
   }
 
   updateBlock(page: Page, blockId: string, data: Block.Data.Base) {

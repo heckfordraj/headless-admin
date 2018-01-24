@@ -41,7 +41,7 @@ describe('PagesComponent', () => {
   });
 
   it('should display initial page name in input', () => {
-    expect(page.pageInput.value).toBe('Page 1');
+    expect(page.pageInput.nativeElement.value).toBe('Page 1');
   });
 
   xit('should display newly added page', () => {});
@@ -57,7 +57,7 @@ describe('PagesComponent', () => {
   });
 
   describe('Page Add', () => {
-    it('should have empty text value', () => {
+    it('should have empty intial value', () => {
       expect(page.pageAdd.nativeElement.value).toBe('');
     });
 
@@ -73,25 +73,11 @@ describe('PagesComponent', () => {
       expect(page.addPage.calls.count()).toBe(1);
     });
 
-    it('should get text value from input', () => {
+    it('should call addPage with input value', () => {
       page.pageAdd.nativeElement.value = 'abc';
       page.pageAdd.triggerEventHandler('keyup.enter', null);
 
       expect(page.addPage.calls.mostRecent().args).toEqual(['abc']);
-    });
-
-    it('should call addPage', () => {
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
-      expect(page.serverAddPage.calls.count()).toBe(1);
-    });
-
-    it('should call addPage with Page object', () => {
-      page.pageAdd.nativeElement.value = 'abc';
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
-
-      let arg = page.serverAddPage.calls.mostRecent().args[0];
-
-      expect(isPage(arg)).toBeTruthy();
     });
 
     describe('create new Page', () => {
@@ -124,6 +110,108 @@ describe('PagesComponent', () => {
         expect(newPage.revisions.publishedId).toBeUndefined();
       });
     });
+
+    it('should call ServerService addPage with Page object', () => {
+      page.pageAdd.nativeElement.value = 'abc';
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
+
+      let arg = page.serverAddPage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+  });
+
+  describe('Page Update', () => {
+    it('should have initial page name value', () => {
+      expect(page.pageInput.nativeElement.value).toBe('Page 1');
+    });
+
+    it('should not call updatePage on key press', () => {
+      page.pageInput.triggerEventHandler('keyup', null);
+      page.pageInput.triggerEventHandler('input', null);
+
+      expect(page.updatePage.calls.any()).toBeFalsy();
+    });
+
+    it('should call updatePage on enter press', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      expect(page.updatePage.calls.count()).toBe(1);
+    });
+
+    it('should call updatePage with Page object', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.updatePage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+
+    it('should call updatePage with correct Page', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.updatePage.calls.mostRecent().args[0];
+
+      expect(arg.name).toBe('Page 1');
+    });
+
+    it('should call updatePage with input value', () => {
+      page.pageInput.nativeElement.value = 'abc';
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+
+      let arg = page.updatePage.calls.mostRecent().args[1];
+
+      expect(arg).toBe('abc');
+    });
+
+    describe('create new Page', () => {
+      let currentPage;
+      let newPage;
+
+      beforeEach(() => {
+        page.pageInput.nativeElement.value = 'Updated Title';
+        page.pageInput.triggerEventHandler('keyup.enter', null);
+
+        currentPage = page.serverUpdatePage.calls.mostRecent().args[0];
+        newPage = page.serverUpdatePage.calls.mostRecent().args[1];
+      });
+
+      it('should set new name as input value', () => {
+        expect(newPage.name).toBe('Updated Title');
+      });
+
+      it('should set new id as slugified input value', () => {
+        expect(newPage.id).toBe('updated-title');
+      });
+
+      it('should set unchanged dataId', () => {
+        expect(newPage.dataId).toBe('1');
+      });
+
+      it('should set unchanged revisions currentId', () => {
+        expect(newPage.revisions.currentId).toBe('a');
+      });
+
+      it('should not set revisions publishedId', () => {
+        expect(newPage.revisions.publishedId).toBeUndefined();
+      });
+
+      it('should not modify current Page', () => {
+        expect(currentPage.id).toBe('page-1');
+        expect(currentPage.name).toBe('Page 1');
+      });
+    });
+
+    it('should call ServerService updatePage with current Page object', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.serverUpdatePage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+
+    it('should call ServerService updatePage with new Page object', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.serverUpdatePage.calls.mostRecent().args[1];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
   });
 });
 
@@ -142,12 +230,14 @@ function createComponent() {
 class Page {
   onInit: jasmine.Spy;
   addPage: jasmine.Spy;
+  updatePage: jasmine.Spy;
 
   serverAddPage: jasmine.Spy;
+  serverUpdatePage: jasmine.Spy;
 
   pages: DebugElement[];
   pageName: HTMLElement;
-  pageInput: HTMLInputElement;
+  pageInput: DebugElement;
   pageDelete: HTMLInputElement;
   pageAdd: DebugElement;
   links: RouterLinkStub[];
@@ -158,7 +248,12 @@ class Page {
 
     this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
+    this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
     this.serverAddPage = spyOn(serverService, 'addPage').and.callThrough();
+    this.serverUpdatePage = spyOn(
+      serverService,
+      'updatePage'
+    ).and.callThrough();
   }
 
   addElements() {
@@ -167,9 +262,7 @@ class Page {
 
       this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
 
-      this.pageInput = fixture.debugElement.query(
-        By.css('input')
-      ).nativeElement;
+      this.pageInput = fixture.debugElement.query(By.css('input'));
 
       this.pageDelete = fixture.debugElement.query(
         By.css('button')
