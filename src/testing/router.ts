@@ -22,3 +22,33 @@ export class RouterLinkStub {
     this.navigatedTo = this.linkParams;
   }
 }
+
+@Component({ selector: 'router-outlet', template: '' })
+export class RouterOutletStub {}
+
+@Injectable()
+export class RouterStub {
+  navigate(commands: any[], extras?: NavigationExtras) {}
+}
+
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { convertToParamMap, ParamMap } from '@angular/router';
+
+@Injectable()
+export class ActivatedRouteStub {
+  private subject = new BehaviorSubject(convertToParamMap(this.testParamMap));
+  paramMap = this.subject.asObservable();
+
+  private _testParamMap: ParamMap;
+  get testParamMap() {
+    return this._testParamMap;
+  }
+  set testParamMap(params: {}) {
+    this._testParamMap = convertToParamMap(params);
+    this.subject.next(this._testParamMap);
+  }
+
+  get snapshot() {
+    return { paramMap: this.testParamMap };
+  }
+}

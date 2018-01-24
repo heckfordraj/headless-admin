@@ -2,7 +2,7 @@
 
 <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)">
 
-<button (click)="publishPage()">publish</button>
-<button (click)="removePage()">&times;</button>
+<button #publish (click)="publishPage()">publish</button>
+<button #remove (click)="removePage()">&times;</button>
 
 <app-blocks [page]="page"></app-blocks>

@@ -8,6 +8,10 @@ export class ServerServiceStub {
     return 'abcdefg';
   }
 
+  getPage(id: string): Observable<Page> {
+    return Observable.of(Pages.find((page: Page) => page.id === id));
+  }
+
   getCollection(): Observable<Page[]> {
     return Observable.of(Pages);
   }
