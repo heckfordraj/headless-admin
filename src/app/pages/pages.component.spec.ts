@@ -42,6 +42,20 @@ describe('PagesComponent', () => {
   it('should display initial page name in input', () => {
     expect(pages.pageInput.value).toBe('Page 1');
   });
+
+  describe('Routing', () => {
+    it('should display links in template', () => {
+      expect(pages.links.length).toBe(5);
+    });
+
+    it('should display correct link url', () => {
+      expect(pages.links[0].linkParams).toEqual(['/page', 'page-1']);
+      expect(pages.links[1].linkParams).toEqual(['/page', 'page-2']);
+      expect(pages.links[2].linkParams).toEqual(['/page', 'page-3']);
+      expect(pages.links[3].linkParams).toEqual(['/page', 'page-4']);
+      expect(pages.links[4].linkParams).toEqual(['/page', 'page-5']);
+    });
+  });
 });
 
 function createComponent() {
@@ -65,6 +79,8 @@ class Pages {
   pageInput: HTMLInputElement;
   pageDelete: HTMLInputElement;
   pageAdd: HTMLInputElement;
+  links: RouterLinkStub[];
+  linkDes: DebugElement[];
 
   constructor() {
     const serverService = fixture.debugElement.injector.get(ServerService);
@@ -76,16 +92,28 @@ class Pages {
   addElements() {
     if (comp.pages) {
       this.pages = fixture.debugElement.queryAll(By.css('li'));
+
       this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
+
       this.pageInput = fixture.debugElement.query(
         By.css('input')
       ).nativeElement;
+
       this.pageDelete = fixture.debugElement.query(
         By.css('button')
       ).nativeElement;
+
       this.pageAdd = fixture.debugElement.query(
         de => de.references['add']
       ).nativeElement;
+
+      this.linkDes = fixture.debugElement.queryAll(
+        By.directive(RouterLinkStub)
+      );
+
+      this.links = this.linkDes.map(
+        de => de.injector.get(RouterLinkStub) as RouterLinkStub
+      );
     }
   }
 }
