@@ -80,6 +80,12 @@ describe('PagesComponent', () => {
       expect(page.addPage.calls.mostRecent().args).toEqual(['abc']);
     });
 
+    it('should call ServerService addPage', () => {
+      page.pageAdd.triggerEventHandler('keyup.enter', null);
+
+      expect(page.serverAddPage.calls.count()).toBe(1);
+    });
+
     describe('create new Page', () => {
       let newPage;
 
@@ -161,6 +167,12 @@ describe('PagesComponent', () => {
       expect(arg).toBe('abc');
     });
 
+    it('should call ServerService updatePage', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+
+      expect(page.serverUpdatePage.calls.count()).toBe(1);
+    });
+
     describe('create new Page', () => {
       let currentPage;
       let newPage;
@@ -215,7 +227,7 @@ describe('PagesComponent', () => {
   });
 
   describe('Page Remove', () => {
-    it('should call removePage', () => {
+    it('should call removePage on click', () => {
       page.pageDelete.triggerEventHandler('click', null);
 
       expect(page.removePage.calls.count()).toBe(1);
