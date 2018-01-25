@@ -27,4 +27,8 @@ export class ServerServiceStub {
   removePage(page: Page): Promise<void> {
     return Promise.resolve(null);
   }
+
+  publishPage(page: Page): Promise<void> {
+    return Promise.resolve(null);
+  }
 }

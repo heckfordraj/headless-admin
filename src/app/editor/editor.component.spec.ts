@@ -163,6 +163,20 @@ describe('EditorComponent', () => {
       });
     });
 
+    it('should call ServerService updatePage with current Page object', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.serverUpdatePage.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+
+    it('should call ServerService updatePage with new Page object', () => {
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+      let arg = page.serverUpdatePage.calls.mostRecent().args[1];
+
+      expect(isPage(arg)).toBeTruthy();
+    });
+
     it('should call router', async () => {
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
@@ -180,6 +194,20 @@ describe('EditorComponent', () => {
 
         expect(arg).toEqual(['/page', 'new-page']);
       });
+    });
+  });
+
+  describe('Page Publish', () => {
+    it('should call publishPage on click', () => {
+      page.pagePublish.triggerEventHandler('click', null);
+
+      expect(page.publishPage.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService publishPage', () => {
+      page.pagePublish.triggerEventHandler('click', null);
+
+      expect(page.serverPublishPage.calls.count()).toBe(1);
     });
   });
 });
@@ -200,7 +228,9 @@ class Page {
   onInit: jasmine.Spy;
   navigate: jasmine.Spy;
   updatePage: jasmine.Spy;
+  publishPage: jasmine.Spy;
   serverUpdatePage: jasmine.Spy;
+  serverPublishPage: jasmine.Spy;
 
   pageName: HTMLElement;
   pageInput: DebugElement;
@@ -214,9 +244,14 @@ class Page {
     this.onInit = spyOn(serverService, 'getPage').and.callThrough();
     this.navigate = spyOn(router, 'navigate').and.callThrough();
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
+    this.publishPage = spyOn(comp, 'publishPage').and.callThrough();
     this.serverUpdatePage = spyOn(
       serverService,
       'updatePage'
+    ).and.callThrough();
+    this.serverPublishPage = spyOn(
+      serverService,
+      'publishPage'
     ).and.callThrough();
   }
 

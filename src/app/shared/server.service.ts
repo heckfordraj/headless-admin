@@ -120,7 +120,7 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  publishPage(page: Page) {
+  publishPage(page: Page): Promise<void> {
     const newId = this.createId();
 
     return this.db.database
