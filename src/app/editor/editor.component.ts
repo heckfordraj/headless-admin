@@ -30,6 +30,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   updatePage(newname: string) {
+    // TODO: check if previous name and new name are identical
+
     const newPage: Page = {
       id: slugify(newname),
       name: newname,

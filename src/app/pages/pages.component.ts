@@ -19,6 +19,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   constructor(private serverService: ServerService) {}
 
   updatePage(page: Page, newname: string) {
+    // TODO: check if previous name and new name are identical
+
     const newPage: Page = {
       id: slugify(newname),
       name: newname,
