@@ -45,6 +45,12 @@ export class EditorComponent implements OnInit, OnDestroy {
       .catch((err: any) => console.error(err));
   }
 
+  removePage() {
+    // TODO: add routing navigation back to /pages
+
+    return this.serverService.removePage(this.page);
+  }
+
   ngOnInit() {
     this.page$ = this.route.paramMap
       .switchMap((param: ParamMap) =>

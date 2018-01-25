@@ -210,6 +210,20 @@ describe('EditorComponent', () => {
       expect(page.serverPublishPage.calls.count()).toBe(1);
     });
   });
+
+  describe('Page Remove', () => {
+    it('should call removePage on click', () => {
+      page.pageRemove.triggerEventHandler('click', null);
+
+      expect(page.removePage.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService removePage', () => {
+      page.pageRemove.triggerEventHandler('click', null);
+
+      expect(page.serverRemovePage.calls.count()).toBe(1);
+    });
+  });
 });
 
 function createComponent() {
@@ -229,8 +243,10 @@ class Page {
   navigate: jasmine.Spy;
   updatePage: jasmine.Spy;
   publishPage: jasmine.Spy;
+  removePage: jasmine.Spy;
   serverUpdatePage: jasmine.Spy;
   serverPublishPage: jasmine.Spy;
+  serverRemovePage: jasmine.Spy;
 
   pageName: HTMLElement;
   pageInput: DebugElement;
@@ -244,6 +260,7 @@ class Page {
     this.onInit = spyOn(serverService, 'getPage').and.callThrough();
     this.navigate = spyOn(router, 'navigate').and.callThrough();
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
+    this.removePage = spyOn(comp, 'removePage').and.callThrough();
     this.publishPage = spyOn(comp, 'publishPage').and.callThrough();
     this.serverUpdatePage = spyOn(
       serverService,
@@ -252,6 +269,10 @@ class Page {
     this.serverPublishPage = spyOn(
       serverService,
       'publishPage'
+    ).and.callThrough();
+    this.serverRemovePage = spyOn(
+      serverService,
+      'removePage'
     ).and.callThrough();
   }
 
