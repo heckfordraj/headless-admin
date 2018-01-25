@@ -26,6 +26,7 @@ describe('EditorComponent', () => {
   beforeEach(
     async(() => {
       activatedRoute = new ActivatedRouteStub();
+      activatedRoute.testParamMap = { id: 'page-1' };
 
       TestBed.configureTestingModule({
         declarations: [EditorComponent],
@@ -39,28 +40,51 @@ describe('EditorComponent', () => {
     })
   );
 
-  beforeEach(
-    async(() => {
-      createComponent();
-    })
-  );
+  beforeEach(async(() => createComponent()));
 
   it('should call ServerService getPage on load', () => {
     expect(page.onInit.calls.any()).toBe(true);
   });
 
   it('should call ServerService getPage with page id', () => {
-    activatedRoute.testParamMap = { id: 'page-1' };
     let arg = page.onInit.calls.mostRecent().args[0];
 
     expect(arg).toBe('page-1');
   });
 
-  it('should get page', () => {
-    activatedRoute.testParamMap = { id: 'page-1' };
-
+  it('should get initial page', () => {
     expect(comp.page).toBeDefined();
     expect(comp.page).not.toBeNull();
+  });
+
+  it('should display initial page name', () => {
+    expect(page.pageName.textContent).toBe('Page 1');
+  });
+
+  it('should call ServerService getPage on param change', () => {
+    activatedRoute.testParamMap = { id: 'page-2' };
+
+    expect(page.onInit.calls.count()).toBe(2);
+  });
+
+  it('should call ServerService getPage with new page id', () => {
+    activatedRoute.testParamMap = { id: 'page-2' };
+    let arg = page.onInit.calls.mostRecent().args[0];
+
+    expect(arg).toBe('page-2');
+  });
+
+  it('should get new page', () => {
+    activatedRoute.testParamMap = { id: 'page-2' };
+
+    expect(comp.page.id).toBe('page-2');
+  });
+
+  it('should display new page name', () => {
+    activatedRoute.testParamMap = { id: 'page-2' };
+    fixture.detectChanges();
+
+    expect(page.pageName.textContent).toBe('Page 2');
   });
 
   it('should not get nonexistent page', () => {
@@ -85,6 +109,7 @@ function createComponent() {
 class Page {
   onInit: jasmine.Spy;
 
+  pageName: HTMLElement;
   pageInput: DebugElement;
   pagePublish: DebugElement;
   pageRemove: DebugElement;
@@ -97,6 +122,7 @@ class Page {
 
   addElements() {
     if (comp.page) {
+      this.pageName = fixture.debugElement.query(By.css('h1')).nativeElement;
       this.pageInput = fixture.debugElement.query(
         de => de.references['pageInput']
       );
