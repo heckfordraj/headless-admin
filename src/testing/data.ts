@@ -10,11 +10,31 @@ export const Pages: Page[] = [
 ];
 
 export const Blocks: { [id: string]: [Block.Base] } = {
-  '1': [{ id: '1', type: 'text', data: null, order: 1 }],
-  '2': [{ id: '2', type: 'image', data: null, order: 2 }],
-  '3': [{ id: '3', type: 'text', data: null, order: 3 }],
-  '4': [{ id: '4', type: 'image', data: null, order: 4 }],
-  '5': [{ id: '5', type: 'text', data: null, order: 5 }]
+  '1': [
+    { id: '1', type: 'text', data: null, order: 1 },
+    { id: '2', type: 'image', data: null, order: 2 },
+    { id: '3', type: 'text', data: null, order: 3 }
+  ],
+  '2': [
+    { id: '1', type: 'image', data: null, order: 1 },
+    { id: '2', type: 'text', data: null, order: 2 },
+    { id: '3', type: 'image', data: null, order: 3 }
+  ],
+  '3': [
+    { id: '1', type: 'text', data: null, order: 1 },
+    { id: '2', type: 'image', data: null, order: 2 },
+    { id: '3', type: 'text', data: null, order: 3 }
+  ],
+  '4': [
+    { id: '1', type: 'image', data: null, order: 1 },
+    { id: '2', type: 'text', data: null, order: 2 },
+    { id: '3', type: 'image', data: null, order: 3 }
+  ],
+  '5': [
+    { id: '1', type: 'text', data: null, order: 1 },
+    { id: '2', type: 'image', data: null, order: 2 },
+    { id: '3', type: 'text', data: null, order: 3 }
+  ]
 };
 
 export const Data: Block.Data.Base[] = [

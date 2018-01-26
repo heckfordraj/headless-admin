@@ -73,12 +73,13 @@ describe('BlocksComponent', () => {
     });
 
     it('should get blocks', () => {
-      expect(comp.blocks).toBeDefined();
-      expect(comp.blocks).not.toBeNull();
+      expect(comp.blocks.length).toBe(3);
     });
 
     it('should display blocks type', () => {
-      expect(page.blockType.textContent).toBe('text');
+      expect(page.blocksType[0].nativeElement.textContent).toBe('text');
+      expect(page.blocksType[1].nativeElement.textContent).toBe('image');
+      expect(page.blocksType[2].nativeElement.textContent).toBe('text');
     });
   });
 
@@ -105,7 +106,9 @@ describe('BlocksComponent', () => {
     });
 
     it('should display blocks type', () => {
-      expect(page.blockType.textContent).toBe('image');
+      expect(page.blocksType[0].nativeElement.textContent).toBe('image');
+      expect(page.blocksType[1].nativeElement.textContent).toBe('text');
+      expect(page.blocksType[2].nativeElement.textContent).toBe('image');
     });
   });
 
@@ -203,29 +206,29 @@ describe('BlocksComponent', () => {
     });
 
     it('should call removeBlock on click', () => {
-      page.blockRemove.triggerEventHandler('click', null);
+      page.blocksRemove[1].triggerEventHandler('click', null);
 
       expect(page.removeBlock.calls.count()).toBe(1);
     });
 
     it('should call ServerService removeBlock on click', () => {
-      page.blockRemove.triggerEventHandler('click', null);
+      page.blocksRemove[1].triggerEventHandler('click', null);
 
       expect(page.serverRemoveBlock.calls.count()).toBe(1);
     });
 
     it('should call ServerService removeBlock with this page', () => {
-      page.blockRemove.triggerEventHandler('click', null);
+      page.blocksRemove[1].triggerEventHandler('click', null);
       let arg = page.serverRemoveBlock.calls.mostRecent().args[0];
 
       expect(arg).toEqual(comp.page);
     });
 
     it('should call ServerService removeBlock with correct block', () => {
-      page.blockRemove.triggerEventHandler('click', null);
+      page.blocksRemove[1].triggerEventHandler('click', null);
       let arg = page.serverRemoveBlock.calls.mostRecent().args[1];
 
-      expect(arg.id).toBe('1');
+      expect(arg.id).toBe('2');
     });
   });
 
@@ -263,6 +266,15 @@ describe('BlocksComponent', () => {
       expect(arg).toEqual(data);
     });
   });
+
+  describe('Order Block', () => {
+    beforeEach(() => {
+      compHost.page = Pages[0];
+
+      fixture.detectChanges();
+      page.addElements();
+    });
+  });
 });
 
 function createComponent() {
@@ -284,10 +296,10 @@ class Page {
   serverUpdateBlock: jasmine.Spy;
   serverRemoveBlock: jasmine.Spy;
 
-  blockType: HTMLElement;
+  blocksType: DebugElement[];
   blockAddText: DebugElement;
   blockAddImage: DebugElement;
-  blockRemove: DebugElement;
+  blocksRemove: DebugElement[];
   blockUp: DebugElement;
   blockDown: DebugElement;
 
@@ -309,10 +321,10 @@ class Page {
   }
 
   addElements() {
-    this.blockType = fixture.debugElement.query(By.css('b')).nativeElement;
+    this.blocksType = fixture.debugElement.queryAll(By.css('b'));
     this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
     this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
-    this.blockRemove = fixture.debugElement.query(
+    this.blocksRemove = fixture.debugElement.queryAll(
       de => de.references['remove']
     );
     this.blockUp = fixture.debugElement.query(de => de.references['up']);
