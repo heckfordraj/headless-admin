@@ -112,7 +112,7 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  removeBlock(page: Page, block: Block.Base) {
+  removeBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .remove(block.id)

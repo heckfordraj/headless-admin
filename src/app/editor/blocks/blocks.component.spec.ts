@@ -179,11 +179,11 @@ describe('BlocksComponent', () => {
       });
     });
 
-    it('should call ServerService addBlock with Page', () => {
+    it('should call ServerService addBlock with this page', () => {
       page.blockAddText.triggerEventHandler('click', null);
       let arg = page.serverAddBlock.calls.mostRecent().args[0];
 
-      expect(isPage(arg)).toBe(true);
+      expect(arg).toEqual(comp.page);
     });
 
     it('should call ServerService addBlock with Block', () => {
@@ -191,6 +191,41 @@ describe('BlocksComponent', () => {
       let arg = page.serverAddBlock.calls.mostRecent().args[1];
 
       expect(isBlock(arg)).toBe(true);
+    });
+  });
+
+  describe('Remove Block', () => {
+    beforeEach(() => {
+      compHost.page = Pages[0];
+
+      fixture.detectChanges();
+      page.addElements();
+    });
+
+    it('should call removeBlock on click', () => {
+      page.blockRemove.triggerEventHandler('click', null);
+
+      expect(page.removeBlock.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService removeBlock on click', () => {
+      page.blockRemove.triggerEventHandler('click', null);
+
+      expect(page.serverRemoveBlock.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService removeBlock with this page', () => {
+      page.blockRemove.triggerEventHandler('click', null);
+      let arg = page.serverRemoveBlock.calls.mostRecent().args[0];
+
+      expect(arg).toEqual(comp.page);
+    });
+
+    it('should call ServerService removeBlock with correct block', () => {
+      page.blockRemove.triggerEventHandler('click', null);
+      let arg = page.serverRemoveBlock.calls.mostRecent().args[1];
+
+      expect(arg.id).toBe('1');
     });
   });
 });
@@ -209,7 +244,9 @@ function createComponent() {
 class Page {
   onChanges: jasmine.Spy;
   addBlock: jasmine.Spy;
+  removeBlock: jasmine.Spy;
   serverAddBlock: jasmine.Spy;
+  serverRemoveBlock: jasmine.Spy;
 
   blockType: HTMLElement;
   blockAddText: DebugElement;
@@ -223,7 +260,12 @@ class Page {
 
     this.onChanges = spyOn(serverService, 'getBlocks').and.callThrough();
     this.addBlock = spyOn(comp, 'addBlock').and.callThrough();
+    this.removeBlock = spyOn(comp, 'removeBlock').and.callThrough();
     this.serverAddBlock = spyOn(serverService, 'addBlock').and.callThrough();
+    this.serverRemoveBlock = spyOn(
+      serverService,
+      'removeBlock'
+    ).and.callThrough();
   }
 
   addElements() {

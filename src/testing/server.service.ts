@@ -42,4 +42,8 @@ export class ServerServiceStub {
   addBlock(page: Page, block: Block.Base): Promise<void> {
     return Promise.resolve(null);
   }
+
+  removeBlock(page: Page, block: Block.Base): Promise<void> {
+    return Promise.resolve(null);
+  }
 }
