@@ -90,10 +90,10 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  updateBlock(page: Page, blockId: string, data: Block.Data.Base) {
+  updateBlock(page: Page, block: Block.Base, data: Block.Data.Base) {
     return this.db
       .list<Block.Data.Base>(
-        `data/${page.dataId}/${page.revisions.currentId}/${blockId}/data`
+        `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`
       )
       .set(data.id, data)
       .then((res: any) => console.log(res))

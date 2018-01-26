@@ -41,7 +41,7 @@ export class ImageComponent {
         url: res.secure_url
       };
 
-      this.blocksComponent.updateBlock(this.block.id, data);
+      this.blocksComponent.updateBlock(this.block, data);
     });
   }
 }

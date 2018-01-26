@@ -36,6 +36,6 @@ export class TextComponent {
       text: text
     };
 
-    this.blocksComponent.updateBlock(this.block.id, data);
+    this.blocksComponent.updateBlock(this.block, data);
   }
 }

@@ -54,8 +54,8 @@ export class BlocksComponent implements OnChanges, OnDestroy {
     }
   }
 
-  updateBlock(blockId: string, data: Block.Data.Base) {
-    this.serverService.updateBlock(this.page, blockId, data);
+  updateBlock(block: Block.Base, data: Block.Data.Base) {
+    this.serverService.updateBlock(this.page, block, data);
   }
 
   removeBlock(block: Block.Base) {
