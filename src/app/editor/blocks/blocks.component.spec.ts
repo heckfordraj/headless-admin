@@ -15,7 +15,8 @@ class HostComponent {
   page: any;
 }
 
-let comp: HostComponent;
+let compHost: HostComponent;
+let comp: BlocksComponent;
 let fixture: ComponentFixture<HostComponent>;
 let page: Page;
 
@@ -32,39 +33,87 @@ describe('BlocksComponent', () => {
 
   beforeEach(async(() => createComponent()));
 
-  xit('should not call ServerService getPage on init');
+  it('should not have page set on init', () => {
+    expect(comp.page).toBeUndefined();
+  });
+
+  it('should not have blocks set on init', () => {
+    expect(comp.blocks.length).toBe(0);
+  });
+
+  it('should not call ServerService getBlocks on init', () => {
+    expect(page.onChanges.calls.any()).toBe(false);
+  });
 
   describe('initial page', () => {
     beforeEach(() => {
-      comp.page = Pages[2];
+      compHost.page = Pages[2];
 
       fixture.detectChanges();
       page.addElements();
     });
 
-    it('should call ServerService getPage on change', () => {
+    it('should have page set', () => {
+      expect(comp.page).toBeDefined();
+    });
+
+    it('should have identical page to host', () => {
+      expect(comp.page).toEqual(compHost.page);
+    });
+
+    it('should call ServerService getBlocks on change', () => {
       expect(page.onChanges.calls.any()).toBe(true);
+    });
+
+    it('should call ServerService getBlocks with page', () => {
+      let arg = page.onChanges.calls.mostRecent().args[0];
+
+      expect(arg).toEqual(comp.page);
+    });
+
+    it('should get blocks', () => {
+      expect(comp.blocks).toBeDefined();
+      expect(comp.blocks).not.toBeNull();
+    });
+
+    it('should display blocks type', () => {
+      expect(page.blockType.textContent).toBe('text');
     });
   });
 
   describe('new page', () => {
     beforeEach(() => {
-      comp.page = Pages[3];
+      compHost.page = Pages[3];
 
       fixture.detectChanges();
       page.addElements();
     });
 
-    it('should call ServerService getPage on change', () => {
+    it('should have identical page to host', () => {
+      expect(comp.page).toEqual(compHost.page);
+    });
+
+    it('should call ServerService getBlocks on change', () => {
       expect(page.onChanges.calls.any()).toBe(true);
+    });
+
+    it('should call ServerService getBlocks with page', () => {
+      let arg = page.onChanges.calls.mostRecent().args[0];
+
+      expect(arg).toEqual(comp.page);
+    });
+
+    it('should display blocks type', () => {
+      expect(page.blockType.textContent).toBe('image');
     });
   });
 });
 
 function createComponent() {
   fixture = TestBed.createComponent(HostComponent);
-  comp = fixture.componentInstance;
-  comp.page = Pages[0];
+  compHost = fixture.componentInstance;
+  comp = fixture.debugElement.query(By.directive(BlocksComponent))
+    .componentInstance;
   page = new Page();
 
   fixture.detectChanges();
@@ -74,6 +123,7 @@ function createComponent() {
 class Page {
   onChanges: jasmine.Spy;
 
+  blockType: HTMLElement;
   blockAdd: DebugElement;
   blockRemove: DebugElement;
   blockUp: DebugElement;
@@ -86,6 +136,7 @@ class Page {
   }
 
   addElements() {
+    this.blockType = fixture.debugElement.query(By.css('b')).nativeElement;
     this.blockAdd = fixture.debugElement.query(de => de.references['remove']);
     this.blockRemove = fixture.debugElement.query(
       de => de.references['remove']

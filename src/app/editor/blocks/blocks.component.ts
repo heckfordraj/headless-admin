@@ -80,6 +80,6 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.blocks$.unsubscribe();
+    if (this.blocks$) this.blocks$.unsubscribe();
   }
 }
