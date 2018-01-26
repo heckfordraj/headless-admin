@@ -70,7 +70,7 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  addBlock(page: Page, block: Block.Base) {
+  addBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .set(block.id, block)

@@ -41,4 +41,8 @@ export class ServerServiceStub {
 
     return Observable.of(Blocks[block]);
   }
+
+  addBlock(page: Page, block: Block.Base): Promise<void> {
+    return Promise.resolve(null);
+  }
 }

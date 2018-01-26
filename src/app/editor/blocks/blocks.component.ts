@@ -63,7 +63,7 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   }
 
   addBlock(base: Block.Base) {
-    const block = {
+    const block: Block.Base = {
       id: this.serverService.createId(),
       order: this.blocks.length + 1,
       ...base

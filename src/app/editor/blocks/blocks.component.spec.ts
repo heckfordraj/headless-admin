@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { Component, DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ServerServiceStub } from '../../../testing/server.service';
 import { isPage } from '../../../testing/page';
+import { isBlock } from '../../../testing/block';
 import { Pages } from '../../../testing/pages';
 
 import { BlocksComponent } from './blocks.component';
@@ -65,7 +66,7 @@ describe('BlocksComponent', () => {
       expect(page.onChanges.calls.any()).toBe(true);
     });
 
-    it('should call ServerService getBlocks with page', () => {
+    it('should call ServerService getBlocks with Page', () => {
       let arg = page.onChanges.calls.mostRecent().args[0];
 
       expect(arg).toEqual(comp.page);
@@ -97,7 +98,7 @@ describe('BlocksComponent', () => {
       expect(page.onChanges.calls.any()).toBe(true);
     });
 
-    it('should call ServerService getBlocks with page', () => {
+    it('should call ServerService getBlocks with Page', () => {
       let arg = page.onChanges.calls.mostRecent().args[0];
 
       expect(arg).toEqual(comp.page);
@@ -105,6 +106,91 @@ describe('BlocksComponent', () => {
 
     it('should display blocks type', () => {
       expect(page.blockType.textContent).toBe('image');
+    });
+  });
+
+  describe('Add Block', () => {
+    beforeEach(() => {
+      compHost.page = Pages[0];
+
+      fixture.detectChanges();
+      page.addElements();
+    });
+
+    it('should call addBlock on text click', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+
+      expect(page.addBlock.calls.count()).toBe(1);
+      page.addBlock.calls.reset();
+    });
+
+    it('should call addBlock on image click', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+
+      expect(page.addBlock.calls.count()).toBe(1);
+      page.addBlock.calls.reset();
+    });
+
+    it('should call addBlock with bare Block', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+      let arg = page.addBlock.calls.mostRecent().args[0];
+
+      expect(arg.type).toBeDefined();
+      expect(arg.data).toBeDefined();
+    });
+
+    it('should call ServerService addBlock', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+
+      expect(page.serverAddBlock.calls.count()).toBe(1);
+    });
+
+    describe('create Block', () => {
+      let bareBlock;
+      let newBlock;
+
+      beforeEach(() => {
+        page.blockAddText.triggerEventHandler('click', null);
+
+        bareBlock = page.addBlock.calls.mostRecent().args[0];
+        newBlock = page.serverAddBlock.calls.mostRecent().args[1];
+      });
+
+      it('should set id', () => {
+        expect(newBlock.id).toBe('abcdefg');
+      });
+
+      it('should set order', () => {
+        expect(newBlock.order).toBeDefined();
+      });
+
+      it('should set order to be last block', () => {
+        let blocksNum = comp.blocks.length;
+
+        expect(newBlock.order).toBe(blocksNum + 1);
+      });
+
+      it('should set merged type', () => {
+        expect(newBlock.type).toBe(bareBlock.type);
+      });
+
+      it('should set merged data', () => {
+        expect(newBlock.data).toBe(bareBlock.data);
+      });
+    });
+
+    it('should call ServerService addBlock with Page', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+      let arg = page.serverAddBlock.calls.mostRecent().args[0];
+
+      expect(isPage(arg)).toBe(true);
+    });
+
+    it('should call ServerService addBlock with Block', () => {
+      page.blockAddText.triggerEventHandler('click', null);
+      let arg = page.serverAddBlock.calls.mostRecent().args[1];
+
+      expect(isBlock(arg)).toBe(true);
     });
   });
 });
@@ -122,9 +208,12 @@ function createComponent() {
 
 class Page {
   onChanges: jasmine.Spy;
+  addBlock: jasmine.Spy;
+  serverAddBlock: jasmine.Spy;
 
   blockType: HTMLElement;
-  blockAdd: DebugElement;
+  blockAddText: DebugElement;
+  blockAddImage: DebugElement;
   blockRemove: DebugElement;
   blockUp: DebugElement;
   blockDown: DebugElement;
@@ -133,11 +222,14 @@ class Page {
     const serverService = fixture.debugElement.injector.get(ServerService);
 
     this.onChanges = spyOn(serverService, 'getBlocks').and.callThrough();
+    this.addBlock = spyOn(comp, 'addBlock').and.callThrough();
+    this.serverAddBlock = spyOn(serverService, 'addBlock').and.callThrough();
   }
 
   addElements() {
     this.blockType = fixture.debugElement.query(By.css('b')).nativeElement;
-    this.blockAdd = fixture.debugElement.query(de => de.references['remove']);
+    this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
+    this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
     this.blockRemove = fixture.debugElement.query(
       de => de.references['remove']
     );
