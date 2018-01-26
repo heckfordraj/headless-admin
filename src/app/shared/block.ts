@@ -2,6 +2,7 @@ export namespace Block {
   export namespace Data {
     export interface Base {
       readonly id: string;
+      [data: string]: any;
     }
 
     export interface TextData extends Base {

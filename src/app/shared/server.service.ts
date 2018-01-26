@@ -90,7 +90,11 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  updateBlock(page: Page, block: Block.Base, data: Block.Data.Base) {
+  updateBlock(
+    page: Page,
+    block: Block.Base,
+    data: Block.Data.Base
+  ): Promise<void> {
     return this.db
       .list<Block.Data.Base>(
         `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`

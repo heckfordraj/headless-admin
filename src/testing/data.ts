@@ -16,3 +16,11 @@ export const Blocks: { [id: string]: [Block.Base] } = {
   '4': [{ id: '4', type: 'image', data: null, order: 4 }],
   '5': [{ id: '5', type: 'text', data: null, order: 5 }]
 };
+
+export const Data: Block.Data.Base[] = [
+  { id: '1', text: 'Hello' },
+  { id: '2', url: 'http://' },
+  { id: '3', text: 'Hello' },
+  { id: '4', url: 'http://' },
+  { id: '5', text: 'Hello' }
+];

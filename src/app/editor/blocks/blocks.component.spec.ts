@@ -4,7 +4,7 @@ import { Component, DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ServerServiceStub } from '../../../testing/server.service';
 import { isPage } from '../../../testing/page';
 import { isBlock } from '../../../testing/block';
-import { Pages } from '../../../testing/data';
+import { Pages, Blocks, Data } from '../../../testing/data';
 
 import { BlocksComponent } from './blocks.component';
 import { ServerService } from '../../shared/server.service';
@@ -228,6 +228,41 @@ describe('BlocksComponent', () => {
       expect(arg.id).toBe('1');
     });
   });
+
+  describe('Update Block', () => {
+    let block = Blocks['4'][0];
+    let data = Data[2];
+
+    beforeEach(() => {
+      compHost.page = Pages[0];
+
+      fixture.detectChanges();
+      page.addElements();
+      comp.updateBlock(block, data);
+    });
+
+    it('should call ServerService updateBlock', () => {
+      expect(page.serverUpdateBlock.calls.count()).toBe(1);
+    });
+
+    it('should call ServerService updateBlock with this page', () => {
+      let arg = page.serverUpdateBlock.calls.mostRecent().args[0];
+
+      expect(arg).toEqual(comp.page);
+    });
+
+    it('should call ServerService updateBlock with unchanged block param', () => {
+      let arg = page.serverUpdateBlock.calls.mostRecent().args[1];
+
+      expect(arg).toEqual(block);
+    });
+
+    it('should call ServerService updateBlock with unchanged data param', () => {
+      let arg = page.serverUpdateBlock.calls.mostRecent().args[2];
+
+      expect(arg).toEqual(data);
+    });
+  });
 });
 
 function createComponent() {
@@ -246,6 +281,7 @@ class Page {
   addBlock: jasmine.Spy;
   removeBlock: jasmine.Spy;
   serverAddBlock: jasmine.Spy;
+  serverUpdateBlock: jasmine.Spy;
   serverRemoveBlock: jasmine.Spy;
 
   blockType: HTMLElement;
@@ -262,6 +298,10 @@ class Page {
     this.addBlock = spyOn(comp, 'addBlock').and.callThrough();
     this.removeBlock = spyOn(comp, 'removeBlock').and.callThrough();
     this.serverAddBlock = spyOn(serverService, 'addBlock').and.callThrough();
+    this.serverUpdateBlock = spyOn(
+      serverService,
+      'updateBlock'
+    ).and.callThrough();
     this.serverRemoveBlock = spyOn(
       serverService,
       'removeBlock'
