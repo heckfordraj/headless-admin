@@ -1,5 +1,5 @@
-import { Page } from '../app/shared/page';
-import { Block } from '../app/shared/block';
+import { Page } from './page';
+import { Block } from './block';
 
 export const Pages: Page[] = [
   { id: 'page-1', name: 'Page 1', dataId: '1', revisions: { currentId: 'a' } },

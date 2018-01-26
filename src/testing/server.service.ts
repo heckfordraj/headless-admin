@@ -1,11 +1,8 @@
-export { Page } from '../app/shared/page';
-export { Block } from '../app/shared/block';
-
 import { Observable } from 'rxjs/Observable';
 
-import { Pages, Blocks } from './pages';
-import { Page } from '../app/shared/page';
-import { Block } from '../app/shared/block';
+import { Page } from './page';
+import { Block } from './block';
+import { Pages, Blocks } from './data';
 
 export class ServerServiceStub {
   createId(): string {

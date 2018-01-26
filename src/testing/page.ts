@@ -1,3 +1,4 @@
+export { Page } from '../app/shared/page';
 import { Page } from '../app/shared/page';
 
 export function isPage(page: any): page is Page {

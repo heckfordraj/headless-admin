@@ -4,7 +4,7 @@ import { Component, DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ServerServiceStub } from '../../../testing/server.service';
 import { isPage } from '../../../testing/page';
 import { isBlock } from '../../../testing/block';
-import { Pages } from '../../../testing/pages';
+import { Pages } from '../../../testing/data';
 
 import { BlocksComponent } from './blocks.component';
 import { ServerService } from '../../shared/server.service';
