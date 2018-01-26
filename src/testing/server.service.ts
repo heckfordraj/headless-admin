@@ -1,7 +1,11 @@
+export { Page } from '../app/shared/page';
+export { Block } from '../app/shared/block';
+
 import { Observable } from 'rxjs/Observable';
 
-import { Pages } from './pages';
+import { Pages, Blocks } from './pages';
 import { Page } from '../app/shared/page';
+import { Block } from '../app/shared/block';
 
 export class ServerServiceStub {
   createId(): string {
@@ -30,5 +34,11 @@ export class ServerServiceStub {
 
   publishPage(page: Page): Promise<void> {
     return Promise.resolve(null);
+  }
+
+  getBlocks(page: Page): Observable<Block.Base[]> {
+    let block = Object.keys(Blocks).find((key: string) => key === page.dataId);
+
+    return Observable.of(Blocks[block]);
   }
 }

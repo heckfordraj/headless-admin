@@ -22,7 +22,7 @@ let fixture: ComponentFixture<EditorComponent>;
 let activatedRoute: ActivatedRouteStub;
 let page: Page;
 
-describe('EditorComponent', () => {
+xdescribe('EditorComponent', () => {
   beforeEach(
     async(() => {
       activatedRoute = new ActivatedRouteStub();

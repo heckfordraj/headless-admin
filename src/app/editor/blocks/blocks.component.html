@@ -1,18 +1,18 @@
-<button *ngFor="let block of baseBlocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
+<button #add *ngFor="let block of baseBlocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
 
 <ul>
   <li *ngFor="let block of blocks; let i = index">
 
-    <button (click)="orderBlock(i, 'up')">&uarr;</button>
-    <button (click)="orderBlock(i, 'down')">&darr;</button>
+    <button #up (click)="orderBlock(i, 'up')">{{block?.type}}&uarr;</button>
+    <button #down (click)="orderBlock(i, 'down')">&darr;</button>
 
-    {{ block?.type }}
+    <b>{{ block?.type }}</b>
 
     <ng-container [ngSwitch]="block?.type">
       <app-text *ngSwitchCase="'text'" [block]="block"></app-text>
       <app-image *ngSwitchCase="'image'" [block]="block"></app-image>
     </ng-container>
 
-    <button (click)="removeBlock(block)">&times;</button>
+    <button #remove (click)="removeBlock(block)">&times;</button>
   </li>
 </ul>
