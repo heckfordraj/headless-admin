@@ -3,8 +3,8 @@
 <ul>
   <li *ngFor="let block of blocks; let i = index">
 
-    <button #up (click)="orderBlock(i, 'up')">{{block?.type}}&uarr;</button>
-    <button #down (click)="orderBlock(i, 'down')">&darr;</button>
+    <button #up (click)="orderBlock(i, -1)">&uarr;</button>
+    <button #down (click)="orderBlock(i, 1)">&darr;</button>
 
     <b>{{ block?.type }}</b>
 

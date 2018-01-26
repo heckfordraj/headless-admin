@@ -27,28 +27,12 @@ export class BlocksComponent implements OnChanges, OnDestroy {
 
   constructor(private serverService: ServerService) {}
 
-  orderBlock(index: number, direction: string) {
-    let indexReplaced;
-
-    switch (direction) {
-      case 'up':
-        indexReplaced = -1;
-        break;
-
-      case 'down':
-        indexReplaced = 1;
-        break;
-    }
-
+  orderBlock(index: number, direction: number) {
     const block = this.blocks[index];
-    const blockReplaced = this.blocks[index + indexReplaced];
+    const blockReplaced = this.blocks[index + direction];
 
     if (blockReplaced) {
-      const blockOrder = block.order;
-      const blockReplacedOrder = blockReplaced.order;
-
-      block.order = blockReplacedOrder;
-      blockReplaced.order = blockOrder;
+      [block.order, blockReplaced.order] = [blockReplaced.order, block.order];
 
       this.serverService.orderBlock(this.page, block, blockReplaced);
     }
