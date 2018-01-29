@@ -54,4 +54,12 @@ export class ServerServiceStub {
   ): Promise<void> {
     return Promise.resolve(null);
   }
+
+  orderBlock(
+    page: Page,
+    block: Block.Base,
+    blockReplaced: Block.Base
+  ): Promise<void> {
+    return Promise.resolve(null);
+  }
 }

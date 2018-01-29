@@ -1,6 +1,6 @@
 <button id="add-{{block?.type}}" *ngFor="let block of baseBlocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
 
-<ul>
+<ul *ngIf="blocks.length > 0">
   <li *ngFor="let block of blocks; let i = index">
 
     <button #up (click)="orderBlock(i, -1)">&uarr;</button>

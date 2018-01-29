@@ -57,7 +57,11 @@ export class ServerService {
       .catch((err: Error) => console.error(err));
   }
 
-  orderBlock(page: Page, block: Block.Base, blockReplaced: Block.Base) {
+  orderBlock(
+    page: Page,
+    block: Block.Base,
+    blockReplaced: Block.Base
+  ): Promise<void> {
     const updates = {
       [`${block.id}/order`]: block.order,
       [`${blockReplaced.id}/order`]: blockReplaced.order
