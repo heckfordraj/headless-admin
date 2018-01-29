@@ -10,11 +10,20 @@ export class ServerServiceStub {
   }
 
   getPage(id: string): Observable<Page> {
-    return Observable.of(Pages.find((page: Page) => page.id === id));
+    let index = Pages.find((page: Page) => page.id === id);
+
+    if (index) {
+      let page = JSON.stringify(index);
+
+      return Observable.of(JSON.parse(page));
+    }
+    return Observable.of(undefined);
   }
 
   getCollection(): Observable<Page[]> {
-    return Observable.of(Pages);
+    let pages = JSON.stringify(Pages);
+
+    return Observable.of(JSON.parse(pages));
   }
 
   addPage(page: Page): Promise<void> {
@@ -34,9 +43,14 @@ export class ServerServiceStub {
   }
 
   getBlocks(page: Page): Observable<Block.Base[]> {
-    let block = Object.keys(Blocks).find((key: string) => key === page.dataId);
+    let index = Object.keys(Blocks).find((key: string) => key === page.dataId);
 
-    return Observable.of(Blocks[block]);
+    if (index) {
+      let block = JSON.stringify(Blocks[index]);
+
+      return Observable.of(JSON.parse(block));
+    }
+    return Observable.of(undefined);
   }
 
   addBlock(page: Page, block: Block.Base): Promise<void> {
