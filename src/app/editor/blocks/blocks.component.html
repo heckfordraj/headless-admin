@@ -8,10 +8,10 @@
 
     <b>{{ block?.type }}</b>
 
-    <ng-container [ngSwitch]="block?.type">
-      <app-text *ngSwitchCase="'text'" [block]="block"></app-text>
-      <app-image *ngSwitchCase="'image'" [block]="block"></app-image>
-    </ng-container>
+    <div [ngSwitch]="block?.type">
+      <app-text *ngSwitchCase="'text'" [block]="block" class="switch-block"></app-text>
+      <app-image *ngSwitchCase="'image'" [block]="block" class="switch-block"></app-image>
+    </div>
 
     <button #remove (click)="removeBlock(block)">&times;</button>
   </li>

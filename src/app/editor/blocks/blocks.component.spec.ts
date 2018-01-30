@@ -81,6 +81,12 @@ describe('BlocksComponent', () => {
       expect(page.blocksType[1].nativeElement.textContent).toBe('image');
       expect(page.blocksType[2].nativeElement.textContent).toBe('text');
     });
+
+    it('should display correct block component', () => {
+      expect(page.blocksSwitch[0].name).toBe('app-text');
+      expect(page.blocksSwitch[1].name).toBe('app-image');
+      expect(page.blocksSwitch[2].name).toBe('app-text');
+    });
   });
 
   describe('new page', () => {
@@ -109,6 +115,12 @@ describe('BlocksComponent', () => {
       expect(page.blocksType[0].nativeElement.textContent).toBe('image');
       expect(page.blocksType[1].nativeElement.textContent).toBe('text');
       expect(page.blocksType[2].nativeElement.textContent).toBe('image');
+    });
+
+    it('should display correct block component', () => {
+      expect(page.blocksSwitch[0].name).toBe('app-image');
+      expect(page.blocksSwitch[1].name).toBe('app-text');
+      expect(page.blocksSwitch[2].name).toBe('app-image');
     });
   });
 
@@ -438,6 +450,7 @@ class Page {
   serverOrderBlock: jasmine.Spy;
 
   blocksType: DebugElement[];
+  blocksSwitch: DebugElement[];
   blockAddText: DebugElement;
   blockAddImage: DebugElement;
   blocksRemove: DebugElement[];
@@ -468,6 +481,7 @@ class Page {
 
   addElements() {
     this.blocksType = fixture.debugElement.queryAll(By.css('b'));
+    this.blocksSwitch = fixture.debugElement.queryAll(By.css('.switch-block'));
     this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
     this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
     this.blocksRemove = fixture.debugElement.queryAll(
