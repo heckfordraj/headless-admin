@@ -54,6 +54,14 @@ fdescribe('ServerService', () => {
       })
     );
 
+    it(
+      'should call firebase list valueChanges',
+      async(() => {
+        serverService.getCollection('pages').subscribe();
+        expect(db.valueChanges.calls.count()).toBe(1);
+      })
+    );
+
     xit(
       'should throw if not passed collection name',
       async(() => {
@@ -83,6 +91,14 @@ fdescribe('ServerService', () => {
         let arg = db.object.calls.mostRecent().args[0];
 
         expect(arg).toBe('pages/1');
+      })
+    );
+
+    it(
+      'should call firebase object valueChanges',
+      async(() => {
+        serverService.getPage('1').subscribe();
+        expect(db.valueChanges.calls.count()).toBe(1);
       })
     );
 
@@ -128,7 +144,7 @@ fdescribe('ServerService', () => {
       async(() => {
         serverService
           .updatePage(page1, page2)
-          .then(_ => expect(db.refUpdate.calls.count()).toBe(1));
+          .then(_ => expect(db.update.calls.count()).toBe(1));
       })
     );
 
@@ -139,7 +155,7 @@ fdescribe('ServerService', () => {
         'should set unmodified newPage',
         async(() => {
           serverService.updatePage(page1, page2).then(_ => {
-            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+            let updateObject = db.update.calls.mostRecent().args[0];
 
             expect(updateObject['page-2']).toEqual(page2);
           });
@@ -150,7 +166,7 @@ fdescribe('ServerService', () => {
         'should delete currentPage',
         async(() => {
           serverService.updatePage(page1, page2).then(_ => {
-            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+            let updateObject = db.update.calls.mostRecent().args[0];
 
             expect(updateObject['page-1']).toBeNull();
           });
@@ -174,7 +190,7 @@ fdescribe('ServerService', () => {
       async(() => {
         serverService
           .removePage(page1)
-          .then(_ => expect(db.refUpdate.calls.count()).toBe(1));
+          .then(_ => expect(db.update.calls.count()).toBe(1));
       })
     );
 
@@ -183,7 +199,7 @@ fdescribe('ServerService', () => {
         'should delete page',
         async(() => {
           serverService.removePage(page2).then(_ => {
-            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+            let updateObject = db.update.calls.mostRecent().args[0];
 
             expect(updateObject['pages/page-2']).toBeNull();
           });
@@ -194,7 +210,7 @@ fdescribe('ServerService', () => {
         'should delete page data',
         async(() => {
           serverService.removePage(page2).then(_ => {
-            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+            let updateObject = db.update.calls.mostRecent().args[0];
 
             expect(updateObject['data/2']).toBeNull();
           });
@@ -212,9 +228,10 @@ function createService() {
 class Firebase {
   createPushId: jasmine.Spy;
   list: jasmine.Spy;
+  valueChanges: jasmine.Spy;
   object: jasmine.Spy;
   ref: jasmine.Spy;
-  refUpdate: jasmine.Spy;
+  update: jasmine.Spy;
 
   constructor() {
     const angularFireDatabase = TestBed.get(AngularFireDatabase);
@@ -224,11 +241,15 @@ class Firebase {
       'createPushId'
     ).and.callThrough();
     this.list = spyOn(angularFireDatabase, 'list').and.callThrough();
+    this.valueChanges = spyOn(
+      angularFireDatabase,
+      'valueChanges'
+    ).and.callThrough();
     this.object = spyOn(angularFireDatabase, 'object').and.callThrough();
     this.ref = spyOn(angularFireDatabase.database, 'ref').and.callThrough();
-    this.refUpdate = spyOn(
+    this.update = spyOn(
       angularFireDatabase.database,
-      'refUpdate'
+      'update'
     ).and.callThrough();
   }
 }

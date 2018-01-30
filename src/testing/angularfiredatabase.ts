@@ -9,8 +9,12 @@ export class AngularFireDatabaseStub {
     return 'abcdefg';
   }
 
+  valueChanges() {
+    return Observable.of(null);
+  }
+
   list(path: string) {
-    if (path) return { valueChanges: () => Observable.of(null) };
+    if (path) return { valueChanges: this.valueChanges };
 
     return { valueChanges: () => Observable.throw(new Error()) };
   }
@@ -18,7 +22,7 @@ export class AngularFireDatabaseStub {
   object(path: string) {
     if (path)
       return {
-        valueChanges: () => Observable.of(null),
+        valueChanges: this.valueChanges,
         set: () => Promise.resolve(null)
       };
 
@@ -30,8 +34,8 @@ export class AngularFireDatabaseStub {
 
   database = {
     ref: (path: string) => {
-      return { update: this.database.refUpdate };
+      return { update: this.database.update };
     },
-    refUpdate: (update: any) => Promise.resolve(null)
+    update: (update: any) => Promise.resolve(null)
   };
 }
