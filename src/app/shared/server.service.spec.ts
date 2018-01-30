@@ -13,6 +13,9 @@ import { AngularFireDatabase } from 'angularfire2/database';
 let serverService: ServerService;
 let db: Firebase;
 
+const page1 = JSON.parse(JSON.stringify(Pages[0]));
+const page2 = JSON.parse(JSON.stringify(Pages[1]));
+
 fdescribe('ServerService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -90,18 +93,20 @@ fdescribe('ServerService', () => {
     it(
       'should call firebase object',
       async(() => {
-        serverService.addPage({ id: '2' } as any);
-        expect(db.object.calls.count()).toBe(1);
+        serverService
+          .addPage(page1)
+          .then(_ => expect(db.object.calls.count()).toBe(1));
       })
     );
 
     it(
       'should call firebase object with page id param',
       async(() => {
-        serverService.addPage({ id: '2' } as any);
-        let arg = db.object.calls.mostRecent().args[0];
+        serverService.addPage(page1).then(_ => {
+          let arg = db.object.calls.mostRecent().args[0];
 
-        expect(arg).toBe('pages/2');
+          expect(arg).toBe('pages/page-1');
+        });
       })
     );
 
@@ -109,15 +114,12 @@ fdescribe('ServerService', () => {
   });
 
   describe('updatePage', () => {
-    let page1 = JSON.parse(JSON.stringify(Pages[0]));
-    let page2 = JSON.parse(JSON.stringify(Pages[1]));
-
     it(
       'should call firebase ref',
       async(() => {
         serverService
           .updatePage(page1, page2)
-          .then(() => expect(db.ref.calls.count()).toBe(1));
+          .then(_ => expect(db.ref.calls.count()).toBe(1));
       })
     );
 
@@ -126,7 +128,7 @@ fdescribe('ServerService', () => {
       async(() => {
         serverService
           .updatePage(page1, page2)
-          .then(() => expect(db.refUpdate.calls.count()).toBe(1));
+          .then(_ => expect(db.refUpdate.calls.count()).toBe(1));
       })
     );
 
@@ -136,7 +138,7 @@ fdescribe('ServerService', () => {
       it(
         'should set unmodified newPage',
         async(() => {
-          serverService.updatePage(page1, page2).then(() => {
+          serverService.updatePage(page1, page2).then(_ => {
             let updateObject = db.refUpdate.calls.mostRecent().args[0];
 
             expect(updateObject['page-2']).toEqual(page2);
@@ -147,10 +149,54 @@ fdescribe('ServerService', () => {
       it(
         'should delete currentPage',
         async(() => {
-          serverService.updatePage(page1, page2).then(() => {
+          serverService.updatePage(page1, page2).then(_ => {
             let updateObject = db.refUpdate.calls.mostRecent().args[0];
 
             expect(updateObject['page-1']).toBeNull();
+          });
+        })
+      );
+    });
+  });
+
+  describe('removePage', () => {
+    it(
+      'should call firebase ref',
+      async(() => {
+        serverService
+          .removePage(page1)
+          .then(_ => expect(db.ref.calls.count()).toBe(1));
+      })
+    );
+
+    it(
+      'should call firebase update',
+      async(() => {
+        serverService
+          .removePage(page1)
+          .then(_ => expect(db.refUpdate.calls.count()).toBe(1));
+      })
+    );
+
+    describe('update object', () => {
+      it(
+        'should delete page',
+        async(() => {
+          serverService.removePage(page2).then(_ => {
+            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+
+            expect(updateObject['pages/page-2']).toBeNull();
+          });
+        })
+      );
+
+      it(
+        'should delete page data',
+        async(() => {
+          serverService.removePage(page2).then(_ => {
+            let updateObject = db.refUpdate.calls.mostRecent().args[0];
+
+            expect(updateObject['data/2']).toBeNull();
           });
         })
       );
