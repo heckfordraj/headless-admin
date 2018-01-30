@@ -46,7 +46,7 @@ describe('BlocksComponent', () => {
     expect(page.onChanges.calls.any()).toBe(false);
   });
 
-  xdescribe('initial page', () => {
+  describe('initial page', () => {
     beforeEach(() => {
       compHost.page = Pages[2];
 
@@ -83,7 +83,7 @@ describe('BlocksComponent', () => {
     });
   });
 
-  xdescribe('new page', () => {
+  describe('new page', () => {
     beforeEach(() => {
       compHost.page = Pages[3];
 
@@ -112,7 +112,7 @@ describe('BlocksComponent', () => {
     });
   });
 
-  xdescribe('Add Block', () => {
+  describe('Add Block', () => {
     beforeEach(() => {
       compHost.page = Pages[0];
 
@@ -197,7 +197,7 @@ describe('BlocksComponent', () => {
     });
   });
 
-  xdescribe('Remove Block', () => {
+  describe('Remove Block', () => {
     beforeEach(() => {
       compHost.page = Pages[1];
 
@@ -232,7 +232,7 @@ describe('BlocksComponent', () => {
     });
   });
 
-  xdescribe('Update Block', () => {
+  describe('Update Block', () => {
     let block = Blocks['4'][0];
     let data = Data[2];
 
@@ -348,25 +348,71 @@ describe('BlocksComponent', () => {
     });
 
     it('should decrement block order on up click', () => {
-      console.log(comp.blocks);
-
-      let initial = comp.blocks[1].order;
-
-      page.blocksUp[1].triggerEventHandler('click', null);
+      page.blocksUp[2].triggerEventHandler('click', null);
       let current = page.serverOrderBlock.calls.mostRecent().args[1];
 
-      expect(current.order).toBe(initial - 1);
+      expect(current.order).toBe(2);
     });
 
-    xit('should increment replaced block order', () => {});
+    it('should increment replaced block order', () => {
+      page.blocksUp[2].triggerEventHandler('click', null);
+      let current = page.serverOrderBlock.calls.mostRecent().args[2];
 
-    xit('should increment block order on down click', () => {});
+      expect(current.order).toBe(3);
+    });
 
-    xit('should decrement replaced block order', () => {});
+    it('should increment block order on down click', () => {
+      page.blocksDown[0].triggerEventHandler('click', null);
+      let current = page.serverOrderBlock.calls.mostRecent().args[1];
 
-    xit('should always have sequential order numbers', () => {});
+      expect(current.order).toBe(2);
+    });
 
-    xit('should never have multiple blocks with identical order numbers', () => {});
+    it('should decrement replaced block order', () => {
+      page.blocksDown[0].triggerEventHandler('click', null);
+      let current = page.serverOrderBlock.calls.mostRecent().args[2];
+
+      expect(current.order).toBe(1);
+    });
+
+    it('should always have sequential order numbers', () => {
+      page.blocksUp.forEach(button =>
+        button.triggerEventHandler('click', null)
+      );
+      page.blocksDown.forEach(button =>
+        button.triggerEventHandler('click', null)
+      );
+
+      let orders = comp.blocks.map(blocks => blocks.order).sort();
+
+      expect(orders).toEqual(
+        Array.from({ length: orders.length }, (v, k) => k + 1)
+      );
+    });
+
+    it('should never have multiple blocks with identical order numbers', () => {
+      page.blocksDown.forEach(button =>
+        button.triggerEventHandler('click', null)
+      );
+      page.blocksUp.forEach(button =>
+        button.triggerEventHandler('click', null)
+      );
+
+      let orders = comp.blocks.map(blocks => blocks.order);
+
+      let isUnique = array => {
+        let temp = [];
+
+        return array.map(arr => {
+          if (temp.includes(arr)) return true;
+
+          temp.push(arr);
+          return false;
+        });
+      };
+
+      expect(isUnique(orders)).toEqual(Array(orders.length).fill(false));
+    });
   });
 });
 
