@@ -19,7 +19,7 @@ export class ServerService {
 
   getCollection(name: string): Observable<Page[]> {
     return this.db
-      .list<Page>('pages')
+      .list<Page>(name)
       .valueChanges()
       .pipe(
         tap((res: any) => console.dir(res)),
@@ -148,8 +148,9 @@ export class ServerService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
+      console.error(operation);
       console.error(error);
-      return Observable.throw(error as T);
+      return Observable.throw(operation);
     };
   }
 }

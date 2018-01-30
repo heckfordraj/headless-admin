@@ -12,7 +12,7 @@ let comp: PagesComponent;
 let fixture: ComponentFixture<PagesComponent>;
 let page: Page;
 
-xdescribe('PagesComponent', () => {
+describe('PagesComponent', () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
