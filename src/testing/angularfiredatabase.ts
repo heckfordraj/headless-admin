@@ -14,4 +14,17 @@ export class AngularFireDatabaseStub {
 
     return { valueChanges: () => Observable.throw(new Error()) };
   }
+
+  object(path: string) {
+    if (path)
+      return {
+        valueChanges: () => Observable.of(null),
+        set: () => Promise.resolve(null)
+      };
+
+    return {
+      valueChanges: () => Observable.throw(new Error()),
+      set: () => Promise.reject(new Error())
+    };
+  }
 }

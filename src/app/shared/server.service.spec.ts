@@ -50,8 +50,8 @@ fdescribe('ServerService', () => {
       })
     );
 
-    it(
-      'should throw if not passed name',
+    xit(
+      'should throw if not passed collection name',
       async(() => {
         serverService
           .getCollection(null)
@@ -61,6 +61,50 @@ fdescribe('ServerService', () => {
           );
       })
     );
+  });
+
+  describe('getPage', () => {
+    it(
+      'should call firebase object',
+      async(() => {
+        serverService.getPage('1').subscribe();
+        expect(db.object.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase object with page id param',
+      async(() => {
+        serverService.getPage('1').subscribe();
+        let arg = db.object.calls.mostRecent().args[0];
+
+        expect(arg).toBe('pages/1');
+      })
+    );
+
+    xit('should throw if not passed page name');
+  });
+
+  describe('addPage', () => {
+    it(
+      'should call firebase object',
+      async(() => {
+        serverService.addPage({ id: '2' } as any);
+        expect(db.object.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase object with page id param',
+      async(() => {
+        serverService.addPage({ id: '2' } as any);
+        let arg = db.object.calls.mostRecent().args[0];
+
+        expect(arg).toBe('pages/2');
+      })
+    );
+
+    xit('should throw if not passed page id');
   });
 });
 
@@ -72,6 +116,7 @@ function createService() {
 class Firebase {
   createPushId: jasmine.Spy;
   list: jasmine.Spy;
+  object: jasmine.Spy;
 
   constructor() {
     const angularFireDatabase = TestBed.get(AngularFireDatabase);
@@ -81,5 +126,6 @@ class Firebase {
       'createPushId'
     ).and.callThrough();
     this.list = spyOn(angularFireDatabase, 'list').and.callThrough();
+    this.object = spyOn(angularFireDatabase, 'object').and.callThrough();
   }
 }
