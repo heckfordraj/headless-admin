@@ -27,4 +27,11 @@ export class AngularFireDatabaseStub {
       set: () => Promise.reject(new Error())
     };
   }
+
+  database = {
+    ref: (path: string) => {
+      return { update: this.database.refUpdate };
+    },
+    refUpdate: (update: any) => Promise.resolve(null)
+  };
 }

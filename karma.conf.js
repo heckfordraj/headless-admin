@@ -14,7 +14,6 @@ module.exports = function (config) {
     ],
     client:{
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
-      captureConsole: false
     },
     coverageIstanbulReporter: {
       reports: [ 'html', 'lcovonly' ],
@@ -26,7 +25,7 @@ module.exports = function (config) {
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_LOG,
     autoWatch: true,
     browsers: ['Chrome'],
     singleRun: false
