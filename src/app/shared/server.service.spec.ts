@@ -11,6 +11,7 @@ import { ServerService } from './server.service';
 import { AngularFireDatabase } from 'angularfire2/database';
 
 let serverService: ServerService;
+let angularFireDatabase: AngularFireDatabaseStub;
 let db: Firebase;
 
 const page1 = JSON.parse(JSON.stringify(Pages[0]));
@@ -248,8 +249,20 @@ fdescribe('ServerService', () => {
     );
 
     it(
+      'should call firebase ref (1) with page param',
+      async(() => {
+        serverService.publishPage(page1);
+        let arg = db.ref.calls.mostRecent().args[0];
+
+        expect(arg).toBe('data/1/a');
+      })
+    );
+
+    it(
       'should call firebase ref once',
       async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
         serverService.publishPage(page1);
 
         expect(db.once.calls.count()).toBe(1);
@@ -257,8 +270,38 @@ fdescribe('ServerService', () => {
     );
 
     it(
+      'should call firebase ref (2)',
+      async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.returnValue(
+          Promise.resolve(null)
+        );
+
+        serverService
+          .publishPage(page1)
+          .then(_ => expect(db.ref.calls.count()).toBe(2));
+      })
+    );
+
+    it(
+      'should call firebase ref (2) with page param',
+      async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.returnValue(
+          Promise.resolve(null)
+        );
+
+        serverService.publishPage(page1).then(_ => {
+          let arg = db.ref.calls.mostRecent().args[0];
+
+          expect(arg).toBe('data/1/abcdefg');
+        });
+      })
+    );
+
+    it(
       'should call firebase ref set',
       async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
         serverService
           .publishPage(page1)
           .then(_ => expect(db.set.calls.count()).toBe(1));
@@ -268,6 +311,8 @@ fdescribe('ServerService', () => {
     it(
       'should call firebase ref (3)',
       async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
         serverService
           .publishPage(page1)
           .then(_ => expect(db.ref.calls.count()).toBe(3));
@@ -275,11 +320,40 @@ fdescribe('ServerService', () => {
     );
 
     it(
+      'should call firebase ref (3) with page param',
+      async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
+        serverService.publishPage(page1).then(_ => {
+          let arg = db.ref.calls.mostRecent().args[0];
+
+          expect(arg).toBe('pages/page-1/revisions/');
+        });
+      })
+    );
+
+    it(
       'should call firebase ref update',
       async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
         serverService
           .publishPage(page1)
           .then(_ => expect(db.update.calls.count()).toBe(1));
+      })
+    );
+
+    it(
+      'should call firebase ref update with update object',
+      async(() => {
+        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+
+        serverService.publishPage(page1).then(_ => {
+          let arg = db.update.calls.mostRecent().args[0];
+
+          expect(arg.publishedId).toBe('a');
+          expect(arg.currentId).toBe('abcdefg');
+        });
       })
     );
 
@@ -296,6 +370,7 @@ fdescribe('ServerService', () => {
 
 function createService() {
   serverService = TestBed.get(ServerService);
+  angularFireDatabase = TestBed.get(AngularFireDatabase);
   db = new Firebase();
 }
 
@@ -311,8 +386,6 @@ class Firebase {
   set: jasmine.Spy;
 
   constructor() {
-    const angularFireDatabase = TestBed.get(AngularFireDatabase);
-
     this.createId = spyOn(serverService, 'createId').and.callThrough();
     this.createPushId = spyOn(
       angularFireDatabase,
@@ -329,7 +402,6 @@ class Firebase {
       angularFireDatabase.database,
       'update'
     ).and.callThrough();
-    this.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
     this.set = spyOn(angularFireDatabase.database, 'set').and.callThrough();
   }
 }
