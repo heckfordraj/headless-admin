@@ -416,6 +416,34 @@ fdescribe('ServerService', () => {
       expect(args[1]).toBe(data2);
     });
   });
+
+  describe('removeBlock', () => {
+    it('should call firebase list', () => {
+      serverService.removeBlock(page2, block1);
+
+      expect(db.list.calls.count()).toBe(1);
+    });
+
+    it('should call firebase list with page param', () => {
+      serverService.removeBlock(page2, block1);
+      let arg = db.list.calls.mostRecent().args[0];
+
+      expect(arg).toBe('data/2/b');
+    });
+
+    it('should call firebase list remove', () => {
+      serverService.removeBlock(page2, block1);
+
+      expect(db.remove.calls.count()).toBe(1);
+    });
+
+    it('should call firebase list remove with block id', () => {
+      serverService.removeBlock(page2, block1);
+      let arg = db.remove.calls.mostRecent().args[0];
+
+      expect(arg).toBe('1');
+    });
+  });
 });
 
 function createService() {
@@ -434,6 +462,7 @@ class Firebase {
   update: jasmine.Spy;
   once: jasmine.Spy;
   set: jasmine.Spy;
+  remove: jasmine.Spy;
 
   constructor() {
     this.createId = spyOn(serverService, 'createId').and.callThrough();
@@ -453,5 +482,6 @@ class Firebase {
       'update'
     ).and.callThrough();
     this.set = spyOn(angularFireDatabase, 'set').and.callThrough();
+    this.remove = spyOn(angularFireDatabase, 'remove').and.callThrough();
   }
 }

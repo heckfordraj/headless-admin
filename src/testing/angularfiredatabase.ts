@@ -17,11 +17,16 @@ export class AngularFireDatabaseStub {
     return Promise.resolve();
   }
 
+  remove(remove: any) {
+    return Promise.resolve();
+  }
+
   list(path: string) {
     if (path)
       return {
         valueChanges: this.valueChanges,
-        set: this.set
+        set: this.set,
+        remove: this.remove
       };
 
     return { valueChanges: () => Observable.throw(new Error()) };
