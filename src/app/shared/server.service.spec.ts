@@ -5,7 +5,7 @@ import {
   inject
 } from '@angular/core/testing';
 import { AngularFireDatabaseStub } from '../../testing/angularfiredatabase';
-import { Pages } from '../../testing/data';
+import { Pages, Blocks } from '../../testing/data';
 
 import { ServerService } from './server.service';
 import { AngularFireDatabase } from 'angularfire2/database';
@@ -16,6 +16,8 @@ let db: Firebase;
 
 const page1 = JSON.parse(JSON.stringify(Pages[0]));
 const page2 = JSON.parse(JSON.stringify(Pages[1]));
+const block1 = JSON.parse(JSON.stringify(Blocks['1'][0]));
+const block2 = JSON.parse(JSON.stringify(Blocks['2'][0]));
 
 fdescribe('ServerService', () => {
   beforeEach(() => {
@@ -354,6 +356,35 @@ fdescribe('ServerService', () => {
       expect(db.valueChanges.calls.count()).toBe(1);
     });
   });
+
+  describe('addBlock', () => {
+    it('should call firebase list', () => {
+      serverService.addBlock(page1, block1);
+
+      expect(db.list.calls.count()).toBe(1);
+    });
+
+    it('should call firebase list with page param', () => {
+      serverService.addBlock(page1, block1);
+      let arg = db.list.calls.mostRecent().args[0];
+
+      expect(arg).toBe('data/1/a');
+    });
+
+    it('should call firebase set', () => {
+      serverService.addBlock(page1, block1);
+
+      expect(db.set.calls.count()).toBe(1);
+    });
+
+    it('should call firebase set with block params', () => {
+      serverService.addBlock(page1, block1);
+      let args = db.set.calls.mostRecent().args;
+
+      expect(args[0]).toBe('1');
+      expect(args[1]).toBe(block1);
+    });
+  });
 });
 
 function createService() {
@@ -390,6 +421,6 @@ class Firebase {
       angularFireDatabase.database,
       'update'
     ).and.callThrough();
-    this.set = spyOn(angularFireDatabase.database, 'set').and.callThrough();
+    this.set = spyOn(angularFireDatabase, 'set').and.callThrough();
   }
 }

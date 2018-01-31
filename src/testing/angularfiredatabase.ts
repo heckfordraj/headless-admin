@@ -13,8 +13,16 @@ export class AngularFireDatabaseStub {
     return Observable.of(null);
   }
 
+  set(set: any) {
+    return Promise.resolve();
+  }
+
   list(path: string) {
-    if (path) return { valueChanges: this.valueChanges };
+    if (path)
+      return {
+        valueChanges: this.valueChanges,
+        set: this.set
+      };
 
     return { valueChanges: () => Observable.throw(new Error()) };
   }
@@ -37,11 +45,10 @@ export class AngularFireDatabaseStub {
       return {
         update: this.database.update,
         once: this.database.once,
-        set: this.database.set
+        set: this.set
       };
     },
     update: (update: any) => Promise.resolve(),
-    once: (once: any) => Promise.resolve({ val: val => null }),
-    set: (set: any) => Promise.resolve()
+    once: (once: any) => Promise.resolve({ val: val => null })
   };
 }
