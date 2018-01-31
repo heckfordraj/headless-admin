@@ -19,6 +19,7 @@ export class PagesComponent implements OnInit, OnDestroy {
   constructor(private serverService: ServerService) {}
 
   updatePage(page: Page, newname: string) {
+    // TODO: check if newname
     // TODO: check if previous name and new name are identical
 
     const newPage: Page = {
@@ -31,6 +32,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   addPage(name: string) {
+    // TODO: add timestamp
+
     const newPage: Page = {
       id: slugify(name),
       name: name,
@@ -45,6 +48,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // TODO: order by timestamp
+
     this.pages$ = this.serverService
       .getCollection('pages')
       .subscribe((pages: Page[]) => (this.pages = pages));

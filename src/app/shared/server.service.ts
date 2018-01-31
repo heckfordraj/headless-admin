@@ -18,6 +18,8 @@ export class ServerService {
   }
 
   getCollection(name: string): Observable<Page[]> {
+    // TODO: order by timestamp
+
     return this.db
       .list<Page>(name)
       .valueChanges()

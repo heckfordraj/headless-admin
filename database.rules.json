@@ -1,0 +1,65 @@
+{
+  "rules": {
+    "pages": {
+      "$page": {
+        ".validate":
+          "newData.hasChildren(['id', 'name', 'dataId', 'revisions']) && newData.child('id').val() == $page",
+        "id": {
+          ".validate": "newData.isString()"
+        },
+        "name": {
+          ".validate": "newData.isString()"
+        },
+        "dataId": {
+          ".validate": "newData.isString()"
+        },
+        "revisions": {
+          ".validate": "newData.hasChildren(['currentId'])",
+          "currentId": {
+            ".validate": "newData.isString()"
+          },
+          "publishedId": {
+            ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        },
+        "$other": {
+          ".validate": "false"
+        },
+        ".write":
+          "data.val() == null && (data.child('id').val() == newData.child('id').val() || data.val() == null) || data.val() != null && newData.val() != null && (data.child('id').val() == newData.child('id').val() || data.val() == null) || data.val() != null && newData.val() == null"
+      },
+      ".read": "true"
+    },
+    "data": {
+      "$pageId": {
+        "$revisionId": {
+          "$blockId": {
+            ".validate":
+              "newData.hasChildren(['id', 'type', 'order']) && newData.child('id').val() == $blockId",
+            "id": {
+              ".validate": "newData.isString()"
+            },
+            "type": {
+              ".validate": "newData.isString()"
+            },
+            "data": {
+              ".validate": "newData.hasChildren()"
+            },
+            "order": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": "false"
+            },
+            ".indexOn": ["order"]
+          }
+        }
+      },
+      ".read": "true",
+      ".write": "true"
+    }
+  }
+}

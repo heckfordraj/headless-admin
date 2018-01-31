@@ -2,6 +2,7 @@ import { browser, ElementFinder, Key } from 'protractor';
 import { PagesPage } from './pages.po';
 
 import * as FirebaseServer from 'firebase-server';
+import * as rules from '../database.rules.json';
 import * as data from '../src/testing/data.json';
 
 describe('Pages Page', () => {
@@ -10,10 +11,11 @@ describe('Pages Page', () => {
 
   beforeEach(() => {
     server = new FirebaseServer(5000, '127.0.1', data);
+    server.setRules(rules);
 
     page = new PagesPage();
     page.navigateTo();
-    browser.sleep(3000);
+    browser.sleep(1000);
     browser.waitForAngularEnabled(false);
   });
 
@@ -90,14 +92,17 @@ describe('Pages Page', () => {
 
     it('should display page input value on type', () => {
       input.sendKeys('4');
+
       expect(
         page
           .getPageInputs()
           .get(pageIndex)
           .getAttribute('value')
       ).toBe('Page 44');
+
       input.clear();
       input.sendKeys('Name');
+
       expect(
         page
           .getPageInputs()
@@ -116,6 +121,18 @@ describe('Pages Page', () => {
           .last()
           .getText()
       ).toBe('Page Update');
+    });
+
+    it('should not display duplicate page name on submit', () => {
+      input.clear();
+      input.sendKeys('Page 1', Key.ENTER);
+
+      expect(
+        page
+          .getPageNames()
+          .last()
+          .getText()
+      ).toBe('Page 5');
     });
   });
 });
