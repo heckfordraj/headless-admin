@@ -268,7 +268,7 @@ function createComponent() {
   page = new Page();
 
   fixture.detectChanges();
-  return fixture.whenStable().then(() => {
+  return fixture.whenStable().then(_ => {
     fixture.detectChanges();
     page.addElements();
   });

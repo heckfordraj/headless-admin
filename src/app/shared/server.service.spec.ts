@@ -1,9 +1,4 @@
-import {
-  ComponentFixture,
-  TestBed,
-  async,
-  inject
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { AngularFireDatabaseStub } from '../../testing/angularfiredatabase';
 import { Pages, Blocks, Data } from '../../testing/data';
 
@@ -21,7 +16,7 @@ const block2 = JSON.parse(JSON.stringify(Blocks['2'][2]));
 const data1 = JSON.parse(JSON.stringify(Data[0]));
 const data2 = JSON.parse(JSON.stringify(Data[1]));
 
-fdescribe('ServerService', () => {
+describe('ServerService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [

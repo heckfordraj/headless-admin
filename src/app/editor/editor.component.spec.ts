@@ -177,24 +177,30 @@ describe('EditorComponent', () => {
       expect(isPage(arg)).toBeTruthy();
     });
 
-    it('should call router', async () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it(
+      'should call router',
+      async(() => {
+        page.pageInput.triggerEventHandler('keyup.enter', null);
 
-      fixture.whenStable().then(() => {
-        expect(page.navigate.calls.any()).toBeTruthy();
-      });
-    });
+        fixture.whenStable().then(_ => {
+          expect(page.navigate.calls.any()).toBeTruthy();
+        });
+      })
+    );
 
-    it('should call router with new page id', async () => {
-      page.pageInput.nativeElement.value = 'New Page';
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it(
+      'should call router with new page id',
+      async(() => {
+        page.pageInput.nativeElement.value = 'New Page';
+        page.pageInput.triggerEventHandler('keyup.enter', null);
 
-      fixture.whenStable().then(() => {
-        let arg = page.navigate.calls.mostRecent().args[0];
+        fixture.whenStable().then(_ => {
+          let arg = page.navigate.calls.mostRecent().args[0];
 
-        expect(arg).toEqual(['/page', 'new-page']);
-      });
-    });
+          expect(arg).toEqual(['/page', 'new-page']);
+        });
+      })
+    );
   });
 
   describe('Page Publish', () => {
@@ -232,7 +238,7 @@ function createComponent() {
   page = new Page();
 
   fixture.detectChanges();
-  return fixture.whenStable().then(() => {
+  return fixture.whenStable().then(_ => {
     fixture.detectChanges();
     page.addElements();
   });
