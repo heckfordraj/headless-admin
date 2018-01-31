@@ -444,6 +444,43 @@ fdescribe('ServerService', () => {
       expect(arg).toBe('1');
     });
   });
+
+  describe('orderBlock', () => {
+    it('should call firebase database ref', () => {
+      serverService.orderBlock(page1, block1, block2);
+
+      expect(db.ref.calls.count()).toBe(1);
+    });
+
+    it('should call firebase database ref with page param', () => {
+      serverService.orderBlock(page1, block1, block2);
+      let arg = db.ref.calls.mostRecent().args[0];
+
+      expect(arg).toBe('data/1/a');
+    });
+
+    it('should call firebase database ref update', () => {
+      serverService.orderBlock(page1, block1, block2);
+
+      expect(db.update.calls.count()).toBe(1);
+    });
+
+    describe('update object', () => {
+      it('should set block order', () => {
+        serverService.orderBlock(page1, block1, block2);
+        let arg = db.update.calls.mostRecent().args[0];
+
+        expect(arg['1/order']).toBe(1);
+      });
+
+      it('should set block replaced order', () => {
+        serverService.orderBlock(page1, block1, block2);
+        let arg = db.update.calls.mostRecent().args[0];
+
+        expect(arg['3/order']).toBe(3);
+      });
+    });
+  });
 });
 
 function createService() {
