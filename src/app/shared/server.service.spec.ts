@@ -37,31 +37,22 @@ fdescribe('ServerService', () => {
   });
 
   describe('getCollection', () => {
-    it(
-      'should call firebase list',
-      async(() => {
-        serverService.getCollection('pages').subscribe();
-        expect(db.list.calls.count()).toBe(1);
-      })
-    );
+    it('should call firebase list', () => {
+      serverService.getCollection('pages').subscribe();
+      expect(db.list.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase list with collection param',
-      async(() => {
-        serverService.getCollection('name').subscribe();
-        let arg = db.list.calls.mostRecent().args[0];
+    it('should call firebase list with collection param', () => {
+      serverService.getCollection('name').subscribe();
+      let arg = db.list.calls.mostRecent().args[0];
 
-        expect(arg).toBe('name');
-      })
-    );
+      expect(arg).toBe('name');
+    });
 
-    it(
-      'should call firebase list valueChanges',
-      async(() => {
-        serverService.getCollection('pages').subscribe();
-        expect(db.valueChanges.calls.count()).toBe(1);
-      })
-    );
+    it('should call firebase list valueChanges', () => {
+      serverService.getCollection('pages').subscribe();
+      expect(db.valueChanges.calls.count()).toBe(1);
+    });
 
     xit(
       'should throw if not passed collection name',
@@ -77,31 +68,22 @@ fdescribe('ServerService', () => {
   });
 
   describe('getPage', () => {
-    it(
-      'should call firebase object',
-      async(() => {
-        serverService.getPage('1').subscribe();
-        expect(db.object.calls.count()).toBe(1);
-      })
-    );
+    it('should call firebase object', () => {
+      serverService.getPage('1').subscribe();
+      expect(db.object.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase object with page id param',
-      async(() => {
-        serverService.getPage('1').subscribe();
-        let arg = db.object.calls.mostRecent().args[0];
+    it('should call firebase object with page id param', () => {
+      serverService.getPage('1').subscribe();
+      let arg = db.object.calls.mostRecent().args[0];
 
-        expect(arg).toBe('pages/1');
-      })
-    );
+      expect(arg).toBe('pages/1');
+    });
 
-    it(
-      'should call firebase object valueChanges',
-      async(() => {
-        serverService.getPage('1').subscribe();
-        expect(db.valueChanges.calls.count()).toBe(1);
-      })
-    );
+    it('should call firebase object valueChanges', () => {
+      serverService.getPage('1').subscribe();
+      expect(db.valueChanges.calls.count()).toBe(1);
+    });
 
     xit('should throw if not passed page name');
   });
@@ -221,53 +203,38 @@ fdescribe('ServerService', () => {
   });
 
   describe('publishPage', () => {
-    it(
-      'should call createId',
-      async(() => {
-        serverService.publishPage(page1);
+    it('should call createId', () => {
+      serverService.publishPage(page1);
 
-        expect(db.createId.calls.count()).toBe(1);
-      })
-    );
+      expect(db.createId.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase createPushId',
-      async(() => {
-        serverService.publishPage(page1);
+    it('should call firebase createPushId', () => {
+      serverService.publishPage(page1);
 
-        expect(db.createPushId.calls.count()).toBe(1);
-      })
-    );
+      expect(db.createPushId.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase ref (1)',
-      async(() => {
-        serverService.publishPage(page1);
+    it('should call firebase ref (1)', () => {
+      serverService.publishPage(page1);
 
-        expect(db.ref.calls.count()).toBe(1);
-      })
-    );
+      expect(db.ref.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase ref (1) with page param',
-      async(() => {
-        serverService.publishPage(page1);
-        let arg = db.ref.calls.mostRecent().args[0];
+    it('should call firebase ref (1) with page param', () => {
+      serverService.publishPage(page1);
+      let arg = db.ref.calls.mostRecent().args[0];
 
-        expect(arg).toBe('data/1/a');
-      })
-    );
+      expect(arg).toBe('data/1/a');
+    });
 
-    it(
-      'should call firebase ref once',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+    it('should call firebase ref once', () => {
+      db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
 
-        serverService.publishPage(page1);
+      serverService.publishPage(page1);
 
-        expect(db.once.calls.count()).toBe(1);
-      })
-    );
+      expect(db.once.calls.count()).toBe(1);
+    });
 
     it(
       'should call firebase ref (2)',
@@ -368,33 +335,24 @@ fdescribe('ServerService', () => {
   });
 
   describe('getBlocks', () => {
-    it(
-      'should call firebase list',
-      async(() => {
-        serverService.getBlocks(page2);
+    it('should call firebase list', () => {
+      serverService.getBlocks(page2);
 
-        expect(db.list.calls.count()).toBe(1);
-      })
-    );
+      expect(db.list.calls.count()).toBe(1);
+    });
 
-    it(
-      'should call firebase list with page param',
-      async(() => {
-        serverService.getBlocks(page2);
-        let arg = db.list.calls.mostRecent().args[0];
+    it('should call firebase list with page param', () => {
+      serverService.getBlocks(page2);
+      let arg = db.list.calls.mostRecent().args[0];
 
-        expect(arg).toBe('data/2/b');
-      })
-    );
+      expect(arg).toBe('data/2/b');
+    });
 
-    it(
-      'should call firebase valueChanges',
-      async(() => {
-        serverService.getBlocks(page2);
+    it('should call firebase valueChanges', () => {
+      serverService.getBlocks(page2);
 
-        expect(db.valueChanges.calls.count()).toBe(1);
-      })
-    );
+      expect(db.valueChanges.calls.count()).toBe(1);
+    });
   });
 });
 
