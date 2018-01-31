@@ -366,6 +366,36 @@ fdescribe('ServerService', () => {
 
     xit('should reject if not passed page id', async(() => {}));
   });
+
+  describe('getBlocks', () => {
+    it(
+      'should call firebase list',
+      async(() => {
+        serverService.getBlocks(page2);
+
+        expect(db.list.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase list with page param',
+      async(() => {
+        serverService.getBlocks(page2);
+        let arg = db.list.calls.mostRecent().args[0];
+
+        expect(arg).toBe('data/2/b');
+      })
+    );
+
+    it(
+      'should call firebase valueChanges',
+      async(() => {
+        serverService.getBlocks(page2);
+
+        expect(db.valueChanges.calls.count()).toBe(1);
+      })
+    );
+  });
 });
 
 function createService() {
