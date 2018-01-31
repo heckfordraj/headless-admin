@@ -218,6 +218,80 @@ fdescribe('ServerService', () => {
       );
     });
   });
+
+  describe('publishPage', () => {
+    it(
+      'should call createId',
+      async(() => {
+        serverService.publishPage(page1);
+
+        expect(db.createId.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase createPushId',
+      async(() => {
+        serverService.publishPage(page1);
+
+        expect(db.createPushId.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase ref (1)',
+      async(() => {
+        serverService.publishPage(page1);
+
+        expect(db.ref.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase ref once',
+      async(() => {
+        serverService.publishPage(page1);
+
+        expect(db.once.calls.count()).toBe(1);
+      })
+    );
+
+    it(
+      'should call firebase ref set',
+      async(() => {
+        serverService
+          .publishPage(page1)
+          .then(_ => expect(db.set.calls.count()).toBe(1));
+      })
+    );
+
+    it(
+      'should call firebase ref (3)',
+      async(() => {
+        serverService
+          .publishPage(page1)
+          .then(_ => expect(db.ref.calls.count()).toBe(3));
+      })
+    );
+
+    it(
+      'should call firebase ref update',
+      async(() => {
+        serverService
+          .publishPage(page1)
+          .then(_ => expect(db.update.calls.count()).toBe(1));
+      })
+    );
+
+    xit('should reject if not passed page dataId', async(() => {}));
+
+    xit(
+      'should reject if not passed page revisions currentId',
+      async(() => {})
+    );
+
+    xit('should reject if not passed page id', async(() => {}));
+  });
 });
 
 function createService() {
@@ -226,16 +300,20 @@ function createService() {
 }
 
 class Firebase {
+  createId: jasmine.Spy;
   createPushId: jasmine.Spy;
   list: jasmine.Spy;
   valueChanges: jasmine.Spy;
   object: jasmine.Spy;
   ref: jasmine.Spy;
   update: jasmine.Spy;
+  once: jasmine.Spy;
+  set: jasmine.Spy;
 
   constructor() {
     const angularFireDatabase = TestBed.get(AngularFireDatabase);
 
+    this.createId = spyOn(serverService, 'createId').and.callThrough();
     this.createPushId = spyOn(
       angularFireDatabase,
       'createPushId'
@@ -251,5 +329,7 @@ class Firebase {
       angularFireDatabase.database,
       'update'
     ).and.callThrough();
+    this.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
+    this.set = spyOn(angularFireDatabase.database, 'set').and.callThrough();
   }
 }

@@ -34,8 +34,14 @@ export class AngularFireDatabaseStub {
 
   database = {
     ref: (path: string) => {
-      return { update: this.database.update };
+      return {
+        update: this.database.update,
+        once: this.database.once,
+        set: this.database.set
+      };
     },
-    update: (update: any) => Promise.resolve(null)
+    update: (update: any) => Promise.resolve(),
+    once: (once: any) => Promise.resolve({ val: val => null }),
+    set: (set: any) => Promise.resolve()
   };
 }
