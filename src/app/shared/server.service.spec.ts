@@ -5,7 +5,7 @@ import {
   inject
 } from '@angular/core/testing';
 import { AngularFireDatabaseStub } from '../../testing/angularfiredatabase';
-import { Pages, Blocks } from '../../testing/data';
+import { Pages, Blocks, Data } from '../../testing/data';
 
 import { ServerService } from './server.service';
 import { AngularFireDatabase } from 'angularfire2/database';
@@ -17,7 +17,9 @@ let db: Firebase;
 const page1 = JSON.parse(JSON.stringify(Pages[0]));
 const page2 = JSON.parse(JSON.stringify(Pages[1]));
 const block1 = JSON.parse(JSON.stringify(Blocks['1'][0]));
-const block2 = JSON.parse(JSON.stringify(Blocks['2'][0]));
+const block2 = JSON.parse(JSON.stringify(Blocks['2'][2]));
+const data1 = JSON.parse(JSON.stringify(Data[0]));
+const data2 = JSON.parse(JSON.stringify(Data[1]));
 
 fdescribe('ServerService', () => {
   beforeEach(() => {
@@ -383,6 +385,35 @@ fdescribe('ServerService', () => {
 
       expect(args[0]).toBe('1');
       expect(args[1]).toBe(block1);
+    });
+  });
+
+  describe('updateBlock', () => {
+    it('should call firebase list', () => {
+      serverService.updateBlock(page2, block2, data2);
+
+      expect(db.list.calls.count()).toBe(1);
+    });
+
+    it('should call firebase list with page and block param', () => {
+      serverService.updateBlock(page2, block2, data2);
+      let arg = db.list.calls.mostRecent().args[0];
+
+      expect(arg).toBe('data/2/b/3/data');
+    });
+
+    it('should call firebase list set', () => {
+      serverService.updateBlock(page2, block2, data2);
+
+      expect(db.set.calls.count()).toBe(1);
+    });
+
+    it('should call firebase list set with data params', () => {
+      serverService.updateBlock(page2, block2, data2);
+      let args = db.set.calls.mostRecent().args;
+
+      expect(args[0]).toBe('2');
+      expect(args[1]).toBe(data2);
     });
   });
 });
