@@ -5,11 +5,19 @@ export class PagesPage {
     return browser.get('/pages');
   }
 
-  getPageTitle() {
+  getTitle() {
     return element(by.css('h1')).getText();
   }
 
   getPages() {
     return element.all(by.css('li'));
+  }
+
+  getPageNames() {
+    return element.all(by.css('a'));
+  }
+
+  getPageInputs() {
+    return element.all(by.css('input'));
   }
 }
