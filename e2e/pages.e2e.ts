@@ -273,4 +273,15 @@ describe('Pages Page', () => {
       expect(page.getPages().count()).toBe(5);
     });
   });
+
+  describe('routing', () => {
+    it('should navigate to page on click', () => {
+      page
+        .getPageLinks()
+        .first()
+        .click();
+
+      expect(page.getUrl()).toContain('/page/page-1');
+    });
+  });
 });

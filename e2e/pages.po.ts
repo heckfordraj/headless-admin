@@ -5,6 +5,10 @@ export class PagesPage {
     return browser.get('/pages');
   }
 
+  getUrl() {
+    return browser.getCurrentUrl();
+  }
+
   getTitle() {
     return element(by.css('h1')).getText();
   }
