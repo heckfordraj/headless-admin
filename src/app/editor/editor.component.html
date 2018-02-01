@@ -2,7 +2,7 @@
 
 {{ page | json }}
 
-<input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)">
+<input #pageInput class="page-input" type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)">
 
 <button #publish (click)="publishPage()">publish</button>
 <button #remove (click)="removePage()">&times;</button>

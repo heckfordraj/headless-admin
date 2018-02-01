@@ -167,6 +167,18 @@ describe('Pages Page', () => {
           .getText()
       ).toBe('Page 5');
     });
+
+    it('should not modify existing page on duplicate submit', () => {
+      input.clear();
+      input.sendKeys('Page 1', Key.ENTER);
+
+      expect(
+        page
+          .getPageDataIds()
+          .first()
+          .getText()
+      ).toBe('1');
+    });
   });
 
   describe('add page', () => {
@@ -223,6 +235,18 @@ describe('Pages Page', () => {
       addPage.sendKeys('Page 1', Key.ENTER);
 
       expect(page.getPages().count()).toBe(5);
+    });
+
+    it('should not modify existing page on duplicate submit', () => {
+      addPage.clear();
+      addPage.sendKeys('Page 1', Key.ENTER);
+
+      expect(
+        page
+          .getPageDataIds()
+          .first()
+          .getText()
+      ).toBe('1');
     });
   });
 

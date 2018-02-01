@@ -29,6 +29,10 @@ export class PagesPage {
     return element.all(by.css('a'));
   }
 
+  getPageDataIds() {
+    return element.all(by.css('small'));
+  }
+
   getPageDeleteButtons() {
     return element.all(by.css('button'));
   }

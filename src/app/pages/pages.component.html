@@ -3,6 +3,7 @@
 <ul>
   <li *ngFor="let page of pages">
     {{ page | json }}
+    <small>{{ page?.dataId }}</small>
 
     <input #pageInput class="page-input" type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>

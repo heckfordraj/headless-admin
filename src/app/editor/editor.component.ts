@@ -30,7 +30,9 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   updatePage(newname: string) {
+    // TODO: check if newname
     // TODO: check if previous name and new name are identical
+    // TODO: route only if promise resolves
 
     const newPage: Page = {
       id: slugify(newname),
