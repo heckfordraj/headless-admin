@@ -225,4 +225,52 @@ describe('Pages Page', () => {
       expect(page.getPages().count()).toBe(5);
     });
   });
+
+  describe('delete page', () => {
+    let pageIndex = 2;
+
+    beforeEach(() => {
+      page
+        .getPageDeleteButtons()
+        .get(pageIndex)
+        .click();
+    });
+
+    it('should remove page from list', () => {
+      expect(page.getPages().count()).toBe(4);
+    });
+
+    it('should remove correct page name from list', () => {
+      expect(
+        page
+          .getPageNames()
+          .get(0)
+          .getText()
+      ).toBe('Page 1');
+      expect(
+        page
+          .getPageNames()
+          .get(1)
+          .getText()
+      ).toBe('Page 2');
+      expect(
+        page
+          .getPageNames()
+          .get(2)
+          .getText()
+      ).toBe('Page 4');
+      expect(
+        page
+          .getPageNames()
+          .get(3)
+          .getText()
+      ).toBe('Page 5');
+    });
+
+    it('should allow add new page to list with same name', () => {
+      page.getAddPageInput().sendKeys('Page 3', Key.ENTER);
+
+      expect(page.getPages().count()).toBe(5);
+    });
+  });
 });

@@ -25,6 +25,10 @@ export class PagesPage {
     return element.all(by.css('a'));
   }
 
+  getPageDeleteButtons() {
+    return element.all(by.css('button'));
+  }
+
   getAddPageInput() {
     return element(by.css('#add-page'));
   }
