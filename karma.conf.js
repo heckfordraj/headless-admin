@@ -20,7 +20,7 @@ module.exports = function (config) {
       fixWebpackSourcePaths: true
     },
     angularCli: {
-      environment: 'dev'
+      environment: 'test'
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
@@ -28,6 +28,12 @@ module.exports = function (config) {
     logLevel: config.LOG_LOG,
     autoWatch: true,
     browsers: ['Chrome'],
+    customLaunchers: {
+      ChromeNoSandbox: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
     singleRun: false
   });
 };

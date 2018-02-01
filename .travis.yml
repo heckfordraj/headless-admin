@@ -1,0 +1,28 @@
+dist: trusty
+sudo: false
+
+language: node_js
+node_js:
+  - "6"
+
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+
+cache:
+  directories:
+     - ./node_modules
+
+install:
+  - npm install
+
+script:
+  - export CHROME_BIN=chromium-browser
+  - xvfb-run -a npm run test -- --browser=ChromeNoSandbox
+  - xvfb-run -a npm run e2e -- --config=protractor-ci.conf.js
+
+notifications:
+  slack: heckford-digital:9fHY3bKzJpsxqHe875M7zpgq
