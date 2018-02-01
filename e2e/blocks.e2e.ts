@@ -371,6 +371,8 @@ describe('BlocksComponent', () => {
       page.getBaseBlockImage().click();
       page.getBaseBlockText().click();
 
+      browser.sleep(1000);
+
       page
         .getBlockRemoveButtons()
         .get(4)

@@ -1,21 +1,21 @@
 import { browser, ElementFinder, Key } from 'protractor';
-import { PagesPage } from './pages.po';
+import { PagesComponent } from './pages.po';
 
 import * as FirebaseServer from 'firebase-server';
 import * as rules from '../database.rules.json';
 import * as data from '../src/testing/data.json';
 
-describe('Pages Page', () => {
+describe('PagesComponent', () => {
   let server: FirebaseServer;
-  let page: PagesPage;
+  let page: PagesComponent;
 
   beforeEach(() => {
     server = new FirebaseServer(5000, '127.0.1', data);
     server.setRules(rules);
 
-    page = new PagesPage();
+    page = new PagesComponent();
     page.navigateTo();
-    browser.sleep(1000);
+    browser.sleep(3000);
     browser.waitForAngularEnabled(false);
   });
 
