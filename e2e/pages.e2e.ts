@@ -64,6 +64,39 @@ describe('Pages Page', () => {
     ).toBe('Page 5');
   });
 
+  it('should display page links', () => {
+    expect(
+      page
+        .getPageLinks()
+        .get(0)
+        .getAttribute('href')
+    ).toContain('/page/page-1');
+    expect(
+      page
+        .getPageLinks()
+        .get(1)
+        .getAttribute('href')
+    ).toContain('/page/page-2');
+    expect(
+      page
+        .getPageLinks()
+        .get(2)
+        .getAttribute('href')
+    ).toContain('/page/page-3');
+    expect(
+      page
+        .getPageLinks()
+        .get(3)
+        .getAttribute('href')
+    ).toContain('/page/page-4');
+    expect(
+      page
+        .getPageLinks()
+        .get(4)
+        .getAttribute('href')
+    ).toContain('/page/page-5');
+  });
+
   describe('update page', () => {
     let pageIndex = 3;
     let input: ElementFinder;
@@ -133,6 +166,63 @@ describe('Pages Page', () => {
           .last()
           .getText()
       ).toBe('Page 5');
+    });
+  });
+
+  describe('add page', () => {
+    let addPage: ElementFinder;
+
+    beforeEach(() => {
+      addPage = page.getAddPageInput();
+    });
+
+    it('should display empty field on load', () => {
+      expect(addPage.getAttribute('value')).toBeNaN;
+    });
+
+    it('should display page input value on type', () => {
+      addPage.clear();
+      addPage.sendKeys('test');
+
+      expect(addPage.getAttribute('value')).toBe('test');
+    });
+
+    it('should add page to list on submit', () => {
+      addPage.clear();
+      addPage.sendKeys('Z Page', Key.ENTER);
+
+      expect(page.getPages().count()).toBe(6);
+    });
+
+    it('should display new page name', () => {
+      addPage.clear();
+      addPage.sendKeys('Z Page', Key.ENTER);
+
+      expect(
+        page
+          .getPageNames()
+          .last()
+          .getText()
+      ).toBe('Z Page');
+    });
+
+    it('should display new page link', () => {
+      addPage.clear();
+      addPage.sendKeys('Z Page', Key.ENTER);
+
+      expect(
+        page
+          .getPageLinks()
+          .last()
+          .getAttribute('href')
+      ).toContain('/page/z-page');
+    });
+
+    it('should not add duplicate page to list on submit', () => {
+      addPage.clear();
+      addPage.sendKeys('Page 1', Key.ENTER);
+
+      expect(page.getPages().count()).toBe(5);
     });
   });
 });

@@ -32,7 +32,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   addPage(name: string) {
-    // TODO: add timestamp
+    // TODO: add last modified timestamp
+    // TODO: clear input on successful submit
 
     const newPage: Page = {
       id: slugify(name),
@@ -48,7 +49,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // TODO: order by timestamp
+    // TODO: order by last modified timestamp
+    // TODO: ngFor index on id
 
     this.pages$ = this.serverService
       .getCollection('pages')

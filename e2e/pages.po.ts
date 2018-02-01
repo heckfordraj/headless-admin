@@ -18,6 +18,14 @@ export class PagesPage {
   }
 
   getPageInputs() {
-    return element.all(by.css('input'));
+    return element.all(by.css('.page-input'));
+  }
+
+  getPageLinks() {
+    return element.all(by.css('a'));
+  }
+
+  getAddPageInput() {
+    return element(by.css('#add-page'));
   }
 }

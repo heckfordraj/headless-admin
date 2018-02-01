@@ -4,10 +4,10 @@
   <li *ngFor="let page of pages">
     {{ page | json }}
 
-    <input #pageInput type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
+    <input #pageInput class="page-input" type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
     <button (click)="removePage(page)">&times;</button>
   </li>
 </ul>
 
-<input #add type="text" placeholder="Add Page" (keyup.enter)="addPage(add.value)">
+<input #add type="text" id="add-page" placeholder="Add Page" (keyup.enter)="addPage(add.value)">

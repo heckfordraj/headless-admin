@@ -316,11 +316,11 @@ class Page {
 
       this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
 
-      this.pageInput = fixture.debugElement.query(By.css('input'));
+      this.pageInput = fixture.debugElement.query(By.css('.page-input'));
 
       this.pageDelete = fixture.debugElement.query(By.css('button'));
 
-      this.pageAdd = fixture.debugElement.query(de => de.references['add']);
+      this.pageAdd = fixture.debugElement.query(By.css('#add-page'));
 
       this.linkDes = fixture.debugElement.queryAll(
         By.directive(RouterLinkStub)
