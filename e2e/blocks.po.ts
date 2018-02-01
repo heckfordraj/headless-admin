@@ -24,4 +24,8 @@ export class BlocksComponent {
   getBlockTypes() {
     return element.all(by.css('b'));
   }
+
+  getBlockRemoveButtons() {
+    return element.all(by.css('.block-remove'));
+  }
 }

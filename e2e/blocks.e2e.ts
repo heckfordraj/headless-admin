@@ -148,4 +148,50 @@ describe('BlocksComponent', () => {
       ).toBe('image');
     });
   });
+
+  describe('block remove', () => {
+    it('should remove block from list', () => {
+      page
+        .getBlockRemoveButtons()
+        .get(1)
+        .click();
+
+      expect(page.getBlocks().count()).toBe(2);
+    });
+
+    it('should not display removed block', () => {
+      page
+        .getBlockRemoveButtons()
+        .get(1)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(0)
+          .getText()
+      ).toBe('text');
+      expect(
+        page
+          .getBlockTypes()
+          .get(1)
+          .getText()
+      ).toBe('text');
+    });
+
+    it('should not remove other block with same block type', () => {
+      page.getBaseBlockImage().click();
+      page
+        .getBlockRemoveButtons()
+        .get(1)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(2)
+          .getText()
+      ).toBe('image');
+    });
+  });
 });

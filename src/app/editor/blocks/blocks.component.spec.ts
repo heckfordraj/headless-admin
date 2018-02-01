@@ -484,9 +484,7 @@ class Page {
     this.blocksSwitch = fixture.debugElement.queryAll(By.css('.switch-block'));
     this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
     this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
-    this.blocksRemove = fixture.debugElement.queryAll(
-      de => de.references['remove']
-    );
+    this.blocksRemove = fixture.debugElement.queryAll(By.css('.block-remove'));
     this.blocksUp = fixture.debugElement.queryAll(de => de.references['up']);
     this.blocksDown = fixture.debugElement.queryAll(
       de => de.references['down']
