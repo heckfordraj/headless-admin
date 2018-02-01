@@ -194,4 +194,204 @@ describe('BlocksComponent', () => {
       ).toBe('image');
     });
   });
+
+  describe('order block', () => {
+    beforeEach(() => {
+      page.getBaseBlockImage().click();
+    });
+
+    it('should move block up on up click', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .get(1)
+          .getText()
+      ).toBe('image');
+
+      page
+        .getBlockOrderUpButtons()
+        .get(2)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(1)
+          .getText()
+      ).toBe('text');
+    });
+
+    it('should move block down on down click', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .get(2)
+          .getText()
+      ).toBe('text');
+
+      page
+        .getBlockOrderDownButtons()
+        .get(1)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(2)
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should not move top block on up click', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .first()
+          .getText()
+      ).toBe('text');
+
+      page
+        .getBlockOrderUpButtons()
+        .first()
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .first()
+          .getText()
+      ).toBe('text');
+    });
+
+    it('should not move bottom block on down click', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .last()
+          .getText()
+      ).toBe('image');
+
+      page
+        .getBlockOrderDownButtons()
+        .last()
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .last()
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should move block to original position on down and up click', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .get(1)
+          .getText()
+      ).toBe('image');
+
+      page
+        .getBlockOrderDownButtons()
+        .get(1)
+        .click();
+      page
+        .getBlockOrderUpButtons()
+        .get(2)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(1)
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should move block to top', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .first()
+          .getText()
+      ).toBe('text');
+
+      page
+        .getBlockOrderUpButtons()
+        .get(3)
+        .click();
+      page
+        .getBlockOrderUpButtons()
+        .get(2)
+        .click();
+      page
+        .getBlockOrderUpButtons()
+        .get(1)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .first()
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should move block to bottom', () => {
+      expect(
+        page
+          .getBlockTypes()
+          .last()
+          .getText()
+      ).toBe('image');
+
+      page
+        .getBlockOrderDownButtons()
+        .get(0)
+        .click();
+      page
+        .getBlockOrderDownButtons()
+        .get(1)
+        .click();
+      page
+        .getBlockOrderDownButtons()
+        .get(2)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .last()
+          .getText()
+      ).toBe('text');
+    });
+
+    it('should move blocks correctly with middle block removed', () => {
+      page.getBaseBlockImage().click();
+      page.getBaseBlockText().click();
+
+      page
+        .getBlockRemoveButtons()
+        .get(4)
+        .click();
+      page
+        .getBlockOrderUpButtons()
+        .get(4)
+        .click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(3)
+          .getText()
+      ).toBe('text');
+      expect(
+        page
+          .getBlockTypes()
+          .get(4)
+          .getText()
+      ).toBe('image');
+    });
+  });
 });

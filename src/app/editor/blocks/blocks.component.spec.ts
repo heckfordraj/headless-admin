@@ -485,9 +485,7 @@ class Page {
     this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
     this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
     this.blocksRemove = fixture.debugElement.queryAll(By.css('.block-remove'));
-    this.blocksUp = fixture.debugElement.queryAll(de => de.references['up']);
-    this.blocksDown = fixture.debugElement.queryAll(
-      de => de.references['down']
-    );
+    this.blocksUp = fixture.debugElement.queryAll(By.css('.order-up'));
+    this.blocksDown = fixture.debugElement.queryAll(By.css('.order-down'));
   }
 }

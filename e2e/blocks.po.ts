@@ -25,6 +25,14 @@ export class BlocksComponent {
     return element.all(by.css('b'));
   }
 
+  getBlockOrderUpButtons() {
+    return element.all(by.css('.order-up'));
+  }
+
+  getBlockOrderDownButtons() {
+    return element.all(by.css('.order-down'));
+  }
+
   getBlockRemoveButtons() {
     return element.all(by.css('.block-remove'));
   }
