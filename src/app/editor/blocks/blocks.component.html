@@ -1,4 +1,4 @@
-<button id="add-{{block?.type}}" *ngFor="let block of baseBlocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
+<button class="add-block" id="add-{{block?.type}}" *ngFor="let block of baseBlocks?.data" (click)="addBlock(block)">+ {{ block.type }}</button>
 
 <ul *ngIf="blocks.length > 0">
   <li *ngFor="let block of blocks; let i = index">

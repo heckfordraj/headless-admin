@@ -40,5 +40,117 @@
         "currentId": "e"
       }
     }
+  },
+  "data": {
+    "1": {
+      "a": {
+        "1": {
+          "id": "1",
+          "type": "text",
+          "data": null,
+          "order": 1
+        },
+        "2": {
+          "id": "2",
+          "type": "image",
+          "data": null,
+          "order": 2
+        },
+        "3": {
+          "id": "3",
+          "type": "text",
+          "data": null,
+          "order": 3
+        }
+      }
+    },
+    "2": {
+      "b": {
+        "1": {
+          "id": "1",
+          "type": "image",
+          "data": null,
+          "order": 1
+        },
+        "2": {
+          "id": "2",
+          "type": "text",
+          "data": null,
+          "order": 2
+        },
+        "3": {
+          "id": "3",
+          "type": "image",
+          "data": null,
+          "order": 3
+        }
+      }
+    },
+    "3": {
+      "c": {
+        "1": {
+          "id": "1",
+          "type": "text",
+          "data": null,
+          "order": 1
+        },
+        "2": {
+          "id": "2",
+          "type": "image",
+          "data": null,
+          "order": 2
+        },
+        "3": {
+          "id": "3",
+          "type": "text",
+          "data": null,
+          "order": 3
+        }
+      }
+    },
+    "4": {
+      "d": {
+        "1": {
+          "id": "1",
+          "type": "image",
+          "data": null,
+          "order": 1
+        },
+        "2": {
+          "id": "2",
+          "type": "text",
+          "data": null,
+          "order": 2
+        },
+        "3": {
+          "id": "3",
+          "type": "image",
+          "data": null,
+          "order": 3
+        }
+      }
+    },
+    "5": {
+      "e": {
+        "1": {
+          "id": "1",
+          "type": "text",
+          "data": null,
+          "order": 1
+        },
+        "2": {
+          "id": "2",
+          "type": "image",
+          "data": null,
+          "order": 2
+        },
+        "3": {
+          "id": "3",
+          "type": "text",
+          "data": null,
+          "order": 3
+        }
+      }
+    }
   }
 }
