@@ -26,6 +26,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   page: Page;
 
   publishPage() {
+    // TODO: add visible publish status (check if doc has changed)
+
     this.serverService.publishPage(this.page);
   }
 

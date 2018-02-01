@@ -63,4 +63,18 @@ describe('EditorComponent', () => {
 
     xit('should not route to duplicate page name on submit', () => {});
   });
+
+  xdescribe('page publish', () => {});
+
+  describe('page remove', () => {
+    beforeEach(() => {
+      page.getPageDeleteButton().click();
+    });
+
+    it('should not display page name', () => {
+      expect(page.getPageName()).toBe('');
+    });
+
+    xit('should route to pages', () => {});
+  });
 });

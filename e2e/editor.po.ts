@@ -16,4 +16,8 @@ export class EditorComponent {
   getPageInput() {
     return element(by.css('.page-input'));
   }
+
+  getPageDeleteButton() {
+    return element(by.css('#remove'));
+  }
 }

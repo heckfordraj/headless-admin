@@ -288,12 +288,8 @@ class Page {
       this.pageInput = fixture.debugElement.query(
         de => de.references['pageInput']
       );
-      this.pagePublish = fixture.debugElement.query(
-        de => de.references['publish']
-      );
-      this.pageRemove = fixture.debugElement.query(
-        de => de.references['remove']
-      );
+      this.pagePublish = fixture.debugElement.query(By.css('#publish'));
+      this.pageRemove = fixture.debugElement.query(By.css('#remove'));
     }
   }
 }
