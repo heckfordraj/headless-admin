@@ -5,7 +5,7 @@ import * as FirebaseServer from 'firebase-server';
 import * as rules from '../database.rules.json';
 import * as data from '../src/testing/data.json';
 
-fdescribe('BlocksComponent', () => {
+describe('BlocksComponent', () => {
   let server: FirebaseServer;
   let page: BlocksComponent;
 
@@ -81,5 +81,71 @@ fdescribe('BlocksComponent', () => {
         .get(2)
         .getText()
     ).toBe('image');
+  });
+
+  describe('add block', () => {
+    it('should add to list', () => {
+      page.getBaseBlockImage().click();
+
+      expect(page.getBlocks().count()).toBe(4);
+    });
+
+    it('should add block to bottom of list', () => {
+      page.getBaseBlockImage().click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(3)
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should add image block', () => {
+      page.getBaseBlockImage().click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(3)
+          .getText()
+      ).toBe('image');
+    });
+
+    it('should add text block', () => {
+      page.getBaseBlockText().click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(3)
+          .getText()
+      ).toBe('text');
+    });
+
+    it('should add multiple blocks to list', () => {
+      page.getBaseBlockText().click();
+      page.getBaseBlockImage().click();
+
+      expect(page.getBlocks().count()).toBe(5);
+    });
+
+    it('should add multiple blocks with correct type', () => {
+      page.getBaseBlockText().click();
+      page.getBaseBlockImage().click();
+
+      expect(
+        page
+          .getBlockTypes()
+          .get(3)
+          .getText()
+      ).toBe('text');
+      expect(
+        page
+          .getBlockTypes()
+          .get(4)
+          .getText()
+      ).toBe('image');
+    });
   });
 });

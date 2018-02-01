@@ -1,4 +1,4 @@
-import { browser, by, element } from 'protractor';
+import { browser, by, element, ElementArrayFinder } from 'protractor';
 
 export class BlocksComponent {
   navigateTo(url: string = '/page/page-1') {
@@ -7,6 +7,14 @@ export class BlocksComponent {
 
   getBaseBlocks() {
     return element.all(by.css('.add-block'));
+  }
+
+  getBaseBlockText() {
+    return element(by.id('add-text'));
+  }
+
+  getBaseBlockImage() {
+    return element(by.id('add-image'));
   }
 
   getBlocks() {
