@@ -64,7 +64,9 @@ describe('EditorComponent', () => {
     xit('should not route to duplicate page name on submit', () => {});
   });
 
-  xdescribe('page publish', () => {});
+  xdescribe('page publish', () => {
+    xit('should expect blocks to be identical', () => {});
+  });
 
   describe('page remove', () => {
     beforeEach(() => {

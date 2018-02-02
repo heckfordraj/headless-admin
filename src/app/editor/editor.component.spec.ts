@@ -15,6 +15,7 @@ import { ServerServiceStub } from '../../testing/server.service';
 import { isPage } from '../../testing/page';
 
 import { EditorComponent } from './editor.component';
+import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 
 let comp: EditorComponent;
@@ -31,6 +32,7 @@ describe('EditorComponent', () => {
       TestBed.configureTestingModule({
         declarations: [EditorComponent],
         providers: [
+          LoggerService,
           { provide: Router, useClass: RouterStub },
           { provide: ActivatedRoute, useValue: activatedRoute },
           { provide: ServerService, useClass: ServerServiceStub }

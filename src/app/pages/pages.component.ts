@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { slugify } from 'underscore.string';
 
+import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
 
@@ -16,7 +17,10 @@ export class PagesComponent implements OnInit, OnDestroy {
   pages$: Subscription;
   pages: Page[];
 
-  constructor(private serverService: ServerService) {}
+  constructor(
+    private logger: LoggerService,
+    private serverService: ServerService
+  ) {}
 
   updatePage(page: Page, newname: string) {
     // TODO: check if newname
@@ -28,7 +32,10 @@ export class PagesComponent implements OnInit, OnDestroy {
       dataId: page.dataId,
       revisions: { currentId: page.revisions.currentId }
     };
-    return this.serverService.updatePage(page, newPage);
+    return this.serverService
+      .updatePage(page, newPage)
+      .then(_ => this.logger.log('updatePage', `updated page: ${newPage.name}`))
+      .catch(err => this.logger.error('updatePage', err));
   }
 
   addPage(name: string) {
@@ -41,11 +48,17 @@ export class PagesComponent implements OnInit, OnDestroy {
       dataId: this.serverService.createId(),
       revisions: { currentId: this.serverService.createId() }
     };
-    return this.serverService.addPage(newPage);
+    return this.serverService
+      .addPage(newPage)
+      .then(_ => this.logger.log('addPage', `added page: ${newPage.name}`))
+      .catch(err => this.logger.error('addPage', err));
   }
 
   removePage(page: Page) {
-    return this.serverService.removePage(page);
+    return this.serverService
+      .removePage(page)
+      .then(_ => this.logger.log('removePage', `removed page: ${page.name}`))
+      .catch(err => this.logger.error('removePage', err));
   }
 
   ngOnInit() {

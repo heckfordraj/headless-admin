@@ -6,6 +6,7 @@ import { ServerServiceStub } from '../../testing/server.service';
 import { isPage } from '../../testing/page';
 
 import { PagesComponent } from './pages.component';
+import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 
 let comp: PagesComponent;
@@ -17,7 +18,10 @@ describe('PagesComponent', () => {
     async(() => {
       TestBed.configureTestingModule({
         declarations: [PagesComponent, RouterLinkStub],
-        providers: [{ provide: ServerService, useClass: ServerServiceStub }]
+        providers: [
+          LoggerService,
+          { provide: ServerService, useClass: ServerServiceStub }
+        ]
       }).compileComponents();
     })
   );

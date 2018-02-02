@@ -8,6 +8,7 @@ import {
 
 import { Subscription } from 'rxjs/Subscription';
 
+import { LoggerService } from '../../shared/logger.service';
 import { ServerService } from '../../shared/server.service';
 import { Page } from '../../shared/page';
 import { Blocks, Block } from '../../shared/block';
@@ -25,7 +26,10 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   blocks$: Subscription;
   blocks: Block.Base[] = [];
 
-  constructor(private serverService: ServerService) {}
+  constructor(
+    private logger: LoggerService,
+    private serverService: ServerService
+  ) {}
 
   orderBlock(index: number, direction: number) {
     const block = this.blocks[index];
@@ -34,16 +38,30 @@ export class BlocksComponent implements OnChanges, OnDestroy {
     if (blockReplaced) {
       [block.order, blockReplaced.order] = [blockReplaced.order, block.order];
 
-      this.serverService.orderBlock(this.page, block, blockReplaced);
+      return this.serverService
+        .orderBlock(this.page, block, blockReplaced)
+        .then(_ =>
+          this.logger.log(
+            'orderBlock',
+            `moved ${block.type} block ${direction === 1 ? 'down' : 'up'}`
+          )
+        )
+        .catch(err => this.logger.error('orderBlock', err));
     }
   }
 
   updateBlock(block: Block.Base, data: Block.Data.Base) {
-    this.serverService.updateBlock(this.page, block, data);
+    return this.serverService
+      .updateBlock(this.page, block, data)
+      .then(_ => this.logger.log('updateBlock', `updated ${block.type} block`))
+      .catch(err => this.logger.error('updateBlock', err));
   }
 
   removeBlock(block: Block.Base) {
-    this.serverService.removeBlock(this.page, block);
+    return this.serverService
+      .removeBlock(this.page, block)
+      .then(_ => this.logger.log('removeBlock', `removed ${block.type} block`))
+      .catch(err => this.logger.error('removeBlock', err));
   }
 
   addBlock(base: Block.Base) {
@@ -52,7 +70,10 @@ export class BlocksComponent implements OnChanges, OnDestroy {
       order: this.blocks.length + 1,
       ...base
     };
-    this.serverService.addBlock(this.page, block);
+    return this.serverService
+      .addBlock(this.page, block)
+      .then(_ => this.logger.log('addBlock', `added ${block.type} block`))
+      .catch(err => this.logger.error('addBlock', err));
   }
 
   ngOnChanges(changes: SimpleChanges) {

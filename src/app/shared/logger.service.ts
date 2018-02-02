@@ -6,7 +6,7 @@ const noop = () => undefined;
 @Injectable()
 export class LoggerService {
   constructor() {
-    if (environment.production) {
+    if (environment.production || environment.test) {
       return {
         log: noop,
         warn: noop,

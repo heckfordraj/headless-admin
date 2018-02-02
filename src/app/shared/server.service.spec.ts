@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { AngularFireDatabaseStub } from '../../testing/angularfiredatabase';
 import { Pages, Blocks, Data } from '../../testing/data';
 
+import { LoggerService } from './logger.service';
 import { ServerService } from './server.service';
 import { AngularFireDatabase } from 'angularfire2/database';
 
@@ -20,6 +21,7 @@ describe('ServerService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        LoggerService,
         ServerService,
         { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub }
       ]
@@ -244,7 +246,8 @@ describe('ServerService', () => {
 
         serverService
           .publishPage(page1)
-          .then(_ => expect(db.ref.calls.count()).toBe(2));
+          .then(_ => expect(db.ref.calls.count()).toBe(2))
+          .catch(_ => undefined);
       })
     );
 
@@ -255,11 +258,14 @@ describe('ServerService', () => {
           Promise.resolve(null)
         );
 
-        serverService.publishPage(page1).then(_ => {
-          let arg = db.ref.calls.mostRecent().args[0];
+        serverService
+          .publishPage(page1)
+          .then(_ => {
+            let arg = db.ref.calls.mostRecent().args[0];
 
-          expect(arg).toBe('data/1/abcdefg');
-        });
+            expect(arg).toBe('data/1/abcdefg');
+          })
+          .catch(_ => undefined);
       })
     );
 

@@ -54,10 +54,7 @@ export class ServerService {
   }
 
   addPage(page: Page): Promise<void> {
-    return this.db
-      .object<Page>(`pages/${page.id}`)
-      .set(page)
-      .catch(err => this.logger.error(err));
+    return this.db.object<Page>(`pages/${page.id}`).set(page);
   }
 
   orderBlock(
@@ -72,17 +69,13 @@ export class ServerService {
 
     return this.db.database
       .ref(`data/${page.dataId}/${page.revisions.currentId}`)
-      .update(updates)
-      .then((res: any) => this.logger.log(res))
-      .catch((err: Error) => this.logger.error(err));
+      .update(updates);
   }
 
   addBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
-      .set(block.id, block)
-      .then((res: any) => this.logger.log(res))
-      .catch((err: Error) => this.logger.error(err));
+      .set(block.id, block);
   }
 
   updatePage(currentPage: Page, newPage: Page): Promise<void> {
@@ -91,10 +84,7 @@ export class ServerService {
       [currentPage.id]: null
     };
 
-    return this.db.database
-      .ref('pages')
-      .update(updates)
-      .catch((err: Error) => this.logger.error(err));
+    return this.db.database.ref('pages').update(updates);
   }
 
   updateBlock(
@@ -106,9 +96,7 @@ export class ServerService {
       .list<Block.Data.Base>(
         `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`
       )
-      .set(data.id, data)
-      .then((res: any) => this.logger.log(res))
-      .catch((err: Error) => this.logger.error(err));
+      .set(data.id, data);
   }
 
   removePage(page: Page): Promise<void> {
@@ -117,18 +105,13 @@ export class ServerService {
       [`data/${page.dataId}`]: null
     };
 
-    return this.db.database
-      .ref()
-      .update(updates)
-      .catch((err: Error) => this.logger.error(err));
+    return this.db.database.ref().update(updates);
   }
 
   removeBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
-      .remove(block.id)
-      .then((res: any) => this.logger.log(res))
-      .catch((err: Error) => this.logger.error(err));
+      .remove(block.id);
   }
 
   publishPage(page: Page): Promise<void> {
@@ -145,13 +128,12 @@ export class ServerService {
           publishedId: page.revisions.currentId,
           currentId: newId
         })
-      )
-      .catch((err: Error) => this.logger.error(err));
+      );
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      this.logger.error(error);
+      this.logger.error(operation, error);
       return of(result as T);
     };
   }

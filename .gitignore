@@ -34,7 +34,7 @@ testem.log
 /typings
 *.log
 .firebaserc
-/src/environments
+/src/environments/*
 !/src/environments/environment.test.ts
 
 # e2e

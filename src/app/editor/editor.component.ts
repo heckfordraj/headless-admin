@@ -7,6 +7,7 @@ import { switchMap } from 'rxjs/operators';
 
 import { slugify } from 'underscore.string';
 
+import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
 
@@ -19,6 +20,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private logger: LoggerService,
     private serverService: ServerService
   ) {}
 
@@ -28,7 +30,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   publishPage() {
     // TODO: add visible publish status (check if doc has changed)
 
-    this.serverService.publishPage(this.page);
+    return this.serverService
+      .publishPage(this.page)
+      .then(_ => this.logger.log('publishPage', 'published page'))
+      .catch(err => this.logger.error('publishPage', err));
   }
 
   updatePage(newname: string) {
@@ -43,16 +48,20 @@ export class EditorComponent implements OnInit, OnDestroy {
       revisions: { currentId: this.page.revisions.currentId }
     };
 
-    this.serverService
+    return this.serverService
       .updatePage(this.page, newPage)
       .then(_ => this.router.navigate(['/page', newPage.id]))
-      .catch((err: any) => console.error(err));
+      .then(_ => this.logger.log('updatePage', `updated page: ${newPage.name}`))
+      .catch(err => this.logger.error('updatePage', err));
   }
 
   removePage() {
     // TODO: add routing navigation back to /pages
 
-    return this.serverService.removePage(this.page);
+    return this.serverService
+      .removePage(this.page)
+      .then(_ => this.logger.log('removePage', 'removed page'))
+      .catch(err => this.logger.error('removePage', err));
   }
 
   ngOnInit() {

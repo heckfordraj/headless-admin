@@ -7,6 +7,7 @@ import { isBlock } from '../../../testing/block';
 import { Pages, Blocks, Data } from '../../../testing/data';
 
 import { BlocksComponent } from './blocks.component';
+import { LoggerService } from '../../shared/logger.service';
 import { ServerService } from '../../shared/server.service';
 
 @Component({
@@ -26,7 +27,10 @@ describe('BlocksComponent', () => {
     async(() => {
       TestBed.configureTestingModule({
         declarations: [HostComponent, BlocksComponent],
-        providers: [{ provide: ServerService, useClass: ServerServiceStub }],
+        providers: [
+          LoggerService,
+          { provide: ServerService, useClass: ServerServiceStub }
+        ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
       }).compileComponents();
     })
