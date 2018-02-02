@@ -6,12 +6,13 @@ import 'rxjs/add/observable/throw';
 
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 
+import { LoggerService } from './logger.service';
 import { Page } from './page';
 import { Block } from './block';
 
 @Injectable()
 export class ServerService {
-  constructor(private db: AngularFireDatabase) {}
+  constructor(private db: AngularFireDatabase, private logger: LoggerService) {}
 
   createId(): string {
     return this.db.createPushId();
@@ -24,7 +25,7 @@ export class ServerService {
       .list<Page>(name)
       .valueChanges()
       .pipe(
-        tap((res: any) => console.dir(res)),
+        tap((res: any) => this.logger.dir(res)),
         catchError(this.handleError<Page>('getCollection'))
       );
   }
@@ -34,7 +35,7 @@ export class ServerService {
       .object<Page>(`pages/${id}`)
       .valueChanges()
       .pipe(
-        tap((res: any) => console.log(res)),
+        tap((res: any) => this.logger.log(res)),
         catchError(this.handleError<Page>('getPage'))
       );
   }
@@ -47,7 +48,7 @@ export class ServerService {
       )
       .valueChanges()
       .pipe(
-        tap((res: any) => console.dir(res)),
+        tap((res: any) => this.logger.dir(res)),
         catchError(this.handleError<Block.Base>('getBlocks'))
       );
   }
@@ -56,7 +57,7 @@ export class ServerService {
     return this.db
       .object<Page>(`pages/${page.id}`)
       .set(page)
-      .catch((err: Error) => console.error(err));
+      .catch(err => this.logger.error(err));
   }
 
   orderBlock(
@@ -72,16 +73,16 @@ export class ServerService {
     return this.db.database
       .ref(`data/${page.dataId}/${page.revisions.currentId}`)
       .update(updates)
-      .then((res: any) => console.log(res))
-      .catch((err: Error) => console.error(err));
+      .then((res: any) => this.logger.log(res))
+      .catch((err: Error) => this.logger.error(err));
   }
 
   addBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .set(block.id, block)
-      .then((res: any) => console.log(res))
-      .catch((err: Error) => console.error(err));
+      .then((res: any) => this.logger.log(res))
+      .catch((err: Error) => this.logger.error(err));
   }
 
   updatePage(currentPage: Page, newPage: Page): Promise<void> {
@@ -93,7 +94,7 @@ export class ServerService {
     return this.db.database
       .ref('pages')
       .update(updates)
-      .catch((err: Error) => console.error(err));
+      .catch((err: Error) => this.logger.error(err));
   }
 
   updateBlock(
@@ -106,8 +107,8 @@ export class ServerService {
         `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`
       )
       .set(data.id, data)
-      .then((res: any) => console.log(res))
-      .catch((err: Error) => console.error(err));
+      .then((res: any) => this.logger.log(res))
+      .catch((err: Error) => this.logger.error(err));
   }
 
   removePage(page: Page): Promise<void> {
@@ -119,15 +120,15 @@ export class ServerService {
     return this.db.database
       .ref()
       .update(updates)
-      .catch((err: Error) => console.error(err));
+      .catch((err: Error) => this.logger.error(err));
   }
 
   removeBlock(page: Page, block: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
       .remove(block.id)
-      .then((res: any) => console.log(res))
-      .catch((err: Error) => console.error(err));
+      .then((res: any) => this.logger.log(res))
+      .catch((err: Error) => this.logger.error(err));
   }
 
   publishPage(page: Page): Promise<void> {
@@ -145,13 +146,13 @@ export class ServerService {
           currentId: newId
         })
       )
-      .catch((err: Error) => console.error(err));
+      .catch((err: Error) => this.logger.error(err));
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error(operation);
-      console.error(error);
+      this.logger.error(operation);
+      this.logger.error(error);
       return Observable.throw(operation);
     };
   }

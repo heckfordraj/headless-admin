@@ -20,7 +20,7 @@ import { Blocks, Block } from '../../shared/block';
 export class BlocksComponent implements OnChanges, OnDestroy {
   @Input() page: Page;
 
-  baseBlocks: {} = Blocks;
+  baseBlocks = Blocks;
 
   blocks$: Subscription;
   blocks: Block.Base[] = [];

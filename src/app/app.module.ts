@@ -1,12 +1,15 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { ErrorHandler } from '@angular/core';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { environment } from '../environments/environment';
 
 import { RoutingModule } from './routing.module';
+import { LoggerService } from './shared/logger.service';
+
 import { ServerService } from './shared/server.service';
 import { ImageService } from './editor/blocks/image/image.service';
 
@@ -33,7 +36,7 @@ import { BlocksComponent } from './editor/blocks/blocks.component';
     HttpClientModule,
     RoutingModule
   ],
-  providers: [ServerService, ImageService],
+  providers: [ServerService, ImageService, LoggerService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

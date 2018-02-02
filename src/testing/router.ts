@@ -5,7 +5,13 @@ export {
   RouterOutlet
 } from '@angular/router';
 
-import { Component, Directive, Injectable, Input } from '@angular/core';
+import {
+  NgModule,
+  Component,
+  Directive,
+  Injectable,
+  Input
+} from '@angular/core';
 import { NavigationExtras } from '@angular/router';
 
 @Directive({
@@ -52,3 +58,8 @@ export class ActivatedRouteStub {
     return { paramMap: this.testParamMap };
   }
 }
+
+@NgModule({
+  declarations: [RouterLinkStub, RouterOutletStub]
+})
+export class TestRouterModule {}
