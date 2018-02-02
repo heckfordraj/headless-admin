@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import { catchError, tap } from 'rxjs/operators';
-import 'rxjs/add/observable/throw';
+import { of } from 'rxjs/observable/of';
 
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 
@@ -25,8 +25,8 @@ export class ServerService {
       .list<Page>(name)
       .valueChanges()
       .pipe(
-        tap((res: any) => this.logger.dir(res)),
-        catchError(this.handleError<Page>('getCollection'))
+        tap(res => this.logger.log('getCollection', res)),
+        catchError(this.handleError<Page[]>('getCollection', []))
       );
   }
 
@@ -35,7 +35,7 @@ export class ServerService {
       .object<Page>(`pages/${id}`)
       .valueChanges()
       .pipe(
-        tap((res: any) => this.logger.log(res)),
+        tap(res => this.logger.log('getPage', res)),
         catchError(this.handleError<Page>('getPage'))
       );
   }
@@ -48,8 +48,8 @@ export class ServerService {
       )
       .valueChanges()
       .pipe(
-        tap((res: any) => this.logger.dir(res)),
-        catchError(this.handleError<Block.Base>('getBlocks'))
+        tap(res => this.logger.log('getBlocks', res)),
+        catchError(this.handleError<Block.Base[]>('getBlocks', []))
       );
   }
 
@@ -151,9 +151,8 @@ export class ServerService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      this.logger.error(operation);
       this.logger.error(error);
-      return Observable.throw(operation);
+      return of(result as T);
     };
   }
 }

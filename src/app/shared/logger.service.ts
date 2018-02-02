@@ -9,7 +9,6 @@ export class LoggerService {
     if (environment.production) {
       return {
         log: noop,
-        dir: noop,
         warn: noop,
         error: noop
       };
@@ -18,10 +17,6 @@ export class LoggerService {
 
   log(val: any, ...params: any[]) {
     console.log(val, ...params);
-  }
-
-  dir(val: any, ...params: any[]) {
-    console.dir(val, ...params);
   }
 
   warn(val: any, ...params: any[]) {
