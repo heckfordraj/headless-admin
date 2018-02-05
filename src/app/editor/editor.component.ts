@@ -7,25 +7,32 @@ import { switchMap } from 'rxjs/operators';
 
 import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
+import { SlugifyPipe } from '../shared/slugify.pipe';
 import { Page } from '../shared/page';
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss']
+  styleUrls: ['./editor.component.scss'],
+  providers: [SlugifyPipe]
 })
 export class EditorComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private logger: LoggerService,
-    private serverService: ServerService
+    private serverService: ServerService,
+    private slugify: SlugifyPipe
   ) {}
 
   page$: Subscription;
   page: Page;
 
   inputSlug: string;
+
+  slugChange(input: string) {
+    this.inputSlug = this.slugify.transform(input);
+  }
 
   publishPage() {
     // TODO: add visible publish status (check if doc has changed)
@@ -37,8 +44,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   updatePage() {
-    // TODO: check if newname
-    // TODO: check if previous name and new name are identical
+    if (!this.inputSlug || this.page.id === this.inputSlug) return;
 
     this.serverService
       .updatePage(this.page, this.inputSlug)

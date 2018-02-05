@@ -1,4 +1,4 @@
-<input #pageInput class="page-input" type="text" [ngModel]="(inputSlug || page?.id) | slugify" (ngModelChange)="inputSlug = $event" (keyup.enter)="updatePage()">
+<input #pageInput class="page-input" type="text" [ngModel]="inputSlug || page?.id" (ngModelChange)="slugChange($event)" (keyup.enter)="updatePage()">
 <h2>{{ page?.name }}</h2>
 
 {{ page | json }}
