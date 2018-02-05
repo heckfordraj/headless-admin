@@ -5,7 +5,6 @@
     {{ page | json }}
     <small>{{ page?.dataId }}</small>
 
-    <input #pageInput class="page-input" type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(page, pageInput.value)">
     <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
     <button (click)="removePage(page)">&times;</button>
   </li>

@@ -5,8 +5,6 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { switchMap } from 'rxjs/operators';
 
-import { slugify } from 'underscore.string';
-
 import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 import { Page } from '../shared/page';
@@ -27,6 +25,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   page$: Subscription;
   page: Page;
 
+  inputSlug: string;
+
   publishPage() {
     // TODO: add visible publish status (check if doc has changed)
 
@@ -36,22 +36,22 @@ export class EditorComponent implements OnInit, OnDestroy {
       .catch(err => this.logger.error('publishPage', err));
   }
 
-  updatePage(newname: string) {
+  updatePage() {
     // TODO: check if newname
     // TODO: check if previous name and new name are identical
     // TODO: route only if promise resolves
 
-    const newPage: Page = {
-      id: slugify(newname),
-      name: newname,
-      dataId: this.page.dataId,
-      revisions: { currentId: this.page.revisions.currentId }
-    };
-
-    return this.serverService
-      .updatePage(this.page, newPage)
-      .then(_ => this.router.navigate(['/page', newPage.id]))
-      .then(_ => this.logger.log('updatePage', `updated page: ${newPage.name}`))
+    this.serverService
+      .updatePage(this.page, this.inputSlug)
+      .then(_ =>
+        this.router.navigate(['/page', this.inputSlug], { replaceUrl: true })
+      )
+      .then(_ =>
+        this.logger.log(
+          'updatePage',
+          `updated page: ${this.page.name} to: ${this.inputSlug}`
+        )
+      )
       .catch(err => this.logger.error('updatePage', err));
   }
 
@@ -71,7 +71,7 @@ export class EditorComponent implements OnInit, OnDestroy {
       .switchMap((param: ParamMap) =>
         this.serverService.getPage(param.get('id'))
       )
-      .subscribe((page: Page) => (this.page = page));
+      .subscribe((page: Page) => (page ? (this.page = page) : undefined));
   }
 
   ngOnDestroy() {

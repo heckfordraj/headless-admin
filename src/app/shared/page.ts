@@ -6,8 +6,8 @@ interface Revision {
 }
 
 export interface Page {
-  readonly id: string;
-  readonly name: string;
+  id: string;
+  name: string;
   readonly dataId: string;
   revisions: Revision;
 }

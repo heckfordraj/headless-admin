@@ -7,12 +7,17 @@ import { of } from 'rxjs/observable/of';
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 
 import { LoggerService } from './logger.service';
+import { HumanizePipe } from '../shared/humanize.pipe';
 import { Page } from './page';
 import { Block } from './block';
 
 @Injectable()
 export class ServerService {
-  constructor(private db: AngularFireDatabase, private logger: LoggerService) {}
+  constructor(
+    private db: AngularFireDatabase,
+    private logger: LoggerService,
+    private humanize: HumanizePipe
+  ) {}
 
   createId(): string {
     return this.db.createPushId();
@@ -78,7 +83,16 @@ export class ServerService {
       .set(block.id, block);
   }
 
-  updatePage(currentPage: Page, newPage: Page): Promise<void> {
+  updatePage(currentPage: Page, newId: string): Promise<void> {
+    const newName = this.humanize.transform(newId);
+
+    const newPage: Page = {
+      id: newId,
+      name: newName,
+      dataId: currentPage.dataId,
+      revisions: { currentId: currentPage.revisions.currentId }
+    };
+
     const updates = {
       [newPage.id]: newPage,
       [currentPage.id]: null

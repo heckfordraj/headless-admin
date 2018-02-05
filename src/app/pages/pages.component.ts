@@ -22,22 +22,6 @@ export class PagesComponent implements OnInit, OnDestroy {
     private serverService: ServerService
   ) {}
 
-  updatePage(page: Page, newname: string) {
-    // TODO: check if newname
-    // TODO: check if previous name and new name are identical
-
-    const newPage: Page = {
-      id: slugify(newname),
-      name: newname,
-      dataId: page.dataId,
-      revisions: { currentId: page.revisions.currentId }
-    };
-    return this.serverService
-      .updatePage(page, newPage)
-      .then(_ => this.logger.log('updatePage', `updated page: ${newPage.name}`))
-      .catch(err => this.logger.error('updatePage', err));
-  }
-
   addPage(name: string) {
     // TODO: add last modified timestamp
     // TODO: clear input on successful submit

@@ -44,10 +44,6 @@ describe('PagesComponent', () => {
     expect(page.pageName.textContent).toBe('Page 1');
   });
 
-  it('should display initial page name in input', () => {
-    expect(page.pageInput.nativeElement.value).toBe('Page 1');
-  });
-
   xit('should display newly added page', () => {});
 
   describe('Routing', () => {
@@ -131,105 +127,6 @@ describe('PagesComponent', () => {
     });
   });
 
-  describe('Page Update', () => {
-    it('should have initial page name value', () => {
-      expect(page.pageInput.nativeElement.value).toBe('Page 1');
-    });
-
-    it('should not call updatePage on key press', () => {
-      page.pageInput.triggerEventHandler('keyup', null);
-      page.pageInput.triggerEventHandler('input', null);
-
-      expect(page.updatePage.calls.any()).toBeFalsy();
-    });
-
-    it('should call updatePage on enter press', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      expect(page.updatePage.calls.count()).toBe(1);
-    });
-
-    it('should call updatePage with Page object', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.updatePage.calls.mostRecent().args[0];
-
-      expect(isPage(arg)).toBeTruthy();
-    });
-
-    it('should call updatePage with correct Page', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.updatePage.calls.mostRecent().args[0];
-
-      expect(arg.name).toBe('Page 1');
-    });
-
-    it('should call updatePage with input value', () => {
-      page.pageInput.nativeElement.value = 'abc';
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-
-      let arg = page.updatePage.calls.mostRecent().args[1];
-
-      expect(arg).toBe('abc');
-    });
-
-    it('should call ServerService updatePage', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-
-      expect(page.serverUpdatePage.calls.count()).toBe(1);
-    });
-
-    describe('create new Page', () => {
-      let currentPage;
-      let newPage;
-
-      beforeEach(() => {
-        page.pageInput.nativeElement.value = 'Updated Title';
-        page.pageInput.triggerEventHandler('keyup.enter', null);
-
-        currentPage = page.serverUpdatePage.calls.mostRecent().args[0];
-        newPage = page.serverUpdatePage.calls.mostRecent().args[1];
-      });
-
-      it('should set new name as input value', () => {
-        expect(newPage.name).toBe('Updated Title');
-      });
-
-      it('should set new id as slugified input value', () => {
-        expect(newPage.id).toBe('updated-title');
-      });
-
-      it('should set unchanged dataId', () => {
-        expect(newPage.dataId).toBe('1');
-      });
-
-      it('should set unchanged revisions currentId', () => {
-        expect(newPage.revisions.currentId).toBe('a');
-      });
-
-      it('should not set revisions publishedId', () => {
-        expect(newPage.revisions.publishedId).toBeUndefined();
-      });
-
-      it('should not modify current Page', () => {
-        expect(currentPage.id).toBe('page-1');
-        expect(currentPage.name).toBe('Page 1');
-      });
-    });
-
-    it('should call ServerService updatePage with current Page object', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.serverUpdatePage.calls.mostRecent().args[0];
-
-      expect(isPage(arg)).toBeTruthy();
-    });
-
-    it('should call ServerService updatePage with new Page object', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.serverUpdatePage.calls.mostRecent().args[1];
-
-      expect(isPage(arg)).toBeTruthy();
-    });
-  });
-
   describe('Page Remove', () => {
     it('should call removePage on click', () => {
       page.pageDelete.triggerEventHandler('click', null);
@@ -281,16 +178,13 @@ function createComponent() {
 class Page {
   onInit: jasmine.Spy;
   addPage: jasmine.Spy;
-  updatePage: jasmine.Spy;
   removePage: jasmine.Spy;
 
   serverAddPage: jasmine.Spy;
-  serverUpdatePage: jasmine.Spy;
   serverRemovePage: jasmine.Spy;
 
   pages: DebugElement[];
   pageName: HTMLElement;
-  pageInput: DebugElement;
   pageDelete: DebugElement;
   pageAdd: DebugElement;
   links: RouterLinkStub[];
@@ -301,13 +195,8 @@ class Page {
 
     this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
-    this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
     this.serverAddPage = spyOn(serverService, 'addPage').and.callThrough();
-    this.serverUpdatePage = spyOn(
-      serverService,
-      'updatePage'
-    ).and.callThrough();
     this.serverRemovePage = spyOn(
       serverService,
       'removePage'
@@ -319,8 +208,6 @@ class Page {
       this.pages = fixture.debugElement.queryAll(By.css('li'));
 
       this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
-
-      this.pageInput = fixture.debugElement.query(By.css('.page-input'));
 
       this.pageDelete = fixture.debugElement.query(By.css('button'));
 

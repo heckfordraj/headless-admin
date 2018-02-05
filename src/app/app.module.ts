@@ -1,5 +1,6 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ErrorHandler } from '@angular/core';
 
@@ -19,6 +20,8 @@ import { EditorComponent } from './editor/editor.component';
 import { TextComponent } from './editor/blocks/text/text.component';
 import { ImageComponent } from './editor/blocks/image/image.component';
 import { BlocksComponent } from './editor/blocks/blocks.component';
+import { SlugifyPipe } from './shared/slugify.pipe';
+import { HumanizePipe } from './shared/humanize.pipe';
 
 @NgModule({
   declarations: [
@@ -27,16 +30,19 @@ import { BlocksComponent } from './editor/blocks/blocks.component';
     EditorComponent,
     TextComponent,
     ImageComponent,
-    BlocksComponent
+    BlocksComponent,
+    SlugifyPipe,
+    HumanizePipe
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     HttpClientModule,
     RoutingModule
   ],
-  providers: [ServerService, ImageService, LoggerService],
+  providers: [ServerService, ImageService, LoggerService, HumanizePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

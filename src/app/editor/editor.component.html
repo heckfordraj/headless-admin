@@ -1,8 +1,7 @@
-<h1>{{ page?.name }}</h1>
+<input #pageInput class="page-input" type="text" [ngModel]="(inputSlug || page?.id) | slugify" (ngModelChange)="inputSlug = $event" (keyup.enter)="updatePage()">
+<h2>{{ page?.name }}</h2>
 
 {{ page | json }}
-
-<input #pageInput class="page-input" type="text" value="{{ page?.name }}" (keyup.enter)="updatePage(pageInput.value)">
 
 <button id="publish" (click)="publishPage()">publish</button>
 <button id="remove" (click)="removePage()">&times;</button>

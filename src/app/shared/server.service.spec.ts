@@ -5,6 +5,7 @@ import { Pages, Blocks, Data } from '../../testing/data';
 import { LoggerService } from './logger.service';
 import { ServerService } from './server.service';
 import { AngularFireDatabase } from 'angularfire2/database';
+import { HumanizePipe } from '../shared/humanize.pipe';
 
 let serverService: ServerService;
 let angularFireDatabase: AngularFireDatabaseStub;
@@ -23,6 +24,7 @@ describe('ServerService', () => {
       providers: [
         LoggerService,
         ServerService,
+        HumanizePipe,
         { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub }
       ]
     });
@@ -136,12 +138,25 @@ describe('ServerService', () => {
 
     describe('update object', () => {
       it(
-        'should set unmodified newPage',
+        'should set unmodified newPage dataId',
         async(() => {
-          serverService.updatePage(page1, page2).then(_ => {
+          serverService.updatePage(page1, 'page-2').then(_ => {
             let updateObject = db.update.calls.mostRecent().args[0];
 
-            expect(updateObject['page-2']).toEqual(page2);
+            expect(updateObject['page-2'].dataId).toEqual(page1.dataId);
+          });
+        })
+      );
+
+      it(
+        'should set unmodified newPage revisions currentId',
+        async(() => {
+          serverService.updatePage(page1, 'page-2').then(_ => {
+            let updateObject = db.update.calls.mostRecent().args[0];
+
+            expect(updateObject['page-2'].revisions.currentId).toEqual(
+              page1.revisions.currentId
+            );
           });
         })
       );
