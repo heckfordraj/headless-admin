@@ -63,8 +63,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // TODO: ngFor index on id
-
     this.page$ = this.route.paramMap
       .switchMap((param: ParamMap) =>
         this.serverService.getPage(param.get('id'))

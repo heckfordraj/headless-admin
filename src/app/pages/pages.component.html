@@ -1,7 +1,7 @@
 <h1>pages:</h1>
 
 <ul>
-  <li *ngFor="let page of pages">
+  <li *ngFor="let page of pages; trackBy: trackBy">
     {{ page | json }}
     <small>{{ page?.dataId }}</small>
 

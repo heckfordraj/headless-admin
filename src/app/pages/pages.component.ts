@@ -22,6 +22,10 @@ export class PagesComponent implements OnInit, OnDestroy {
     private serverService: ServerService
   ) {}
 
+  trackBy(index, page) {
+    return page.id;
+  }
+
   addPage(name: string) {
     // TODO: add last modified timestamp
     // TODO: clear input on successful submit
@@ -47,7 +51,6 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // TODO: order by last modified timestamp
-    // TODO: ngFor index on id
 
     this.pages$ = this.serverService
       .getCollection('pages')

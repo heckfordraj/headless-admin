@@ -31,6 +31,10 @@ export class BlocksComponent implements OnChanges, OnDestroy {
     private serverService: ServerService
   ) {}
 
+  trackBy(index, block) {
+    return block.id;
+  }
+
   orderBlock(index: number, direction: number) {
     const block = this.blocks[index];
     const blockReplaced = this.blocks[index + direction];
