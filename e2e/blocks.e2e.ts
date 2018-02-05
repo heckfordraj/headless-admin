@@ -31,7 +31,7 @@ describe('BlocksComponent', () => {
     expect(page.getBlocks().count()).toBe(3);
   });
 
-  it('should display correct initial blocks', () => {
+  it('should display initial blocks in order', () => {
     expect(
       page
         .getBlockTypes()
@@ -59,7 +59,7 @@ describe('BlocksComponent', () => {
     expect(page.getBlocks().count()).toBe(3);
   });
 
-  it('should display correct new blocks', () => {
+  it('should display new blocks in order', () => {
     page.navigateTo('/page/page-2');
     browser.sleep(3000);
 

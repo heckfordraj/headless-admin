@@ -31,19 +31,19 @@ describe('PagesComponent', () => {
     expect(page.getPages().count()).toBe(5);
   });
 
-  it('should display page names', () => {
+  it('should display page names in order', () => {
     expect(
       page
         .getPageNames()
         .get(0)
         .getText()
-    ).toBe('Page 1');
+    ).toBe('Page 5');
     expect(
       page
         .getPageNames()
         .get(1)
         .getText()
-    ).toBe('Page 2');
+    ).toBe('Page 4');
     expect(
       page
         .getPageNames()
@@ -55,13 +55,13 @@ describe('PagesComponent', () => {
         .getPageNames()
         .get(3)
         .getText()
-    ).toBe('Page 4');
+    ).toBe('Page 2');
     expect(
       page
         .getPageNames()
         .get(4)
         .getText()
-    ).toBe('Page 5');
+    ).toBe('Page 1');
   });
 
   it('should display page links', () => {
@@ -70,13 +70,13 @@ describe('PagesComponent', () => {
         .getPageLinks()
         .get(0)
         .getAttribute('href')
-    ).toContain('/page/page-1');
+    ).toContain('/page/page-5');
     expect(
       page
         .getPageLinks()
         .get(1)
         .getAttribute('href')
-    ).toContain('/page/page-2');
+    ).toContain('/page/page-4');
     expect(
       page
         .getPageLinks()
@@ -88,13 +88,13 @@ describe('PagesComponent', () => {
         .getPageLinks()
         .get(3)
         .getAttribute('href')
-    ).toContain('/page/page-4');
+    ).toContain('/page/page-2');
     expect(
       page
         .getPageLinks()
         .get(4)
         .getAttribute('href')
-    ).toContain('/page/page-5');
+    ).toContain('/page/page-1');
   });
 
   describe('add page', () => {
@@ -117,33 +117,45 @@ describe('PagesComponent', () => {
 
     it('should add page to list on submit', () => {
       addPage.clear();
-      addPage.sendKeys('Z Page', Key.ENTER);
+      addPage.sendKeys('New Page', Key.ENTER);
 
       expect(page.getPages().count()).toBe(6);
     });
 
-    it('should display new page name', () => {
+    it('should add page to top of list on submit', () => {
       addPage.clear();
-      addPage.sendKeys('Z Page', Key.ENTER);
+      addPage.sendKeys('New Page', Key.ENTER);
 
       expect(
         page
           .getPageNames()
-          .last()
+          .first()
           .getText()
-      ).toBe('Z Page');
+      ).toBe('New Page');
+    });
+
+    it('should display new page name', () => {
+      addPage.clear();
+      addPage.sendKeys('Page Title', Key.ENTER);
+
+      expect(
+        page
+          .getPageNames()
+          .first()
+          .getText()
+      ).toBe('Page Title');
     });
 
     it('should display new page link', () => {
       addPage.clear();
-      addPage.sendKeys('Z Page', Key.ENTER);
+      addPage.sendKeys('Page Title', Key.ENTER);
 
       expect(
         page
           .getPageLinks()
-          .last()
+          .first()
           .getAttribute('href')
-      ).toContain('/page/z-page');
+      ).toContain('/page/page-title');
     });
 
     it('should not add duplicate page to list on submit', () => {
@@ -160,7 +172,7 @@ describe('PagesComponent', () => {
       expect(
         page
           .getPageDataIds()
-          .first()
+          .last()
           .getText()
       ).toBe('1');
     });
@@ -186,25 +198,25 @@ describe('PagesComponent', () => {
           .getPageNames()
           .get(0)
           .getText()
-      ).toBe('Page 1');
+      ).toBe('Page 5');
       expect(
         page
           .getPageNames()
           .get(1)
           .getText()
-      ).toBe('Page 2');
+      ).toBe('Page 4');
       expect(
         page
           .getPageNames()
           .get(2)
           .getText()
-      ).toBe('Page 4');
+      ).toBe('Page 2');
       expect(
         page
           .getPageNames()
           .get(3)
           .getText()
-      ).toBe('Page 5');
+      ).toBe('Page 1');
     });
 
     it('should allow add new page to list with same name', () => {
@@ -221,7 +233,7 @@ describe('PagesComponent', () => {
         .first()
         .click();
 
-      expect(page.getUrl()).toContain('/page/page-1');
+      expect(page.getUrl()).toContain('/page/page-5');
     });
   });
 });
