@@ -10,4 +10,5 @@ export interface Page {
   name: string;
   readonly dataId: string;
   revisions: Revision;
+  lastModified: number | object;
 }

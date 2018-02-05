@@ -2,11 +2,41 @@ import { Page } from './page';
 import { Block } from './block';
 
 export const Pages: Page[] = [
-  { id: 'page-1', name: 'Page 1', dataId: '1', revisions: { currentId: 'a' } },
-  { id: 'page-2', name: 'Page 2', dataId: '2', revisions: { currentId: 'b' } },
-  { id: 'page-3', name: 'Page 3', dataId: '3', revisions: { currentId: 'c' } },
-  { id: 'page-4', name: 'Page 4', dataId: '4', revisions: { currentId: 'd' } },
-  { id: 'page-5', name: 'Page 5', dataId: '5', revisions: { currentId: 'e' } }
+  {
+    id: 'page-1',
+    name: 'Page 1',
+    dataId: '1',
+    revisions: { currentId: 'a' },
+    lastModified: 1
+  },
+  {
+    id: 'page-2',
+    name: 'Page 2',
+    dataId: '2',
+    revisions: { currentId: 'b' },
+    lastModified: 2
+  },
+  {
+    id: 'page-3',
+    name: 'Page 3',
+    dataId: '3',
+    revisions: { currentId: 'c' },
+    lastModified: 3
+  },
+  {
+    id: 'page-4',
+    name: 'Page 4',
+    dataId: '4',
+    revisions: { currentId: 'd' },
+    lastModified: 4
+  },
+  {
+    id: 'page-5',
+    name: 'Page 5',
+    dataId: '5',
+    revisions: { currentId: 'e' },
+    lastModified: 5
+  }
 ];
 
 export const Blocks: { [id: string]: [Block.Base] } = {

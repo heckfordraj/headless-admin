@@ -27,14 +27,14 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   addPage(name: string) {
-    // TODO: add last modified timestamp
     // TODO: clear input on successful submit
 
     const newPage: Page = {
       id: slugify(name),
       name: name,
       dataId: this.serverService.createId(),
-      revisions: { currentId: this.serverService.createId() }
+      revisions: { currentId: this.serverService.createId() },
+      lastModified: this.serverService.createTimestamp()
     };
     return this.serverService
       .addPage(newPage)
@@ -50,8 +50,6 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // TODO: order by last modified timestamp
-
     this.pages$ = this.serverService
       .getCollection('pages')
       .subscribe((pages: Page[]) => (this.pages = pages));

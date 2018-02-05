@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
+import * as firebase from 'firebase';
 
 import { LoggerService } from './logger.service';
 import { HumanizePipe } from '../shared/humanize.pipe';
@@ -19,16 +20,19 @@ export class ServerService {
     private humanize: HumanizePipe
   ) {}
 
+  createTimestamp(): object {
+    return firebase.database.ServerValue.TIMESTAMP;
+  }
+
   createId(): string {
     return this.db.createPushId();
   }
 
   getCollection(name: string): Observable<Page[]> {
-    // TODO: order by timestamp
-
     return this.db
-      .list<Page>(name)
+      .list<Page>(name, ref => ref.orderByChild('lastModified'))
       .valueChanges()
+      .map(pages => pages.reverse())
       .pipe(
         tap(res => this.logger.log('getCollection', res)),
         catchError(this.handleError<Page[]>('getCollection', []))
@@ -90,7 +94,8 @@ export class ServerService {
       id: newId,
       name: newName,
       dataId: currentPage.dataId,
-      revisions: { currentId: currentPage.revisions.currentId }
+      revisions: { currentId: currentPage.revisions.currentId },
+      lastModified: this.createTimestamp()
     };
 
     const updates = {

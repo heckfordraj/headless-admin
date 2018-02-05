@@ -5,6 +5,10 @@ import { Block } from './block';
 import { Pages, Blocks } from './data';
 
 export class ServerServiceStub {
+  createTimestamp(): number {
+    return Date.now();
+  }
+
   createId(): string {
     return 'abcdefg';
   }

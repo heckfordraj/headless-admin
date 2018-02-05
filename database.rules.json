@@ -3,7 +3,7 @@
     "pages": {
       "$page": {
         ".validate":
-          "newData.hasChildren(['id', 'name', 'dataId', 'revisions']) && newData.child('id').val() == $page",
+          "newData.hasChildren(['id', 'name', 'dataId', 'revisions', 'lastModified']) && newData.child('id').val() == $page",
         "id": {
           ".validate": "newData.isString()"
         },
@@ -24,6 +24,9 @@
           "$other": {
             ".validate": "false"
           }
+        },
+        "lastModified": {
+          ".validate": "newData.isNumber()"
         },
         "$other": {
           ".validate": "false"
