@@ -34,9 +34,10 @@ describe('EditorComponent', () => {
 
       TestBed.configureTestingModule({
         imports: [FormsModule],
-        declarations: [EditorComponent, SlugifyPipe],
+        declarations: [EditorComponent],
         providers: [
           LoggerService,
+          SlugifyPipe,
           { provide: Router, useClass: RouterStub },
           { provide: ActivatedRoute, useValue: activatedRoute },
           { provide: ServerService, useClass: ServerServiceStub }
@@ -99,6 +100,21 @@ describe('EditorComponent', () => {
     expect(comp.page.id).toBe('page-1');
   });
 
+  describe('Slug Change', () => {
+    it('should call SlugifyPipe', () => {
+      comp.slugChange('Page Title');
+
+      expect(page.slugify.calls.count()).toBe(1);
+    });
+
+    it('should call SlugifyPipe with input param', () => {
+      comp.slugChange('Page Title');
+      let arg = page.slugify.calls.mostRecent().args[0];
+
+      expect(arg).toBe('Page Title');
+    });
+  });
+
   describe('Page Update', () => {
     it('should have initial page id value', () => {
       expect(page.pageInput.nativeElement.value).toBe('page-1');
@@ -114,26 +130,12 @@ describe('EditorComponent', () => {
       });
     });
 
-    it('should set inputSlug as value on initial key press', () => {
+    it('should set inputSlug as slugified value on key press', () => {
       page.pageInput.nativeElement.value = 'Page Title';
       page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
       fixture.detectChanges();
 
-      expect(comp.inputSlug).toBe('Page Title');
-    });
-
-    it('should set inputSlug as slugified value on second key press', () => {
-      page.pageInput.nativeElement.value = 'Page Title';
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      fixture.detectChanges();
-
-      fixture.whenStable().then(() => {
-        page.pageInput.nativeElement.value += 's';
-        page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      });
-      fixture
-        .whenStable()
-        .then(() => expect(comp.inputSlug).toBe('page-titles'));
+      expect(comp.inputSlug).toBe('page-title');
     });
 
     it('should not change page id on key press', () => {
@@ -156,12 +158,14 @@ describe('EditorComponent', () => {
     });
 
     it('should call ServerService updatePage', () => {
+      comp.inputSlug = 'new-page';
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
       expect(page.serverUpdatePage.calls.count()).toBe(1);
     });
 
     it('should call ServerService updatePage with current Page object', () => {
+      comp.inputSlug = 'new-page';
       page.pageInput.triggerEventHandler('keyup.enter', null);
       let arg = page.serverUpdatePage.calls.mostRecent().args[0];
 
@@ -176,9 +180,25 @@ describe('EditorComponent', () => {
       expect(arg).toBe('abc');
     });
 
+    it('should not call ServerService updatePage on unmodified input', () => {
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+
+      expect(page.serverUpdatePage.calls.count()).toBe(0);
+    });
+
+    it('should not call ServerService updatePage on trailing whitespace input', () => {
+      page.pageInput.nativeElement.value += ' ';
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      page.pageInput.triggerEventHandler('keyup.enter', null);
+
+      expect(page.serverUpdatePage.calls.count()).toBe(0);
+    });
+
     it(
       'should call router',
       async(() => {
+        comp.inputSlug = 'new-page';
         page.pageInput.triggerEventHandler('keyup.enter', null);
 
         fixture.whenStable().then(_ => {
@@ -270,6 +290,7 @@ class Page {
   serverUpdatePage: jasmine.Spy;
   serverPublishPage: jasmine.Spy;
   serverRemovePage: jasmine.Spy;
+  slugify: jasmine.Spy;
 
   pageName: HTMLElement;
   pageInput: DebugElement;
@@ -279,6 +300,7 @@ class Page {
   constructor() {
     const serverService = fixture.debugElement.injector.get(ServerService);
     const router = fixture.debugElement.injector.get(Router);
+    const slugifyPipe = fixture.debugElement.injector.get(SlugifyPipe);
 
     this.onInit = spyOn(serverService, 'getPage').and.callThrough();
     this.navigate = spyOn(router, 'navigate').and.callThrough();
@@ -297,6 +319,7 @@ class Page {
       serverService,
       'removePage'
     ).and.callThrough();
+    this.slugify = spyOn(slugifyPipe, 'transform').and.callThrough();
   }
 
   addElements() {

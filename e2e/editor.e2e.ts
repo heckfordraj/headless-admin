@@ -45,6 +45,13 @@ describe('EditorComponent', () => {
       expect(updatePage.getAttribute('value')).toBe('test');
     });
 
+    it('should display slugified input value on type', () => {
+      updatePage.clear();
+      updatePage.sendKeys('Test Page');
+
+      expect(updatePage.getAttribute('value')).toBe('test-page');
+    });
+
     it('should route to updated page name on submit', () => {
       updatePage.clear();
       updatePage.sendKeys('New Page', Key.ENTER);
