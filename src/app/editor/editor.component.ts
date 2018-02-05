@@ -55,10 +55,9 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   removePage() {
-    // TODO: add routing navigation back to /pages
-
     return this.serverService
       .removePage(this.page)
+      .then(_ => this.router.navigate(['/pages'], { replaceUrl: true }))
       .then(_ => this.logger.log('removePage', 'removed page'))
       .catch(err => this.logger.error('removePage', err));
   }

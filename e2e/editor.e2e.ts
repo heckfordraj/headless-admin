@@ -58,7 +58,7 @@ describe('EditorComponent', () => {
 
       browser.sleep(1000);
 
-      expect(page.getPageName()).toBe('New page');
+      expect(page.getPageName()).toBe('New Page');
     });
 
     it('should not route to duplicate page name on submit', () => {
@@ -78,6 +78,8 @@ describe('EditorComponent', () => {
       page.getPageDeleteButton().click();
     });
 
-    xit('should route to pages', () => {});
+    it('should route to pages', () => {
+      expect(page.getUrl()).toContain('/pages');
+    });
   });
 });

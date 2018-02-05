@@ -228,6 +228,24 @@ describe('EditorComponent', () => {
 
       expect(page.serverRemovePage.calls.count()).toBe(1);
     });
+
+    it('should call router', () => {
+      page.pageRemove.triggerEventHandler('click', null);
+
+      fixture.whenStable().then(_ => {
+        expect(page.navigate.calls.count()).toBe(1);
+      });
+    });
+
+    it('should call router with /pages', () => {
+      page.pageRemove.triggerEventHandler('click', null);
+
+      fixture.whenStable().then(_ => {
+        let arg = page.navigate.calls.mostRecent().args[0];
+
+        expect(arg).toEqual(['/pages']);
+      });
+    });
   });
 });
 
