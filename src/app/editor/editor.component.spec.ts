@@ -7,12 +7,13 @@ import {
   NO_ERRORS_SCHEMA
 } from '@angular/core';
 import {
+  newEvent,
   Router,
   RouterStub,
   ActivatedRoute,
-  ActivatedRouteStub
-} from '../../testing/router';
-import { ServerServiceStub } from '../../testing/server.service';
+  ActivatedRouteStub,
+  ServerServiceStub
+} from '../../testing';
 import { isPage } from '../../testing/page';
 
 import { EditorComponent } from './editor.component';
@@ -103,9 +104,48 @@ describe('EditorComponent', () => {
       expect(page.pageInput.nativeElement.value).toBe('page-1');
     });
 
+    it('should slugify value on key press', () => {
+      page.pageInput.nativeElement.value = 'Page Title';
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      fixture.detectChanges();
+
+      fixture.whenStable().then(() => {
+        expect(page.pageInput.nativeElement.value).toBe('page-title');
+      });
+    });
+
+    it('should set inputSlug as value on initial key press', () => {
+      page.pageInput.nativeElement.value = 'Page Title';
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      fixture.detectChanges();
+
+      expect(comp.inputSlug).toBe('Page Title');
+    });
+
+    it('should set inputSlug as slugified value on second key press', () => {
+      page.pageInput.nativeElement.value = 'Page Title';
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      fixture.detectChanges();
+
+      fixture.whenStable().then(() => {
+        page.pageInput.nativeElement.value += 's';
+        page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      });
+      fixture
+        .whenStable()
+        .then(() => expect(comp.inputSlug).toBe('page-titles'));
+    });
+
+    it('should not change page id on key press', () => {
+      page.pageInput.nativeElement.value = 'Page Title';
+      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
+      fixture.detectChanges();
+
+      expect(comp.page.id).toBe('page-1');
+    });
+
     it('should not call updatePage on key press', () => {
       page.pageInput.triggerEventHandler('keyup', null);
-      page.pageInput.triggerEventHandler('input', null);
 
       expect(page.updatePage.calls.any()).toBeFalsy();
     });
@@ -119,44 +159,6 @@ describe('EditorComponent', () => {
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
       expect(page.serverUpdatePage.calls.count()).toBe(1);
-    });
-
-    xdescribe('create new Page', () => {
-      let currentPage;
-      let newPage;
-
-      beforeEach(() => {
-        page.pageInput.nativeElement.value = 'Updated Title';
-        page.pageInput.triggerEventHandler('keyup.enter', null);
-
-        currentPage = page.serverUpdatePage.calls.mostRecent().args[0];
-        newPage = page.serverUpdatePage.calls.mostRecent().args[1];
-      });
-
-      it('should set new name as input value', () => {
-        expect(newPage.name).toBe('Updated Title');
-      });
-
-      it('should set new id as slugified input value', () => {
-        expect(newPage.id).toBe('updated-title');
-      });
-
-      it('should set unchanged dataId', () => {
-        expect(newPage.dataId).toBe('1');
-      });
-
-      it('should set unchanged revisions currentId', () => {
-        expect(newPage.revisions.currentId).toBe('a');
-      });
-
-      it('should not set revisions publishedId', () => {
-        expect(newPage.revisions.publishedId).toBeUndefined();
-      });
-
-      it('should not modify current Page', () => {
-        expect(currentPage.id).toBe('page-1');
-        expect(currentPage.name).toBe('Page 1');
-      });
     });
 
     it('should call ServerService updatePage with current Page object', () => {

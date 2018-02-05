@@ -34,8 +34,8 @@ describe('EditorComponent', () => {
       updatePage = page.getPageInput();
     });
 
-    it('should display initial page name in input', () => {
-      expect(updatePage.getAttribute('value')).toBe('Page 1');
+    it('should display slugified initial page name in input', () => {
+      expect(updatePage.getAttribute('value')).toBe('page-1');
     });
 
     it('should display page input value on type', () => {
@@ -58,10 +58,15 @@ describe('EditorComponent', () => {
 
       browser.sleep(1000);
 
-      expect(page.getPageName()).toBe('New Page');
+      expect(page.getPageName()).toBe('New page');
     });
 
-    xit('should not route to duplicate page name on submit', () => {});
+    it('should not route to duplicate page name on submit', () => {
+      updatePage.clear();
+      updatePage.sendKeys('Page 2', Key.ENTER);
+
+      expect(page.getUrl()).not.toContain('/page-2');
+    });
   });
 
   xdescribe('page publish', () => {
@@ -71,10 +76,6 @@ describe('EditorComponent', () => {
   describe('page remove', () => {
     beforeEach(() => {
       page.getPageDeleteButton().click();
-    });
-
-    it('should not display page name', () => {
-      expect(page.getPageName()).toBe('');
     });
 
     xit('should route to pages', () => {});

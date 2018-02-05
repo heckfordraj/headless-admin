@@ -39,7 +39,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   updatePage() {
     // TODO: check if newname
     // TODO: check if previous name and new name are identical
-    // TODO: route only if promise resolves
 
     this.serverService
       .updatePage(this.page, this.inputSlug)

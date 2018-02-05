@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { AngularFireDatabaseStub } from '../../testing/angularfiredatabase';
+import { AngularFireDatabaseStub, Page, Block } from '../../testing';
 import { Pages, Blocks, Data } from '../../testing/data';
 
 import { LoggerService } from './logger.service';
@@ -9,12 +9,13 @@ import { HumanizePipe } from '../shared/humanize.pipe';
 
 let serverService: ServerService;
 let angularFireDatabase: AngularFireDatabaseStub;
+let humanizePipe: HumanizePipe;
 let db: Firebase;
 
-const page1 = JSON.parse(JSON.stringify(Pages[0]));
-const page2 = JSON.parse(JSON.stringify(Pages[1]));
-const block1 = JSON.parse(JSON.stringify(Blocks['1'][0]));
-const block2 = JSON.parse(JSON.stringify(Blocks['2'][2]));
+const page1: Page = JSON.parse(JSON.stringify(Pages[0]));
+const page2: Page = JSON.parse(JSON.stringify(Pages[1]));
+const block1: Block.Base = JSON.parse(JSON.stringify(Blocks['1'][0]));
+const block2: Block.Base = JSON.parse(JSON.stringify(Blocks['2'][2]));
 const data1 = JSON.parse(JSON.stringify(Data[0]));
 const data2 = JSON.parse(JSON.stringify(Data[1]));
 
@@ -117,10 +118,19 @@ describe('ServerService', () => {
 
   describe('updatePage', () => {
     it(
+      'should call humanize pipe',
+      async(() => {
+        serverService
+          .updatePage(page1, 'page-2')
+          .then(_ => expect(db.humanize.calls.count()).toBe(1));
+      })
+    );
+
+    it(
       'should call firebase ref',
       async(() => {
         serverService
-          .updatePage(page1, page2)
+          .updatePage(page1, 'page-2')
           .then(_ => expect(db.ref.calls.count()).toBe(1));
       })
     );
@@ -129,7 +139,7 @@ describe('ServerService', () => {
       'should call firebase update',
       async(() => {
         serverService
-          .updatePage(page1, page2)
+          .updatePage(page1, 'page-2')
           .then(_ => expect(db.update.calls.count()).toBe(1));
       })
     );
@@ -162,9 +172,22 @@ describe('ServerService', () => {
       );
 
       it(
+        'should not set newPage revisions publishedId',
+        async(() => {
+          serverService.updatePage(page1, 'page-2').then(_ => {
+            let updateObject = db.update.calls.mostRecent().args[0];
+
+            expect(
+              updateObject['page-2'].revisions.publishedId
+            ).toBeUndefined();
+          });
+        })
+      );
+
+      it(
         'should delete currentPage',
         async(() => {
-          serverService.updatePage(page1, page2).then(_ => {
+          serverService.updatePage(page1, 'page-2').then(_ => {
             let updateObject = db.update.calls.mostRecent().args[0];
 
             expect(updateObject['page-1']).toBeNull();
@@ -502,6 +525,7 @@ describe('ServerService', () => {
 function createService() {
   serverService = TestBed.get(ServerService);
   angularFireDatabase = TestBed.get(AngularFireDatabase);
+  humanizePipe = TestBed.get(HumanizePipe);
   db = new Firebase();
 }
 
@@ -516,6 +540,7 @@ class Firebase {
   once: jasmine.Spy;
   set: jasmine.Spy;
   remove: jasmine.Spy;
+  humanize: jasmine.Spy;
 
   constructor() {
     this.createId = spyOn(serverService, 'createId').and.callThrough();
@@ -536,5 +561,6 @@ class Firebase {
     ).and.callThrough();
     this.set = spyOn(angularFireDatabase, 'set').and.callThrough();
     this.remove = spyOn(angularFireDatabase, 'remove').and.callThrough();
+    this.humanize = spyOn(humanizePipe, 'transform').and.callThrough();
   }
 }

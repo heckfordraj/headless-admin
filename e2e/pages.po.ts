@@ -21,10 +21,6 @@ export class PagesComponent {
     return element.all(by.css('a'));
   }
 
-  getPageInputs() {
-    return element.all(by.css('.page-input'));
-  }
-
   getPageLinks() {
     return element.all(by.css('a'));
   }
