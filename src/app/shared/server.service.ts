@@ -24,6 +24,16 @@ export class ServerService {
     return firebase.database.ServerValue.TIMESTAMP;
   }
 
+  getContent() {
+    return this.db
+      .list('content')
+      .valueChanges()
+      .pipe(
+        tap(res => this.logger.log('getContent', res)),
+        catchError(this.handleError<Page[]>('getContent', []))
+      );
+  }
+
   createId(): string {
     return this.db.createPushId();
   }

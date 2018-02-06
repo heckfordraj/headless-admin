@@ -22,6 +22,7 @@ import { ImageComponent } from './editor/blocks/image/image.component';
 import { BlocksComponent } from './editor/blocks/blocks.component';
 import { SlugifyPipe } from './shared/slugify.pipe';
 import { HumanizePipe } from './shared/humanize.pipe';
+import { ContentComponent } from './content/content.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { HumanizePipe } from './shared/humanize.pipe';
     ImageComponent,
     BlocksComponent,
     SlugifyPipe,
-    HumanizePipe
+    HumanizePipe,
+    ContentComponent
   ],
   imports: [
     BrowserModule,

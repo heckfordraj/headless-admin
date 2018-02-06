@@ -43,3 +43,8 @@ path /data {
     }
   }
 }
+
+path /content {
+  read() { true }
+  write() { true }
+}
