@@ -3,6 +3,18 @@ import { Component, OnInit } from '@angular/core';
 import { ServerService } from '../shared/server.service';
 import * as Delta from 'quill-delta';
 
+interface DeltaOps {
+  insert: string;
+  attributes?: any;
+  prevLength: number;
+}
+
+interface Delta {
+  ops: DeltaOps[];
+  compose: any;
+  reduce: any;
+}
+
 @Component({
   selector: 'app-content',
   templateUrl: './content.component.html',
@@ -10,11 +22,11 @@ import * as Delta from 'quill-delta';
 })
 export class ContentComponent implements OnInit {
   content: any;
-  _delta: any;
+  private _delta: Delta;
 
-  set delta(delta: any) {
-    delta.reduce((total, op) => {
-      op.length = total;
+  set delta(delta: Delta) {
+    delta.reduce((total: number, op: DeltaOps) => {
+      op.prevLength = total;
       return total + op.insert.length;
     }, 0);
     this._delta = delta;
@@ -26,12 +38,25 @@ export class ContentComponent implements OnInit {
 
   constructor(private serverService: ServerService) {}
 
-  testFormat() {
+  getRange() {
     const selection = window.getSelection();
-    const selectionStartNode = selection.anchorNode.parentElement;
-    const selectionEndNode = selection.extentNode.parentElement;
+    const selectionStartOffset = selection.anchorOffset;
+    const selectionStartIndex = +selection.anchorNode.parentElement.getAttribute(
+      'data-index'
+    );
+    const selectionEndOffset = selection.extentOffset;
+    const selectionEndIndex = +selection.extentNode.parentElement.getAttribute(
+      'data-index'
+    );
 
-    console.log(selection);
+    const startPos =
+      this.delta.ops[selectionStartIndex].prevLength + selectionStartOffset;
+    const endPos =
+      this.delta.ops[selectionEndIndex].prevLength + selectionEndOffset;
+
+    console.log('start pos', startPos);
+    console.log('end pos', endPos);
+    return { startPos, endPos };
   }
 
   inputChange(pos: number, input: string) {

@@ -1,7 +1,7 @@
 {{ delta | json }}
 <textarea #text value="{{delta | unwrap}}" (keyup)="inputChange(text.selectionStart, $event.key)"></textarea>
 
-<button (click)="testFormat()">format</button>
+<button (click)="getRange()">format</button>
 
 <div contenteditable="true">
   <ng-container *ngFor="let object of delta?.ops; let i = index">
