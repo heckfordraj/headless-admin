@@ -23,6 +23,7 @@ import { BlocksComponent } from './editor/blocks/blocks.component';
 import { SlugifyPipe } from './shared/slugify.pipe';
 import { HumanizePipe } from './shared/humanize.pipe';
 import { ContentComponent } from './content/content.component';
+import { UnwrapPipe } from './content/unwrap.pipe';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { ContentComponent } from './content/content.component';
     BlocksComponent,
     SlugifyPipe,
     HumanizePipe,
-    ContentComponent
+    ContentComponent,
+    UnwrapPipe
   ],
   imports: [
     BrowserModule,
