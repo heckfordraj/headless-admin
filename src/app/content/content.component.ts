@@ -9,12 +9,6 @@ interface DeltaOps {
   prevLength: number;
 }
 
-interface Delta {
-  ops: DeltaOps[];
-  compose: any;
-  reduce: any;
-}
-
 @Component({
   selector: 'app-content',
   templateUrl: './content.component.html',
@@ -40,23 +34,31 @@ export class ContentComponent implements OnInit {
 
   getRange() {
     const selection = window.getSelection();
-    const selectionStartOffset = selection.anchorOffset;
     const selectionStartIndex = +selection.anchorNode.parentElement.getAttribute(
       'data-index'
     );
-    const selectionEndOffset = selection.extentOffset;
     const selectionEndIndex = +selection.extentNode.parentElement.getAttribute(
       'data-index'
     );
 
-    const startPos =
-      this.delta.ops[selectionStartIndex].prevLength + selectionStartOffset;
-    const endPos =
-      this.delta.ops[selectionEndIndex].prevLength + selectionEndOffset;
+    const start =
+      this.delta.ops[selectionStartIndex].prevLength + selection.anchorOffset;
+    const end =
+      this.delta.ops[selectionEndIndex].prevLength + selection.extentOffset;
+    const startPos = Math.min(start, end);
+    const endPos = Math.max(start, end);
 
-    console.log('start pos', startPos);
-    console.log('end pos', endPos);
+    console.log({ startPos, endPos });
     return { startPos, endPos };
+  }
+
+  formatChange() {
+    const range = this.getRange();
+
+    const changes = new Delta()
+      .retain(range.startPos)
+      .retain(range.endPos - range.startPos, { bold: true });
+    this.delta = this.delta.compose(changes);
   }
 
   inputChange(pos: number, input: string) {

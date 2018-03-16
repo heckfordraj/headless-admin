@@ -2,6 +2,11 @@ div {
   position: relative;
   background: #f1f1f1;
   font-size: 3em;
+  white-space: nowrap;
+
+  span {
+    white-space: pre;
+  }
 }
 
 textarea {
