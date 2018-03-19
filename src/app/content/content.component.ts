@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { ServerService } from '../shared/server.service';
 import * as Delta from 'quill-delta';
@@ -16,24 +16,33 @@ interface DeltaOps {
 })
 export class ContentComponent implements OnInit {
   content: any;
-  private _delta: Delta;
 
+  @ViewChild('textArea') textArea: ElementRef;
+  @ViewChild('contentEditable') contentEditable: ElementRef;
+
+  private _delta: Delta;
   set delta(delta: Delta) {
+    console.log(delta);
     delta.reduce((total: number, op: DeltaOps) => {
       op.prevLength = total;
       return total + op.insert.length;
     }, 0);
     this._delta = delta;
   }
-
   get delta() {
     return this._delta;
   }
 
-  constructor(private serverService: ServerService) {}
+  constructor(private serverService: ServerService) {
+    document.addEventListener('selectionchange', event => {
+      // console.log('selection')
+    });
+  }
 
-  getRange() {
+  getSelection() {
     const selection = window.getSelection();
+    const selectionStartOffset = selection.anchorOffset;
+    const selectionEndOffset = selection.extentOffset;
     const selectionStartIndex = +selection.anchorNode.parentElement.getAttribute(
       'data-index'
     );
@@ -47,31 +56,69 @@ export class ContentComponent implements OnInit {
       this.delta.ops[selectionEndIndex].prevLength + selection.extentOffset;
     const startPos = Math.min(start, end);
     const endPos = Math.max(start, end);
+    const startOffset = Math.min(selectionStartOffset, selectionEndOffset);
+    const endOffset = Math.max(selectionStartOffset, selectionEndOffset);
 
     console.log({ startPos, endPos });
-    return { startPos, endPos };
+    return {
+      startPos,
+      endPos,
+      startOffset,
+      endOffset,
+      selectionStartIndex,
+      selectionStartOffset
+    };
+  }
+
+  viewSelection() {
+    console.log(window.getSelection());
+  }
+
+  setSelection(selectionStartIndex: number, selectionStartOffset: number) {
+    const selection = window.getSelection();
+    const selectionStartNode = (this.contentEditable
+      .nativeElement as HTMLElement).children[selectionStartIndex].firstChild;
+
+    console.log('setSelection', selectionStartNode, selectionStartOffset);
+    selection.setPosition(selectionStartNode, selectionStartOffset);
   }
 
   formatChange() {
-    const range = this.getRange();
+    const selection = this.getSelection();
 
     const changes = new Delta()
-      .retain(range.startPos)
-      .retain(range.endPos - range.startPos, { bold: true });
+      .retain(selection.startPos)
+      .retain(selection.endPos - selection.startPos, { bold: true });
     this.delta = this.delta.compose(changes);
   }
 
-  inputChange(pos: number, input: string) {
+  contentChange(event: KeyboardEvent) {
+    event.preventDefault();
+
+    const input = event.key;
+    const selection = this.getSelection();
+
+    console.log('contentChange', input);
+
     let changes;
 
     if (input === 'Backspace') {
-      changes = new Delta().retain(pos).delete(1);
+      changes = new Delta().retain(selection.startPos - 1).delete(1);
+      selection.startOffset--;
     } else {
-      changes = new Delta().retain(pos - 1).insert(input);
+      changes = new Delta()
+        .retain(selection.startPos)
+        .insert(input)
+        .delete(selection.endPos - selection.startPos);
+      selection.startOffset++;
     }
 
-    console.log('inputChange', pos, input);
     this.delta = this.delta.compose(changes);
+
+    // TODO: use delta transformPosition with fake cursor instead of setting real cursor (error prone)
+    setTimeout(() => {
+      this.setSelection(selection.selectionStartIndex, selection.startOffset);
+    });
   }
 
   ngOnInit() {
