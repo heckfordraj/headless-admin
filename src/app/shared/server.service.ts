@@ -11,6 +11,7 @@ import { LoggerService } from './logger.service';
 import { HumanizePipe } from '../shared/humanize.pipe';
 import { Page } from './page';
 import { Block } from './block';
+import { TextData } from '../content/content';
 
 @Injectable()
 export class ServerService {
@@ -24,10 +25,19 @@ export class ServerService {
     return firebase.database.ServerValue.TIMESTAMP;
   }
 
-  getContent() {
+  updateContent(user: number, ops: Quill.DeltaOperation[]) {
+    const content: TextData = {
+      user: user,
+      ops: ops
+    };
+    return this.db.list('content').push(content);
+  }
+
+  getContent(): Observable<TextData> {
     return this.db
       .list('content')
-      .valueChanges()
+      .stateChanges(['child_added'])
+      .map(content => content.payload.val())
       .pipe(
         tap(res => this.logger.log('getContent', res)),
         catchError(this.handleError<Page[]>('getContent', []))

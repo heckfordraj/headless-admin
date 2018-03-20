@@ -1,10 +1,1 @@
-{{ delta | json }}
-<textarea #textArea value="{{delta | unwrap}}"></textarea>
-
-<button (click)="formatChange()">format</button>
-<button (click)="setSelection()">setSelection</button>
-<button (click)="viewSelection()">viewSelection</button>
-
-<div #contentEditable contenteditable="true" (keydown)="contentChange($event)">
-  <ng-container *ngFor="let object of delta?.ops; let i = index"><span class="bold" *ngIf="object?.attributes?.bold; else default" [attr.data-index]="i">{{ object?.insert }}</span><ng-template #default><span [attr.data-index]="i">{{ object?.insert }}</span></ng-template></ng-container>
-</div>
+<div #editor></div>
