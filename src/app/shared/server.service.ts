@@ -38,10 +38,7 @@ export class ServerService {
       .list('content')
       .stateChanges(['child_added'])
       .map(content => content.payload.val())
-      .pipe(
-        tap(res => this.logger.log('getContent', res)),
-        catchError(this.handleError<Page[]>('getContent', []))
-      );
+      .pipe(catchError(this.handleError<Page[]>('getContent')));
   }
 
   createId(): string {

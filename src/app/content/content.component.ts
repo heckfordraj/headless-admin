@@ -16,6 +16,17 @@ export class ContentComponent implements OnInit {
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
 
+  formats = [
+    {
+      title: 'Bold',
+      name: 'bold'
+    },
+    {
+      title: 'Italic',
+      name: 'italic'
+    }
+  ];
+
   constructor(private serverService: ServerService) {}
 
   textChange(
@@ -26,6 +37,15 @@ export class ContentComponent implements OnInit {
     if (source !== 'user') return;
 
     this.serverService.updateContent(this.user, delta.ops);
+  }
+
+  formatClick(name: string) {
+    if (!name) return;
+
+    const currentFormats = this.editor.getFormat();
+    const hasNewFormat = currentFormats[name];
+
+    this.editor.format(name, !hasNewFormat);
   }
 
   ngOnInit() {
