@@ -16,17 +16,6 @@ export class ContentComponent implements OnInit {
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
 
-  formats = [
-    {
-      title: 'Bold',
-      name: 'bold'
-    },
-    {
-      title: 'Italic',
-      name: 'italic'
-    }
-  ];
-
   constructor(private serverService: ServerService) {}
 
   textChange(
@@ -39,18 +28,60 @@ export class ContentComponent implements OnInit {
     this.serverService.updateContent(this.user, delta.ops);
   }
 
-  formatClick(name: string) {
-    if (!name) return;
+  removeBlockFormat() {
+    const selection = this.editor.getSelection();
 
+    if (selection.length === 0) {
+      const [leaf, offset] = (this.editor as any).getLeaf(selection.index);
+
+      return this.editor.removeFormat(
+        selection.index - offset,
+        selection.index + leaf.domNode.length,
+        'user'
+      );
+    }
+
+    this.editor.removeFormat(selection.index, selection.length, 'user');
+  }
+
+  formatHeadingClick() {
     const currentFormats = this.editor.getFormat();
-    const hasNewFormat = currentFormats[name];
+    const hasExistingFormat = currentFormats.header;
 
-    this.editor.format(name, !hasNewFormat);
+    const value = hasExistingFormat ? false : 1;
+
+    this.removeBlockFormat();
+    this.editor.format('header', value, 'user');
+  }
+
+  formatLinkClick() {
+    const currentFormats = this.editor.getFormat();
+    const selection = this.editor.getSelection();
+
+    if (currentFormats.link) return this.editor.format('link', false, 'user');
+
+    const url = prompt('Enter URL');
+
+    this.editor.removeFormat(selection.index, selection.length);
+    this.editor.format('link', url, 'user');
   }
 
   ngOnInit() {
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));
+
+    const Block = Quill.import('blots/block');
+    class HeaderBlock extends Block {
+      formatAt(index, length, name, value) {
+        if (name !== 'header') return;
+
+        super.format(name, value);
+      }
+    }
+    HeaderBlock.blotName = 'header';
+    HeaderBlock.tagName = ['H3'];
+
+    Quill.register(HeaderBlock, true);
 
     this.serverService.getContent().subscribe((textData: TextData) => {
       if (textData.user === this.user) return;

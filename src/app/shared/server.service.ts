@@ -26,6 +26,12 @@ export class ServerService {
   }
 
   updateContent(user: number, ops: Quill.DeltaOperation[]) {
+    ops.forEach(op => {
+      for (let attr in op.attributes) {
+        return (op.attributes[attr] = op.attributes[attr] || false);
+      }
+    });
+
     const content: TextData = {
       user: user,
       ops: ops
