@@ -51,7 +51,7 @@ export class ContentComponent implements OnInit {
     const value = hasExistingFormat ? false : 1;
 
     this.removeBlockFormat();
-    this.editor.format('header', value, 'user');
+    this.editor.format('title', value, 'user');
   }
 
   formatLinkClick() {
@@ -71,17 +71,15 @@ export class ContentComponent implements OnInit {
     this.editor.on('text-change', this.textChange.bind(this));
 
     const Block = Quill.import('blots/block');
-    class HeaderBlock extends Block {
+    class TitleBlock extends Block {
       formatAt(index, length, name, value) {
-        if (name !== 'header') return;
+        if (name !== 'title') return;
 
         super.format(name, value);
       }
     }
-    HeaderBlock.blotName = 'header';
-    HeaderBlock.tagName = ['H3'];
-
-    Quill.register(HeaderBlock, true);
+    TitleBlock.blotName = 'title';
+    TitleBlock.tagName = ['H3'];
 
     this.serverService.getContent().subscribe((textData: TextData) => {
       if (textData.user === this.user) return;
