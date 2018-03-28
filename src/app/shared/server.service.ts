@@ -25,7 +25,7 @@ export class ServerService {
     return firebase.database.ServerValue.TIMESTAMP;
   }
 
-  updateContent(user: number, ops: Quill.DeltaOperation[]) {
+  updateContent(user: string, ops: Quill.DeltaOperation[]) {
     ops.forEach(op => {
       for (let attr in op.attributes) {
         return (op.attributes[attr] = op.attributes[attr] || false);

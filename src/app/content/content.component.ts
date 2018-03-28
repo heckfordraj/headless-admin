@@ -5,6 +5,7 @@ const Delta = Quill.import('delta');
 
 import { ServerService } from '../shared/server.service';
 import { TextData } from './content';
+import { TitleBlock } from './quill';
 
 @Component({
   selector: 'app-content',
@@ -12,8 +13,7 @@ import { TextData } from './content';
   styleUrls: ['./content.component.scss']
 })
 export class ContentComponent implements OnInit {
-  // TODO: replace user with serverService createId
-  user: number = Math.random();
+  user: string;
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
 
@@ -47,12 +47,10 @@ export class ContentComponent implements OnInit {
 
   formatHeadingClick() {
     const currentFormats = this.editor.getFormat();
-    const hasExistingFormat = currentFormats.header;
-
-    const value = hasExistingFormat ? false : 1;
+    const hasExistingFormat = !currentFormats.title;
 
     this.removeBlockFormat();
-    this.editor.format('title', value, 'user');
+    this.editor.format('title', +hasExistingFormat, 'user');
   }
 
   formatLinkClick() {
@@ -68,19 +66,11 @@ export class ContentComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.user = this.serverService.createId();
+
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));
-
-    const Block = Quill.import('blots/block');
-    class TitleBlock extends Block {
-      formatAt(index, length, name, value) {
-        if (name !== 'title') return;
-
-        super.format(name, value);
-      }
-    }
-    TitleBlock.blotName = 'title';
-    TitleBlock.tagName = ['H3'];
+    Quill.register(TitleBlock, true);
 
     this.serverService.getContent().subscribe((textData: TextData) => {
       if (textData.user === this.user) return;

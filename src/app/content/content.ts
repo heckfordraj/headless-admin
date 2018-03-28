@@ -1,5 +1,5 @@
 export interface TextData {
-  user: number;
+  user: string;
   ops: Quill.DeltaOperation[];
 }
 
