@@ -1,3 +1,5 @@
 {{ block | json }}
 
 <input #textInput type="text" placeholder="text" (keyup.enter)="addText(textInput.value)">
+
+{{ text | json }}

@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 
+import { Subscription } from 'rxjs/Subscription';
+
+import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
-import { BlocksComponent } from '../blocks.component';
 import { Block } from '../../../shared/block';
 
 @Component({
@@ -9,26 +11,16 @@ import { Block } from '../../../shared/block';
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.scss']
 })
-export class TextComponent {
+export class TextComponent implements OnInit, OnDestroy {
   constructor(
-    private serverService: ServerService,
-    private blocksComponent: BlocksComponent
+    private logger: LoggerService,
+    private serverService: ServerService
   ) {}
 
-  private _block: Block.Text;
+  @Input() block: Block.Text;
 
-  @Input()
-  set block(block: Block.Text) {
-    this._block = {
-      type: 'text',
-      id: block.id,
-      data: block.data || [],
-      order: block.order
-    };
-  }
-  get block() {
-    return this._block;
-  }
+  text$: Subscription;
+  text: Block.Data.TextData;
 
   addText(text: string) {
     const data: Block.Data.TextData = {
@@ -36,6 +28,23 @@ export class TextComponent {
       text: text
     };
 
-    this.blocksComponent.updateBlock(this.block, data);
+    this.serverService
+      .updateBlockContent(this.block, data)
+      .then(_ =>
+        this.logger.log(
+          'updateBlockContent',
+          `updated ${this.block.type} block content`
+        )
+      );
+  }
+
+  ngOnInit() {
+    this.text$ = this.serverService
+      .getBlockContent(this.block)
+      .subscribe((text: Block.Data.TextData) => (this.text = text));
+  }
+
+  ngOnDestroy() {
+    this.text$.unsubscribe();
   }
 }
