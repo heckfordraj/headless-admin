@@ -2,6 +2,5 @@
 
 <input type="file" (change)="addImage($event.target.files)" accept="image/*">
 
-<ng-container *ngFor="let image of block?.data">
-  <img *ngIf="image?.xs" src="http://localhost:4100/image/{{ image?.xs }}">
-</ng-container>
+<img *ngIf="image" src="{{ image?.url }}">
+{{ image | json }}

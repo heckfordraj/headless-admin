@@ -1,8 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 
+import { Subscription } from 'rxjs/Subscription';
+
+import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
 import { ImageService } from './image.service';
-import { BlocksComponent } from '../blocks.component';
 import { Block } from '../../../shared/block';
 
 @Component({
@@ -10,27 +12,17 @@ import { Block } from '../../../shared/block';
   templateUrl: './image.component.html',
   styleUrls: ['./image.component.scss']
 })
-export class ImageComponent {
+export class ImageComponent implements OnInit, OnDestroy {
   constructor(
+    private logger: LoggerService,
     private serverService: ServerService,
-    private imageService: ImageService,
-    private blocksComponent: BlocksComponent
+    private imageService: ImageService
   ) {}
 
-  private _block: Block.Image;
+  @Input() block: Block.Base;
 
-  @Input()
-  set block(block: Block.Image) {
-    this._block = {
-      type: 'image',
-      id: block.id,
-      data: block.data || [],
-      order: block.order
-    };
-  }
-  get block() {
-    return this._block;
-  }
+  image$: Subscription;
+  image: Block.Data.ImageData;
 
   addImage(files: FileList) {
     const id = this.serverService.createId();
@@ -41,7 +33,24 @@ export class ImageComponent {
         url: res.secure_url
       };
 
-      this.blocksComponent.updateBlock(this.block, data);
+      this.serverService
+        .updateBlockContent(this.block, data)
+        .then(_ =>
+          this.logger.log(
+            'updateBlockContent',
+            `updated ${this.block.type} block content`
+          )
+        );
     });
+  }
+
+  ngOnInit() {
+    this.image$ = this.serverService
+      .getBlockContent(this.block)
+      .subscribe((image: Block.Data.ImageData) => (this.image = image));
+  }
+
+  ngOnDestroy() {
+    this.image$.unsubscribe();
   }
 }

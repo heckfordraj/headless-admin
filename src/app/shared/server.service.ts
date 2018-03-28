@@ -39,6 +39,21 @@ export class ServerService {
     return this.db.list('content').push(content);
   }
 
+  updateBlockContent(block: Block.Base, data: Block.Data.Base): Promise<void> {
+    return this.db.object(`content/${block.id}/${data.id}`).set(data);
+  }
+
+  getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
+    return this.db
+      .list(`content/${block.id}`)
+      .stateChanges(['child_added'])
+      .map(content => content.payload.val())
+      .pipe(
+        tap(content => this.logger.log('getBlockContent', content)),
+        catchError(this.handleError<Block.Data.Base>('getBlockContent'))
+      );
+  }
+
   getContent(): Observable<TextData> {
     return this.db
       .list('content')

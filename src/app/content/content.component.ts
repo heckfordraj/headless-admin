@@ -12,6 +12,7 @@ import { TextData } from './content';
   styleUrls: ['./content.component.scss']
 })
 export class ContentComponent implements OnInit {
+  // TODO: replace user with serverService createId
   user: number = Math.random();
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
