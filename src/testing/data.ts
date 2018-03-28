@@ -67,7 +67,7 @@ export const Blocks: { [id: string]: [Block.Base] } = {
   ]
 };
 
-export const Data: Block.Data.Base[] = [
+export const Data: any[] = [
   { id: '1', text: 'Hello' },
   { id: '2', url: 'http://' },
   { id: '3', text: 'Hello' },

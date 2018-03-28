@@ -2,11 +2,11 @@ export namespace Block {
   export namespace Data {
     export interface Base {
       readonly id: string;
-      [data: string]: any;
     }
 
     export interface TextData extends Base {
-      text: string;
+      user: string;
+      ops: Quill.DeltaOperation[];
     }
 
     export interface ImageData extends Base {
@@ -20,12 +20,8 @@ export namespace Block {
     type: string;
     order: number;
   }
-
-  export interface Text extends Base {
-    data: Data.TextData[];
-  }
 }
 
-export const Blocks = {
-  data: [<Block.Text>{ type: 'text', data: [] }, <Block.Base>{ type: 'image' }]
+export const Blocks: { data: any[] } = {
+  data: [{ type: 'text' }, { type: 'image' }]
 };

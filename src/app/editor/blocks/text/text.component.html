@@ -1,5 +1,5 @@
 {{ block | json }}
-
-<input #textInput type="text" placeholder="text" (keyup.enter)="addText(textInput.value)">
-
-{{ text | json }}
+<br>
+<button (click)="formatHeadingClick()">H3</button>
+<button (click)="formatLinkClick()">Link</button>
+<div #editor></div>
