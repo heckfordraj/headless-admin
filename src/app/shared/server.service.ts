@@ -39,8 +39,8 @@ export class ServerService {
     return this.db.list('content').push(content);
   }
 
-  updateBlockContent(block: Block.Base, data: Block.Data.Base): Promise<void> {
-    return this.db.object(`content/${block.id}/${data.id}`).set(data);
+  updateBlockContent(block: Block.Base, data: Block.Data.Base) {
+    return firebase.database().ref(`content/${block.id}/${data.id}`);
   }
 
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
@@ -153,7 +153,7 @@ export class ServerService {
       .list<Block.Data.Base>(
         `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`
       )
-      .set(data.id, data);
+      .set(data.id.toString(), data);
   }
 
   removePage(page: Page): Promise<void> {

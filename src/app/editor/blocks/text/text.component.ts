@@ -10,7 +10,7 @@ import {
 import { Subscription } from 'rxjs/Subscription';
 
 import * as Quill from 'quill';
-const Delta = Quill.import('delta');
+const Delta: Quill.DeltaStatic = Quill.import('delta');
 
 import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
@@ -37,6 +37,12 @@ export class TextComponent implements OnInit, OnDestroy {
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
 
+  data: Block.Data.TextData = {
+    id: null,
+    user: null,
+    ops: []
+  };
+
   textChange(
     delta: Quill.DeltaStatic,
     oldDelta: Quill.DeltaStatic,
@@ -50,20 +56,51 @@ export class TextComponent implements OnInit, OnDestroy {
       }
     });
 
-    const data: Block.Data.TextData = {
-      id: this.serverService.createId(),
+    let id = this.text !== undefined ? <number>this.text.id : -1;
+
+    this.data = {
+      id: ++id,
       user: this.user,
       ops: delta.ops
     };
 
+    this.tryTransaction();
+  }
+
+  tryTransaction() {
     this.serverService
-      .updateBlockContent(this.block, data)
-      .then(_ =>
-        this.logger.log(
-          'updateBlockContent',
-          `updated ${this.block.type} block content`
-        )
-      );
+      .updateBlockContent(this.block, this.data)
+      .transaction(currentData => {
+        if (!currentData) return this.data;
+
+        console.log('existing data', currentData);
+        console.log('new data', this.data);
+
+        const existingOps = new Delta(currentData.ops);
+        const newOps = new Delta(this.data.ops);
+        const transformOthers = existingOps.transform(newOps, true);
+        const transformSelf = newOps.transform(existingOps, false);
+
+        this.editor.updateContents(transformSelf);
+
+        console.log('transformOthers', transformOthers);
+        console.log('transformSelf', transformSelf);
+
+        this.data.ops = transformOthers.ops;
+        <number>this.data.id + 1;
+        return;
+      }, this.transactionCallback.bind(this));
+  }
+
+  transactionCallback(error, committed, snapshot) {
+    if (error) {
+      console.log('transaction failed', error);
+    } else if (!committed) {
+      console.log('transaction aborted, trying again');
+      this.tryTransaction();
+    } else {
+      console.log('transaction successful');
+    }
   }
 
   removeBlockFormat() {
@@ -112,8 +149,9 @@ export class TextComponent implements OnInit, OnDestroy {
     this.text$ = this.serverService
       .getBlockContent(this.block)
       .subscribe((text: Block.Data.TextData) => {
-        if (text.user === this.user) return;
+        this.text = text;
 
+        if (text.user === this.user) return;
         this.editor.updateContents(new Delta(text.ops));
       });
   }

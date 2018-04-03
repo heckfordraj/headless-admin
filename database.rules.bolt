@@ -20,6 +20,12 @@ type Block {
   validate() { this.id == key() }
 }
 
+type Content {
+  clientID: Number;
+  steps: Object;
+  version: Number;
+}
+
 path /pages {
   read() { true }
 
@@ -47,4 +53,5 @@ path /data {
 path /content {
   read() { true }
   write() { true }
+
 }
