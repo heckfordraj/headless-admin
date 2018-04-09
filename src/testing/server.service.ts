@@ -13,6 +13,14 @@ export class ServerServiceStub {
     return 'abcdefg';
   }
 
+  updateBlockContent() {
+    return;
+  }
+
+  getBlockContent() {
+    return;
+  }
+
   getPage(id: string): Observable<Page> {
     let index = Pages.find((page: Page) => page.id === id);
 

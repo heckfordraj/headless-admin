@@ -257,7 +257,7 @@ describe('BlocksComponent', () => {
 
       fixture.detectChanges();
       page.addElements();
-      comp.updateBlock(block, data);
+      // comp.updateBlock(block, data);
     });
 
     it('should call ServerService updateBlock', () => {

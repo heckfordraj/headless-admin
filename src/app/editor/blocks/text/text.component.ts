@@ -64,11 +64,11 @@ export class TextComponent implements OnInit, OnDestroy {
       ops: delta.ops
     };
 
-    this.tryTransaction();
+    return this.tryTransaction();
   }
 
   tryTransaction() {
-    this.serverService
+    return this.serverService
       .updateBlockContent(this.block, this.data)
       .transaction(currentData => {
         if (!currentData) return this.data;
@@ -87,8 +87,7 @@ export class TextComponent implements OnInit, OnDestroy {
         console.log('transformSelf', transformSelf);
 
         this.data.ops = transformOthers.ops;
-        <number>this.data.id + 1;
-        return;
+        this.data.id = <number>this.data.id + 1;
       }, this.transactionCallback.bind(this));
   }
 
@@ -97,7 +96,7 @@ export class TextComponent implements OnInit, OnDestroy {
       console.log('transaction failed', error);
     } else if (!committed) {
       console.log('transaction aborted, trying again');
-      this.tryTransaction();
+      return this.tryTransaction();
     } else {
       console.log('transaction successful');
     }

@@ -65,24 +65,8 @@
       ".write": "true"
     },
     "content": {
-      "$version": {
-        ".validate": "newData.hasChildren(['clientID', 'steps', 'version'])",
-        "clientID": {
-          ".validate": "newData.isNumber()"
-        },
-        "steps": {
-          ".validate": "newData.hasChildren()"
-        },
-        "version": {
-          ".validate": "newData.isNumber()"
-        },
-        "$other": {
-          ".validate": "false"
-        },
-        ".read": "true",
-        ".write": "true"
-      },
-      ".read": "true"
+      ".read": "true",
+      ".write": "true"
     }
   }
 }
