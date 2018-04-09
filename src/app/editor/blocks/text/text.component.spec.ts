@@ -89,7 +89,6 @@ fdescribe('TextComponent', () => {
     // bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd                                           bcd
 
     const client1Data = [{ delete: 1 }];
-    const client2Data = [{ retain: 2 }, { insert: 'c' }];
 
     beforeEach(
       async(() => {
@@ -127,6 +126,56 @@ fdescribe('TextComponent', () => {
         id: 2,
         user: 'client2',
         ops: [{ retain: 1 }, { insert: 'c' }]
+      });
+    });
+  });
+
+  describe('conflict 2', () => {
+    // Client 1                                      Server                                        Client 2
+    // acd                                           acd                                           acd
+    // ac-------[{ retain: 2 }, { delete: 1 }]------>ac  <-x-[{ retain: 1 }, { insert: 'b' }]------abcd
+    // ac                                            ac-------[{ retain: 2 }, { delete: 1 }]------>abc [{ retain: 3 }, { delete: 1 }]
+    // ac                                            abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc
+    // abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc                                           abc
+
+    const client1Data = [{ retain: 2 }, { delete: 1 }];
+
+    beforeEach(
+      async(() => {
+        const initialData = {
+          user: 'client1',
+          id: 0,
+          ops: [{ insert: 'acd' }]
+        };
+        serverService.blockContent.emit(initialData);
+
+        comp.user = 'client1';
+        comp.textChange(new Delta(client1Data), null, 'user');
+        comp.user = 'client2';
+        fixture.detectChanges();
+        page.addText(page.editorEl, 'b', 1);
+      })
+    );
+
+    it(
+      'should set resolved text in editor',
+      async(() =>
+        setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('abc');
+        })
+      )
+    );
+
+    it('should have resolved data on server', () => {
+      expect(serverService.content[1]).toEqual({
+        id: 1,
+        user: 'client1',
+        ops: client1Data
+      });
+      expect(serverService.content[2]).toEqual({
+        id: 2,
+        user: 'client2',
+        ops: [{ retain: 1 }, { insert: 'b' }]
       });
     });
   });
