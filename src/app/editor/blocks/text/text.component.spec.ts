@@ -88,23 +88,32 @@ fdescribe('TextComponent', () => {
     // bd                                            bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd
     // bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd                                           bcd
 
+    const initialData = {
+      user: 'client1',
+      id: 0,
+      ops: [{ insert: 'abd' }]
+    };
     const client1Data = [{ delete: 1 }];
 
     beforeEach(
       async(() => {
-        const initialData = {
-          user: 'client1',
-          id: 0,
-          ops: [{ insert: 'abd' }]
-        };
         serverService.blockContent.emit(initialData);
 
         comp.user = 'client1';
         comp.textChange(new Delta(client1Data), null, 'user');
         comp.user = 'client2';
-        fixture.detectChanges();
+        page.tryTransaction.calls.reset();
         page.addText(page.editorEl, 'c', 2);
       })
+    );
+
+    it(
+      'should reject transaction twice',
+      async(() =>
+        setTimeout(() => {
+          expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        })
+      )
     );
 
     it(
@@ -117,6 +126,7 @@ fdescribe('TextComponent', () => {
     );
 
     it('should have resolved data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
       expect(serverService.content[1]).toEqual({
         id: 1,
         user: 'client1',
@@ -138,23 +148,32 @@ fdescribe('TextComponent', () => {
     // ac                                            abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc
     // abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc                                           abc
 
+    const initialData = {
+      user: 'client1',
+      id: 0,
+      ops: [{ insert: 'acd' }]
+    };
     const client1Data = [{ retain: 2 }, { delete: 1 }];
 
     beforeEach(
       async(() => {
-        const initialData = {
-          user: 'client1',
-          id: 0,
-          ops: [{ insert: 'acd' }]
-        };
         serverService.blockContent.emit(initialData);
 
         comp.user = 'client1';
         comp.textChange(new Delta(client1Data), null, 'user');
         comp.user = 'client2';
-        fixture.detectChanges();
+        page.tryTransaction.calls.reset();
         page.addText(page.editorEl, 'b', 1);
       })
+    );
+
+    it(
+      'should reject transaction once',
+      async(() =>
+        setTimeout(() => {
+          expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        })
+      )
     );
 
     it(
@@ -167,6 +186,7 @@ fdescribe('TextComponent', () => {
     );
 
     it('should have resolved data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
       expect(serverService.content[1]).toEqual({
         id: 1,
         user: 'client1',
@@ -176,6 +196,77 @@ fdescribe('TextComponent', () => {
         id: 2,
         user: 'client2',
         ops: [{ retain: 1 }, { insert: 'b' }]
+      });
+    });
+  });
+
+  describe('conflict 3', () => {
+    // Client 1                                          Server                                            Client 2
+    // a                                                 a                                                 a
+    // ab------1: [{ retain: 1 }, { insert: 'b' }]------>ab  <-x- 1: [{ retain: 1 }, { insert: '1' }]------a1
+    // ab                                                ab------1: [{ retain: 1 }, { insert: 'b' }]------>ab1 [{ retain: 1 }, { insert: 'b' }]
+    // abc-----2: [{ retain: 2 }, { insert: 'c' }]------>abc  <-x- 2: [{ retain: 2 }, { insert: '1' }]-----ab1
+    // abc                                               abc-----2: [{ retain: 2 }, { insert: 'c' }]------>abc1 [{ retain: 2 }, { insert: 'c' }]
+    // abc                                               abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1
+    // abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1                                              abc1
+
+    const initialData = {
+      user: 'client1',
+      id: 0,
+      ops: [{ insert: 'a' }]
+    };
+    const client1Data1 = [{ retain: 1 }, { insert: 'b' }];
+    const client1Data2 = [{ retain: 2 }, { insert: 'c' }];
+
+    beforeEach(
+      async(() => {
+        serverService.blockContent.emit(initialData);
+
+        comp.user = 'client1';
+        comp.textChange(new Delta(client1Data1), null, 'user');
+        comp.text.id = 1;
+        comp.textChange(new Delta(client1Data2), null, 'user');
+        comp.user = 'client2';
+        comp.text.id = 0;
+        page.tryTransaction.calls.reset();
+        page.addText(page.editorEl, '1', 1);
+      })
+    );
+
+    it(
+      'should reject transaction twice',
+      async(() =>
+        setTimeout(() => {
+          expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        })
+      )
+    );
+
+    it(
+      'should set resolved text in editor',
+      async(() =>
+        setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('abc1');
+        })
+      )
+    );
+
+    it('should have resolved data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
+      expect(serverService.content[1]).toEqual({
+        id: 1,
+        user: 'client1',
+        ops: client1Data1
+      });
+      expect(serverService.content[2]).toEqual({
+        id: 2,
+        user: 'client1',
+        ops: client1Data2
+      });
+      expect(serverService.content[3]).toEqual({
+        id: 3,
+        user: 'client2',
+        ops: [{ retain: 3 }, { insert: '1' }]
       });
     });
   });
@@ -228,11 +319,11 @@ class ServerServiceMock {
 
           if (this.content[data.id]) {
             transactionUpdate(this.content[data.id]);
-            onComplete(null, false, null);
+            onComplete(null, false, data.ops);
             deferred.resolve(false);
           } else {
             this.content.push(data);
-            onComplete(null, true, null);
+            onComplete(null, true, data.ops);
             deferred.resolve(true);
           }
           return deferred.promise;
@@ -253,6 +344,7 @@ class ServerServiceMock {
 
 class Page {
   textChange: jasmine.Spy;
+  tryTransaction: jasmine.Spy;
 
   editorEl: HTMLElement;
   addText = (editor: HTMLElement, text: string, offset: number = 0) => {
@@ -265,6 +357,7 @@ class Page {
 
   constructor() {
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
+    this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
   }
 
   addElements() {

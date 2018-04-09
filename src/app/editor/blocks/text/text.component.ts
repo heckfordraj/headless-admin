@@ -50,6 +50,8 @@ export class TextComponent implements OnInit, OnDestroy {
   ) {
     if (source !== 'user') return;
 
+    console.log('textchange', delta);
+
     delta.ops.forEach(op => {
       for (let attr in op.attributes) {
         return (op.attributes[attr] = op.attributes[attr] || false);
@@ -95,10 +97,10 @@ export class TextComponent implements OnInit, OnDestroy {
     if (error) {
       console.log('transaction failed', error);
     } else if (!committed) {
-      console.log('transaction aborted, trying again');
+      console.log('transaction aborted, trying again', snapshot);
       return this.tryTransaction();
     } else {
-      console.log('transaction successful');
+      console.log('transaction successful', snapshot);
     }
   }
 
