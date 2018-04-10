@@ -40,8 +40,10 @@ export class TextComponent implements OnInit, OnDestroy {
   data: Block.Data.TextData = {
     id: null,
     user: null,
-    ops: []
+    ops: Delta.ops
   };
+
+  pendingTransaction: boolean = false;
 
   textChange(
     delta: Quill.DeltaStatic,
@@ -58,6 +60,11 @@ export class TextComponent implements OnInit, OnDestroy {
       }
     });
 
+    if (this.pendingTransaction)
+      return (this.data.ops = new Delta(this.data.ops).compose(
+        new Delta(delta.ops)
+      ).ops);
+
     let id = this.text !== undefined ? <number>this.text.id : -1;
 
     this.data = {
@@ -66,17 +73,18 @@ export class TextComponent implements OnInit, OnDestroy {
       ops: delta.ops
     };
 
-    return this.tryTransaction();
+    this.tryTransaction();
   }
 
   tryTransaction() {
+    this.pendingTransaction = true;
+
     return this.serverService
       .updateBlockContent(this.block, this.data)
       .transaction(currentData => {
         if (!currentData) return this.data;
 
         console.log('existing data', currentData);
-        console.log('new data', this.data);
 
         const existingOps = new Delta(currentData.ops);
         const newOps = new Delta(this.data.ops);
@@ -100,6 +108,8 @@ export class TextComponent implements OnInit, OnDestroy {
       console.log('transaction aborted, trying again', snapshot);
       return this.tryTransaction();
     } else {
+      this.pendingTransaction = false;
+
       console.log('transaction successful', snapshot);
     }
   }

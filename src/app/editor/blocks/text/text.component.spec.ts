@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  async,
+  fakeAsync,
+  tick
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement, EventEmitter } from '@angular/core';
 import { RouterLinkStub } from '../../../../testing/router';
@@ -16,6 +22,7 @@ let comp: TextComponent;
 let fixture: ComponentFixture<TextComponent>;
 let page: Page;
 let serverService: ServerServiceMock;
+let quill: QuillStub;
 
 fdescribe('TextComponent', () => {
   beforeEach(
@@ -94,50 +101,73 @@ fdescribe('TextComponent', () => {
       ops: [{ insert: 'abd' }]
     };
     const client1Data = [{ delete: 1 }];
+    const client2Data = [{ retain: 2 }, { insert: 'c' }];
 
     beforeEach(
-      async(() => {
+      fakeAsync(() => {
         serverService.blockContent.emit(initialData);
 
         comp.user = 'client1';
         comp.textChange(new Delta(client1Data), null, 'user');
+        tick(200);
         comp.user = 'client2';
-        page.tryTransaction.calls.reset();
-        page.addText(page.editorEl, 'c', 2);
+        page.spyReset();
+      })
+    );
+
+    it('should set initial data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
+    });
+
+    it(
+      'should set client 1 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[1]).toEqual({
+          id: 1,
+          user: 'client1',
+          ops: client1Data
+        });
       })
     );
 
     it(
-      'should reject transaction twice',
-      async(() =>
-        setTimeout(() => {
-          expect(page.tryTransaction).toHaveBeenCalledTimes(2);
-        })
-      )
+      'should reject client 2 data',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+      })
     );
 
     it(
-      'should set resolved text in editor',
-      async(() =>
-        setTimeout(() => {
-          expect(page.editorEl.innerText.trim()).toBe('bcd');
-        })
-      )
+      'should call Quill setContents with own transformed changes',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ delete: 1 }])
+        );
+      })
     );
 
-    it('should have resolved data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
-      expect(serverService.content[1]).toEqual({
-        id: 1,
-        user: 'client1',
-        ops: client1Data
-      });
-      expect(serverService.content[2]).toEqual({
-        id: 2,
-        user: 'client2',
-        ops: [{ retain: 1 }, { insert: 'c' }]
-      });
-    });
+    it(
+      'should set transformed client 2 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[2]).toEqual({
+          id: 2,
+          user: 'client2',
+          ops: [{ retain: 1 }, { insert: 'c' }]
+        });
+      })
+    );
   });
 
   describe('conflict 2', () => {
@@ -154,50 +184,74 @@ fdescribe('TextComponent', () => {
       ops: [{ insert: 'acd' }]
     };
     const client1Data = [{ retain: 2 }, { delete: 1 }];
+    const client2Data = [{ retain: 1 }, { insert: 'b' }];
 
     beforeEach(
-      async(() => {
+      fakeAsync(() => {
         serverService.blockContent.emit(initialData);
 
         comp.user = 'client1';
         comp.textChange(new Delta(client1Data), null, 'user');
+        comp.pendingTransaction = false;
+        tick(200);
         comp.user = 'client2';
-        page.tryTransaction.calls.reset();
-        page.addText(page.editorEl, 'b', 1);
+        page.spyReset();
+      })
+    );
+
+    it('should set initial data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
+    });
+
+    it(
+      'should set client 1 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[1]).toEqual({
+          id: 1,
+          user: 'client1',
+          ops: client1Data
+        });
       })
     );
 
     it(
-      'should reject transaction once',
-      async(() =>
-        setTimeout(() => {
-          expect(page.tryTransaction).toHaveBeenCalledTimes(2);
-        })
-      )
+      'should reject client 2 data',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+      })
     );
 
     it(
-      'should set resolved text in editor',
-      async(() =>
-        setTimeout(() => {
-          expect(page.editorEl.innerText.trim()).toBe('abc');
-        })
-      )
+      'should call Quill setContents with own transformed changes',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 3 }, { delete: 1 }])
+        );
+      })
     );
 
-    it('should have resolved data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
-      expect(serverService.content[1]).toEqual({
-        id: 1,
-        user: 'client1',
-        ops: client1Data
-      });
-      expect(serverService.content[2]).toEqual({
-        id: 2,
-        user: 'client2',
-        ops: [{ retain: 1 }, { insert: 'b' }]
-      });
-    });
+    it(
+      'should set transformed client 2 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[2]).toEqual({
+          id: 2,
+          user: 'client2',
+          ops: [{ retain: 1 }, { insert: 'b' }]
+        });
+      })
+    );
   });
 
   describe('conflict 3', () => {
@@ -217,58 +271,233 @@ fdescribe('TextComponent', () => {
     };
     const client1Data1 = [{ retain: 1 }, { insert: 'b' }];
     const client1Data2 = [{ retain: 2 }, { insert: 'c' }];
+    const client2Data = [{ retain: 1 }, { insert: '1' }];
 
     beforeEach(
-      async(() => {
+      fakeAsync(() => {
+        serverService.blockContent.emit(initialData);
+
+        comp.user = 'client1';
+        comp.textChange(new Delta(client1Data1), null, 'user');
+        tick(200);
+        comp.text.id = 1;
+        comp.textChange(new Delta(client1Data2), null, 'user');
+        tick(200);
+        comp.user = 'client2';
+        comp.text.id = 0;
+        page.spyReset();
+      })
+    );
+
+    it('should set initial data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
+    });
+
+    it(
+      'should set client 1 data 1 on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[1]).toEqual({
+          id: 1,
+          user: 'client1',
+          ops: client1Data1
+        });
+      })
+    );
+
+    it(
+      'should reject client 2 data twice',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+      })
+    );
+
+    it(
+      'should call Quill setContents with own transformed changes (1)',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 1 }, { insert: 'b' }])
+        );
+      })
+    );
+
+    it(
+      'should set client 1 data 2 on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[2]).toEqual({
+          id: 2,
+          user: 'client1',
+          ops: client1Data2
+        });
+      })
+    );
+
+    it(
+      'should call Quill setContents with own transformed changes (2)',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 2 }, { insert: 'c' }])
+        );
+      })
+    );
+
+    it(
+      'should set transformed client 2 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data), null, 'user');
+        tick(200);
+
+        expect(serverService.content[3]).toEqual({
+          id: 3,
+          user: 'client2',
+          ops: [{ retain: 3 }, { insert: '1' }]
+        });
+      })
+    );
+  });
+
+  describe('conflict 4', () => {
+    // Two rejections, merge new changes with pending transactions
+    // Client 1                                                            Server                                                              Client 2
+    // a                                                                   a                                                                   a
+    // ab--------------1: [{ retain: 1 }, { insert: 'b' }]---------------->ab  <------x------1: [{ retain: 1 }, { insert: ')' }]---------------a)
+    // ab                                                                  ab----------------1: [{ retain: 1 }, { insert: 'b' }]-------------->ab) [{ retain: 1 }, { insert: 'b' }]
+    // abc-------------2: [{ retain: 2 }, { insert: 'c' }]---------------->abc  <-----x----- 2: [{ retain: 2 }, { insert: ')' }]---------------ab)
+    // abc                                                                 abc---------------2: [{ retain: 2 }, { insert: 'c' }]-------------->abc) [{ retain: 2 }, { insert: 'c' }]
+    // abc                                                                 (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)
+    // (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)                                                               (abc)
+
+    const initialData = {
+      user: 'client1',
+      id: 0,
+      ops: [{ insert: 'a' }]
+    };
+    const client1Data1 = [{ retain: 1 }, { insert: 'b' }];
+    const client1Data2 = [{ retain: 2 }, { insert: 'c' }];
+    const client2Data1 = [{ retain: 1 }, { insert: ')' }];
+    const client2Data2 = [{ insert: '(' }];
+
+    beforeEach(
+      fakeAsync(() => {
         serverService.blockContent.emit(initialData);
 
         comp.user = 'client1';
         comp.textChange(new Delta(client1Data1), null, 'user');
         comp.text.id = 1;
+        tick(200);
         comp.textChange(new Delta(client1Data2), null, 'user');
+        tick(200);
         comp.user = 'client2';
         comp.text.id = 0;
-        page.tryTransaction.calls.reset();
-        page.addText(page.editorEl, '1', 1);
+        page.spyReset();
+      })
+    );
+
+    it('should set initial data on server', () => {
+      expect(serverService.content[0]).toEqual(initialData);
+    });
+
+    it(
+      'should set client 1 data 1 on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(serverService.content[1]).toEqual({
+          id: 1,
+          user: 'client1',
+          ops: client1Data1
+        });
       })
     );
 
     it(
-      'should reject transaction twice',
-      async(() =>
-        setTimeout(() => {
-          expect(page.tryTransaction).toHaveBeenCalledTimes(3);
-        })
-      )
+      'should reject client 2 data twice',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+      })
     );
 
     it(
-      'should set resolved text in editor',
-      async(() =>
-        setTimeout(() => {
-          expect(page.editorEl.innerText.trim()).toBe('abc1');
-        })
-      )
+      'should call Quill setContents with own transformed changes (1)',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 1 }, { insert: 'b' }])
+        );
+      })
     );
 
-    it('should have resolved data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
-      expect(serverService.content[1]).toEqual({
-        id: 1,
-        user: 'client1',
-        ops: client1Data1
-      });
-      expect(serverService.content[2]).toEqual({
-        id: 2,
-        user: 'client1',
-        ops: client1Data2
-      });
-      expect(serverService.content[3]).toEqual({
-        id: 3,
-        user: 'client2',
-        ops: [{ retain: 3 }, { insert: '1' }]
-      });
-    });
+    it(
+      'should set client 1 data 2 on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(serverService.content[2]).toEqual({
+          id: 2,
+          user: 'client1',
+          ops: client1Data2
+        });
+      })
+    );
+
+    it(
+      'should call Quill setContents with own transformed changes (2)',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 2 }, { insert: 'c' }])
+        );
+      })
+    );
+
+    it(
+      'should set merged and transformed client 2 data on server',
+      fakeAsync(() => {
+        comp.textChange(new Delta(client2Data1), null, 'user');
+        tick(100);
+        comp.textChange(new Delta(client2Data2), null, 'user');
+        tick(100);
+
+        expect(serverService.content[3]).toEqual({
+          id: 3,
+          user: 'client2',
+          ops: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]
+        });
+      })
+    );
   });
 });
 
@@ -279,10 +508,22 @@ function createComponent() {
   serverService = new ServerServiceMock();
 
   fixture.detectChanges();
+  quill = new QuillStub();
   return fixture.whenStable().then(_ => {
     fixture.detectChanges();
     page.addElements();
   });
+}
+
+class QuillStub {
+  updateContents: jasmine.Spy;
+
+  constructor() {
+    this.updateContents = spyOn(
+      comp.editor,
+      'updateContents'
+    ).and.callThrough();
+  }
 }
 
 class ServerServiceMock {
@@ -322,9 +563,11 @@ class ServerServiceMock {
             onComplete(null, false, data.ops);
             deferred.resolve(false);
           } else {
-            this.content.push(data);
-            onComplete(null, true, data.ops);
-            deferred.resolve(true);
+            setTimeout(() => {
+              this.content.push(data);
+              onComplete(null, true, data);
+              deferred.resolve(true);
+            }, 200);
           }
           return deferred.promise;
         }
@@ -358,6 +601,11 @@ class Page {
   constructor() {
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
     this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
+  }
+
+  spyReset() {
+    this.textChange.calls.reset();
+    this.tryTransaction.calls.reset();
   }
 
   addElements() {
