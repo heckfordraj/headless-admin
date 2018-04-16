@@ -1,21 +1,12 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 
-const noop = () => undefined;
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class LoggerService {
-  constructor() {
-    if (environment.production || environment.test) {
-      return {
-        log: noop,
-        warn: noop,
-        error: noop
-      };
-    }
-  }
-
   log(val: any, ...params: any[]) {
+    if (environment.production) return;
+
     console.log(val, ...params);
   }
 

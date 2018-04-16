@@ -21,7 +21,7 @@ install:
 
 script:
   - export CHROME_BIN=chromium-browser
-  - xvfb-run -a npm run test -- --browser=ChromeNoSandbox
+  - xvfb-run -a npm run test -- --single-run --browser=ChromeNoSandbox
   - xvfb-run -a npm run e2e -- --config=protractor-ci.conf.js
 
 notifications:

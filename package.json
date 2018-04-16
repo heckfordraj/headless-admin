@@ -6,8 +6,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test --no-sourcemaps --single-run",
-    "test:watch": "ng test --no-sourcemaps",
+    "test": "ng test --no-sourcemaps",
     "lint": "ng lint",
     "e2e": "ng e2e --env=test",
     "precommit": "lint-staged"

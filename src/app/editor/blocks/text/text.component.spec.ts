@@ -331,14 +331,27 @@ fdescribe('TextComponent', () => {
 
   describe('conflict 3', () => {
     // Two rejections, merge new changes with outstanding
-    // Client 1                                          Server                                            Client 2
-    // a                                                 a                                                 a
-    // ab------1: [{ retain: 1 }, { insert: 'b' }]------>ab  <-x- 1: [{ retain: 1 }, { insert: '1' }]------a1
-    // ab                                                ab------1: [{ retain: 1 }, { insert: 'b' }]------>ab1 [{ retain: 1 }, { insert: 'b' }]
-    // abc-----2: [{ retain: 2 }, { insert: 'c' }]------>abc  <-x- 2: [{ retain: 2 }, { insert: '1' }]-----ab1
-    // abc                                               abc-----2: [{ retain: 2 }, { insert: 'c' }]------>abc1 [{ retain: 2 }, { insert: 'c' }]
-    // abc                                               abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1
-    // abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1                                              abc1
+    //
+    // Client 1                          Server                        Client 2
+    // a                                   a                                  a
+    //
+    // ab------1: [{ retain: 1 }, ------->ab  <-x- 1: [{ retain: 1 }, -------a1
+    //            { insert: 'b' }]                    { insert: '1' }]
+    //
+    // ab                                 ab------1: [{ retain: 1 }, ------>ab1 [{ retain: 1 },
+    //                                               { insert: 'b' }]           { insert: 'b' }]
+    //
+    // abc-----2: [{ retain: 2 }, ------>abc  <-x- 2: [{ retain: 2 }, ------ab1
+    //            { insert: 'c' }]                    { insert: '1' }]
+    //
+    // abc                               abc-----2: [{ retain: 2 }, ------>abc1 [{ retain: 2 },
+    //                                              { insert: 'c' }]            { insert: 'c' }]
+    //
+    // abc                               abc1<-----3: [{ retain: 3 }, -----abc1
+    //                                                { insert: '1' }]
+    //
+    // abc1<-----3: [{ retain: 3 }, -----abc1                              abc1
+    //              { insert: '1' }]
 
     const initialData: Block.Data.TextData = {
       user: 'client1',
@@ -527,14 +540,29 @@ fdescribe('TextComponent', () => {
 
   describe('conflict 4', () => {
     // Two rejections, merge new changes with outstanding and buffer
-    // Client 1                                                            Server                                                              Client 2
-    // a                                                                   a                                                                   a
-    // ab--------------1: [{ retain: 1 }, { insert: 'b' }]---------------->ab  <------x------1: [{ retain: 1 }, { insert: ')' }]---------------a)
-    // ab                                                                  ab----------------1: [{ retain: 1 }, { insert: 'b' }]-------------->ab) [{ retain: 1 }, { insert: 'b' }]
-    // abc-------------2: [{ retain: 2 }, { insert: 'c' }]---------------->abc  <-----x----- 2: [{ retain: 2 }, { insert: ')' }]---------------ab)
-    // abc                                                                 abc---------------2: [{ retain: 2 }, { insert: 'c' }]-------------->(abc) [{ retain: 3 }, { insert: 'c' }]
-    // abc                                                                 (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)
-    // (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)                                                               (abc)
+    //
+    // Client 1                             Server                              Client 2
+    // a                                      a                                        a
+    //
+    // ab-----1: [{ retain: 1 }, ----------->ab  <---x---1: [{ retain: 1 }, ----------a)
+    //           { insert: 'b' }]                            { insert: ')' }]
+    //
+    // ab                                    ab----------1: [{ retain: 1 }, -------->ab) [{ retain: 1 },
+    //                                                      { insert: 'b' }]              { insert: 'b' }]
+    //
+    // abc-----2: [{ retain: 2 }, ---------->abc  <--x-- 2: [{ retain: 2 }, ---------ab)
+    //            { insert: 'c' }]                          { insert: ')' }]
+    //
+    // abc                                   abc---------2: [{ retain: 2 }, ------>(abc) [{ retain: 3 },
+    //                                                      { insert: 'c' }]              { insert: 'c' }]
+    //
+    // abc                                  (abc)<-------3: [{ insert: '(' }, -----(abc)
+    //                                                      { retain: 3 },
+    //                                                      { insert: ')' }]
+    //
+    // (abc)<-----3: [{ insert: '(' }, -----(abc)                                  (abc)
+    //               { retain: 3 },
+    //               { insert: ')' }]
 
     const initialData: Block.Data.TextData = {
       user: 'client1',
@@ -764,6 +792,184 @@ fdescribe('TextComponent', () => {
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(201);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
+      })
+    );
+  });
+
+  describe('conflict 5', () => {
+    // Single rejection followed by multiple successes
+    //
+    // Client 1                        Server                              Client 2
+    // hllo                             hllo                               hllo
+    //
+    // hello-----[{ retain: 1 }, ------>hello  <--x--[{ retain: 4 }, ------hllo
+    //           { insert: 'e' }]                    { insert: ' ' }]
+    //
+    // hello                            hello--------[{ retain: 1 }, ----->hello  [{ retain: 1 },
+    //                                               { insert: 'e' }]             { insert: 'e' }]
+    //
+    // hello                            hello  <-----[{ retain: 5 }, -----hello
+    //                                                { insert: ' ' }]
+    //
+    // hello                            hello  <-----[{ retain: 6 }, -----hello world
+    //                                             { insert: 'world' }]
+    // abc<-----[{ retain: 6 }, -----hello world                          hello world
+    //        { insert: 'world' }]
+
+    const initialData: Block.Data.TextData = {
+      user: 'client1',
+      id: 0,
+      delta: new Delta([{ insert: 'hllo' }])
+    };
+    const client1Data: Block.Data.TextData = {
+      user: 'client1',
+      id: 1,
+      delta: new Delta([{ retain: 1 }, { insert: 'e' }])
+    };
+    const client2Delta1 = new Delta([{ retain: 4 }, { insert: ' ' }]);
+    const client2Delta2 = new Delta([{ retain: 6 }, { insert: 'world' }]);
+
+    beforeEach(
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, initialData).transaction(null);
+        tick(200);
+      })
+    );
+
+    it('should call Quill updateContents with initial data delta', () => {
+      expect(quill.updateContents).toHaveBeenCalledWith(initialData.delta);
+    });
+
+    it('should set state pending', () => {
+      serverService.updateBlockContent(null, client1Data).transaction(null);
+      comp.textChange(client2Delta1, null, 'user');
+
+      expect(comp.state.pending).toEqual({
+        id: 1,
+        user: 'client2',
+        delta: client2Delta1
+      });
+    });
+
+    it('should call tryTransaction (1)', () => {
+      serverService.updateBlockContent(null, client1Data).transaction(null);
+      comp.textChange(client2Delta1, null, 'user');
+
+      expect(page.tryTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    it(
+      'should abort client 2 data 1 transaction',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
+
+        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
+        expect(page.transactionCallback).toHaveBeenCalledWith(
+          null,
+          false,
+          jasmine.anything()
+        );
+        tick(200);
+      })
+    );
+
+    it(
+      'should call Quill updateContents with transformed client 1 data 1 ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
+
+        expect(quill.updateContents).toHaveBeenCalledWith(
+          new Delta([{ retain: 1 }, { insert: 'e' }])
+        );
+        tick(200);
+      })
+    );
+
+    it(
+      'should set state pending as transformed client 2 data 1',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
+
+        expect(comp.state.pending).toEqual({
+          id: 2,
+          user: 'client2',
+          delta: new Delta([{ retain: 5 }, { insert: ' ' }])
+        });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (2)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(400);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
+      })
+    );
+
+    it(
+      'should set state pending',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(400);
+        comp.textChange(client2Delta2, null, 'user');
+
+        expect(comp.state.pending).toEqual({
+          id: 3,
+          user: 'client2',
+          delta: client2Delta2
+        });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (3)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(400);
+        comp.textChange(client2Delta2, null, 'user');
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(400);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(200);
 
         expect(comp.state.pending.delta).toBeNull();
         expect(comp.state.buffer).toBeUndefined();
