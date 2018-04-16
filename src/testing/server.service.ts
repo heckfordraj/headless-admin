@@ -7,8 +7,8 @@ import { Block } from './block';
 import { Pages, Blocks } from './data';
 
 export class ServerServiceStub {
-  blockContent: EventEmitter<Block.Data.Base> = new EventEmitter();
-  content: Block.Data.TextData[] = [];
+  private blockContent: EventEmitter<Block.Data.Base> = new EventEmitter();
+  private content: Block.Data.TextData[] = [];
 
   constructor() {
     this.blockContent.subscribe(data => (this.content[data.id] = data));

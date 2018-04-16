@@ -39,15 +39,18 @@ fdescribe('TextComponent', () => {
 
   beforeEach(async(() => createComponent()));
 
-  xdescribe('initial text', () => {
-    beforeEach(() => {
-      const initialData: Block.Data.TextData = {
-        user: 'client1',
-        id: 0,
-        delta: new Delta([{ insert: 'abc' }])
-      };
-      serverService.blockContent.emit(initialData);
-    });
+  describe('initial text', () => {
+    beforeEach(
+      fakeAsync(() => {
+        const initialData: Block.Data.TextData = {
+          user: 'client1',
+          id: 0,
+          delta: new Delta([{ insert: 'abc' }])
+        };
+        serverService.updateBlockContent(null, initialData).transaction(null);
+        tick(200);
+      })
+    );
 
     it('should set initial editor text', () => {
       expect(page.editorEl.innerText.trim()).toBe('abc');
@@ -60,7 +63,7 @@ fdescribe('TextComponent', () => {
     });
   });
 
-  xdescribe('insert text', () => {
+  describe('insert text', () => {
     it('should insert text into editor', () => {
       page.addText(page.editorEl, '1');
 
@@ -74,6 +77,123 @@ fdescribe('TextComponent', () => {
 
         return setTimeout(() => {
           expect(page.textChange).toHaveBeenCalled();
+        });
+      })
+    );
+
+    it(
+      'should call textChange with delta param',
+      async(() => {
+        page.addText(page.editorEl, '1');
+
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ insert: '1' }]),
+            jasmine.anything(),
+            'user'
+          );
+        });
+      })
+    );
+  });
+
+  describe('remove text', () => {
+    beforeEach(
+      fakeAsync(() => {
+        const initialData: Block.Data.TextData = {
+          user: 'client1',
+          id: 0,
+          delta: new Delta([{ insert: 'abc' }])
+        };
+        serverService.updateBlockContent(null, initialData).transaction(null);
+        tick(200);
+      })
+    );
+
+    it(
+      'should remove text from the editor',
+      async(() => {
+        page.removeText(page.editorEl, 1);
+
+        return setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('ac');
+        });
+      })
+    );
+
+    it(
+      'should call textChange',
+      async(() => {
+        page.removeText(page.editorEl, 1);
+
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalled();
+        });
+      })
+    );
+
+    it(
+      'should call textChange with delta param',
+      async(() => {
+        page.removeText(page.editorEl, 1);
+
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ retain: 1 }, { delete: 1 }]),
+            jasmine.anything(),
+            'user'
+          );
+        });
+      })
+    );
+  });
+
+  describe('replace text', () => {
+    beforeEach(
+      fakeAsync(() => {
+        const initialData: Block.Data.TextData = {
+          user: 'client1',
+          id: 0,
+          delta: new Delta([{ insert: 'abcd' }])
+        };
+        serverService.updateBlockContent(null, initialData).transaction(null);
+        tick(200);
+      })
+    );
+
+    it(
+      'should replace text in the editor',
+      async(() => {
+        page.replaceText(page.editorEl, '123', 3);
+
+        return setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('abc123');
+        });
+      })
+    );
+
+    it(
+      'should call textChange',
+      async(() => {
+        page.replaceText(page.editorEl, '123', 3);
+
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalled();
+        });
+      })
+    );
+
+    it(
+      'should call textChange with delta param',
+      async(() => {
+        page.replaceText(page.editorEl, '123', 3);
+
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ retain: 3 }, { insert: '123' }, { delete: 1 }]),
+            jasmine.anything(),
+            'user'
+          );
         });
       })
     );
@@ -1009,13 +1129,33 @@ class Page {
   transactionCallback: jasmine.Spy;
 
   editorEl: HTMLElement;
-  addText = (editor: HTMLElement, text: string, offset: number = 0) => {
+
+  private getRange(editor: HTMLElement, offset: number) {
     editor.focus();
     const sel = window.getSelection();
     sel.setPosition(sel.anchorNode, offset);
-    const range = sel.getRangeAt(0);
+    return sel.getRangeAt(0);
+  }
+
+  addText(editor: HTMLElement, text: string, offset: number = 0) {
+    const range = this.getRange(editor, offset);
     range.insertNode(document.createTextNode(text));
-  };
+  }
+
+  removeText(editor: HTMLElement, offset: number = 0) {
+    const range = this.getRange(editor, offset);
+    const sel = window.getSelection();
+    range.setEnd(sel.anchorNode, offset + 1);
+    range.deleteContents();
+  }
+
+  replaceText(editor: HTMLElement, text: string, offset: number = 0) {
+    const range = this.getRange(editor, offset);
+    const sel = window.getSelection();
+    range.setEnd(sel.anchorNode, offset + 1);
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
+  }
 
   constructor() {
     serverService = <any>fixture.debugElement.injector.get(ServerService);
