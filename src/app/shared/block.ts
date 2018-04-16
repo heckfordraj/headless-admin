@@ -5,8 +5,9 @@ export namespace Block {
     }
 
     export interface TextData extends Base {
+      id: number;
       user: string;
-      ops: Quill.DeltaOperation[];
+      delta?: Quill.DeltaStatic;
     }
 
     export interface ImageData extends Base {

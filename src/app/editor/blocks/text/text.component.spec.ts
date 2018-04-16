@@ -21,7 +21,7 @@ import { Block } from '../../../shared/block';
 let comp: TextComponent;
 let fixture: ComponentFixture<TextComponent>;
 let page: Page;
-let serverService: ServerServiceMock;
+let serverService: ServerServiceStub;
 let quill: QuillStub;
 
 fdescribe('TextComponent', () => {
@@ -39,22 +39,14 @@ fdescribe('TextComponent', () => {
 
   beforeEach(async(() => createComponent()));
 
-  it('should call ServerService getBlockContent on load', () => {
-    expect(serverService.getBlockContent).toHaveBeenCalled();
-  });
-
-  describe('initial text', () => {
+  xdescribe('initial text', () => {
     beforeEach(() => {
-      const initialData = {
+      const initialData: Block.Data.TextData = {
         user: 'client1',
         id: 0,
-        ops: [{ insert: 'abc' }]
+        delta: new Delta([{ insert: 'abc' }])
       };
       serverService.blockContent.emit(initialData);
-    });
-
-    it('should set initial text', () => {
-      expect(comp.text).toBeDefined();
     });
 
     it('should set initial editor text', () => {
@@ -68,7 +60,7 @@ fdescribe('TextComponent', () => {
     });
   });
 
-  describe('insert text', () => {
+  xdescribe('insert text', () => {
     it('should insert text into editor', () => {
       page.addText(page.editorEl, '1');
 
@@ -95,77 +87,119 @@ fdescribe('TextComponent', () => {
     // bd                                            bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd
     // bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd                                           bcd
 
-    const initialData = {
+    const initialData: Block.Data.TextData = {
       user: 'client1',
       id: 0,
-      ops: [{ insert: 'abd' }]
+      delta: new Delta([{ insert: 'abd' }])
     };
-    const client1Data = [{ delete: 1 }];
-    const client2Data = [{ retain: 2 }, { insert: 'c' }];
+    const client1Data: Block.Data.TextData = {
+      user: 'client1',
+      id: 1,
+      delta: new Delta([{ delete: 1 }])
+    };
+    const client2Delta = new Delta([{ retain: 2 }, { insert: 'c' }]);
 
     beforeEach(
       fakeAsync(() => {
-        serverService.blockContent.emit(initialData);
-
-        comp.user = 'client1';
-        comp.textChange(new Delta(client1Data), null, 'user');
+        serverService.updateBlockContent(null, initialData).transaction(null);
         tick(200);
-        comp.user = 'client2';
-        page.spyReset();
       })
     );
 
-    it('should set initial data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
+    it('should call Quill updateContents with initial data delta', () => {
+      expect(quill.updateContents).toHaveBeenCalledWith(initialData.delta);
+    });
+
+    it('should set state pending', () => {
+      serverService.updateBlockContent(null, client1Data).transaction(null);
+      comp.textChange(client2Delta, null, 'user');
+
+      expect(comp.state.pending).toEqual({
+        id: 1,
+        user: 'client2',
+        delta: client2Delta
+      });
     });
 
     it(
-      'should set client 1 data on server',
+      'should call tryTransaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
-        tick(200);
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
 
-        expect(serverService.content[1]).toEqual({
-          id: 1,
-          user: 'client1',
-          ops: client1Data
-        });
+        expect(page.tryTransaction).toHaveBeenCalledTimes(1);
+        tick(400);
       })
     );
 
     it(
-      'should reject client 2 data',
+      'should abort client 2 transaction',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
+        expect(page.transactionCallback).toHaveBeenCalledWith(
+          null,
+          false,
+          jasmine.anything()
+        );
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes',
+      'should call Quill updateContents with transformed client 1 data ops',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
           new Delta([{ delete: 1 }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set transformed client 2 data on server',
+      'should set state pending as transformed client 2 data',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(serverService.content[2]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 2,
           user: 'client2',
-          ops: [{ retain: 1 }, { insert: 'c' }]
+          delta: new Delta([{ retain: 1 }, { insert: 'c' }])
         });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (2)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        tick(400);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
       })
     );
   });
@@ -178,83 +212,125 @@ fdescribe('TextComponent', () => {
     // ac                                            abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc
     // abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc                                           abc
 
-    const initialData = {
+    const initialData: Block.Data.TextData = {
       user: 'client1',
       id: 0,
-      ops: [{ insert: 'acd' }]
+      delta: new Delta([{ insert: 'acd' }])
     };
-    const client1Data = [{ retain: 2 }, { delete: 1 }];
-    const client2Data = [{ retain: 1 }, { insert: 'b' }];
+    const client1Data: Block.Data.TextData = {
+      user: 'client1',
+      id: 1,
+      delta: new Delta([{ retain: 2 }, { delete: 1 }])
+    };
+    const client2Delta = new Delta([{ retain: 1 }, { insert: 'b' }]);
 
     beforeEach(
       fakeAsync(() => {
-        serverService.blockContent.emit(initialData);
-
-        comp.user = 'client1';
-        comp.textChange(new Delta(client1Data), null, 'user');
-        comp.pendingTransaction = false;
+        serverService.updateBlockContent(null, initialData).transaction(null);
         tick(200);
-        comp.user = 'client2';
-        page.spyReset();
       })
     );
 
-    it('should set initial data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
+    it('should call Quill updateContents with initial data delta', () => {
+      expect(quill.updateContents).toHaveBeenCalledWith(initialData.delta);
+    });
+
+    it('should set state pending', () => {
+      serverService.updateBlockContent(null, client1Data).transaction(null);
+      comp.textChange(client2Delta, null, 'user');
+
+      expect(comp.state.pending).toEqual({
+        id: 1,
+        user: 'client2',
+        delta: client2Delta
+      });
     });
 
     it(
-      'should set client 1 data on server',
+      'should call tryTransaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
-        tick(200);
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
 
-        expect(serverService.content[1]).toEqual({
-          id: 1,
-          user: 'client1',
-          ops: client1Data
-        });
+        expect(page.tryTransaction).toHaveBeenCalledTimes(1);
+        tick(400);
       })
     );
 
     it(
-      'should reject client 2 data',
+      'should abort client 2 transaction',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
+        expect(page.transactionCallback).toHaveBeenCalledWith(
+          null,
+          false,
+          jasmine.anything()
+        );
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes',
+      'should call Quill updateContents with transformed client 1 data ops',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
           new Delta([{ retain: 3 }, { delete: 1 }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set transformed client 2 data on server',
+      'should set state pending as transformed client 2 data',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(serverService.content[2]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 2,
           user: 'client2',
-          ops: [{ retain: 1 }, { insert: 'b' }]
+          delta: new Delta([{ retain: 1 }, { insert: 'b' }])
         });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (2)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        tick(400);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
       })
     );
   });
 
   describe('conflict 3', () => {
+    // Two rejections, merge new changes with outstanding
     // Client 1                                          Server                                            Client 2
     // a                                                 a                                                 a
     // ab------1: [{ retain: 1 }, { insert: 'b' }]------>ab  <-x- 1: [{ retain: 1 }, { insert: '1' }]------a1
@@ -264,238 +340,433 @@ fdescribe('TextComponent', () => {
     // abc                                               abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1
     // abc1<-----3: [{ retain: 3 }, { insert: '1' }]-----abc1                                              abc1
 
-    const initialData = {
+    const initialData: Block.Data.TextData = {
       user: 'client1',
       id: 0,
-      ops: [{ insert: 'a' }]
+      delta: new Delta([{ insert: 'a' }])
     };
-    const client1Data1 = [{ retain: 1 }, { insert: 'b' }];
-    const client1Data2 = [{ retain: 2 }, { insert: 'c' }];
-    const client2Data = [{ retain: 1 }, { insert: '1' }];
+    const client1Data1: Block.Data.TextData = {
+      user: 'client1',
+      id: 1,
+      delta: new Delta([{ retain: 1 }, { insert: 'b' }])
+    };
+    const client1Data2: Block.Data.TextData = {
+      user: 'client1',
+      id: 2,
+      delta: new Delta([{ retain: 2 }, { insert: 'c' }])
+    };
+    const client2Delta = new Delta([{ retain: 1 }, { insert: '1' }]);
 
     beforeEach(
       fakeAsync(() => {
-        serverService.blockContent.emit(initialData);
-
-        comp.user = 'client1';
-        comp.textChange(new Delta(client1Data1), null, 'user');
+        serverService.updateBlockContent(null, initialData).transaction(null);
         tick(200);
-        comp.text.id = 1;
-        comp.textChange(new Delta(client1Data2), null, 'user');
-        tick(200);
-        comp.user = 'client2';
-        comp.text.id = 0;
-        page.spyReset();
       })
     );
 
-    it('should set initial data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
+    it('should call Quill updateContents with initial data delta', () => {
+      expect(quill.updateContents).toHaveBeenCalledWith(initialData.delta);
+    });
+
+    it('should set state pending', () => {
+      serverService.updateBlockContent(null, client1Data1).transaction(null);
+      comp.textChange(client2Delta, null, 'user');
+
+      expect(comp.state.pending).toEqual({
+        id: 1,
+        user: 'client2',
+        delta: client2Delta
+      });
     });
 
     it(
-      'should set client 1 data 1 on server',
+      'should call tryTransaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
-        tick(200);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
 
-        expect(serverService.content[1]).toEqual({
-          id: 1,
-          user: 'client1',
-          ops: client1Data1
-        });
+        expect(page.tryTransaction).toHaveBeenCalledTimes(1);
+        tick(400);
       })
     );
 
     it(
-      'should reject client 2 data twice',
+      'should abort client 2 transaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
+        expect(page.transactionCallback).toHaveBeenCalledWith(
+          null,
+          false,
+          jasmine.anything()
+        );
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes (1)',
+      'should call Quill updateContents with transformed client 1 data 1 ops',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
           new Delta([{ retain: 1 }, { insert: 'b' }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set client 1 data 2 on server',
+      'should set state pending as transformed client 2 data (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
         tick(200);
 
-        expect(serverService.content[2]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 2,
-          user: 'client1',
-          ops: client1Data2
+          user: 'client2',
+          delta: new Delta([{ retain: 2 }, { insert: '1' }])
         });
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes (2)',
+      'should call tryTransaction (2)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        tick(200);
+      })
+    );
+
+    it(
+      'should abort client 2 transaction (2)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(200);
+
+        expect(page.transactionCallback).toHaveBeenCalledTimes(2);
+        expect(page.transactionCallback.calls.allArgs()).toEqual([
+          [null, false, jasmine.anything()],
+          [null, false, jasmine.anything()]
+        ]);
+        tick(200);
+      })
+    );
+
+    it(
+      'should call Quill updateContents with transformed client 1 data 2 ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
         tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
           new Delta([{ retain: 2 }, { insert: 'c' }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set transformed client 2 data on server',
+      'should set deltas outstanding as transformed client 2 data (2)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data), null, 'user');
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
         tick(200);
 
-        expect(serverService.content[3]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 3,
           user: 'client2',
-          ops: [{ retain: 3 }, { insert: '1' }]
+          delta: new Delta([{ retain: 3 }, { insert: '1' }])
         });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (3)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(400);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
       })
     );
   });
 
   describe('conflict 4', () => {
-    // Two rejections, merge new changes with pending transactions
+    // Two rejections, merge new changes with outstanding and buffer
     // Client 1                                                            Server                                                              Client 2
     // a                                                                   a                                                                   a
     // ab--------------1: [{ retain: 1 }, { insert: 'b' }]---------------->ab  <------x------1: [{ retain: 1 }, { insert: ')' }]---------------a)
     // ab                                                                  ab----------------1: [{ retain: 1 }, { insert: 'b' }]-------------->ab) [{ retain: 1 }, { insert: 'b' }]
     // abc-------------2: [{ retain: 2 }, { insert: 'c' }]---------------->abc  <-----x----- 2: [{ retain: 2 }, { insert: ')' }]---------------ab)
-    // abc                                                                 abc---------------2: [{ retain: 2 }, { insert: 'c' }]-------------->abc) [{ retain: 2 }, { insert: 'c' }]
+    // abc                                                                 abc---------------2: [{ retain: 2 }, { insert: 'c' }]-------------->(abc) [{ retain: 3 }, { insert: 'c' }]
     // abc                                                                 (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)
     // (abc)<-----3: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]-----(abc)                                                               (abc)
 
-    const initialData = {
+    const initialData: Block.Data.TextData = {
       user: 'client1',
       id: 0,
-      ops: [{ insert: 'a' }]
+      delta: new Delta([{ insert: 'a' }])
     };
-    const client1Data1 = [{ retain: 1 }, { insert: 'b' }];
-    const client1Data2 = [{ retain: 2 }, { insert: 'c' }];
-    const client2Data1 = [{ retain: 1 }, { insert: ')' }];
-    const client2Data2 = [{ insert: '(' }];
+    const client1Data1: Block.Data.TextData = {
+      user: 'client1',
+      id: 1,
+      delta: new Delta([{ retain: 1 }, { insert: 'b' }])
+    };
+    const client1Data2: Block.Data.TextData = {
+      user: 'client1',
+      id: 2,
+      delta: new Delta([{ retain: 2 }, { insert: 'c' }])
+    };
+    const client2Delta1 = new Delta([{ retain: 1 }, { insert: ')' }]);
+    const client2Delta2 = new Delta([{ insert: '(' }]);
 
     beforeEach(
       fakeAsync(() => {
-        serverService.blockContent.emit(initialData);
-
-        comp.user = 'client1';
-        comp.textChange(new Delta(client1Data1), null, 'user');
-        comp.text.id = 1;
+        serverService.updateBlockContent(null, initialData).transaction(null);
         tick(200);
-        comp.textChange(new Delta(client1Data2), null, 'user');
-        tick(200);
-        comp.user = 'client2';
-        comp.text.id = 0;
-        page.spyReset();
       })
     );
 
-    it('should set initial data on server', () => {
-      expect(serverService.content[0]).toEqual(initialData);
+    it('should call Quill updateContents with initial data delta', () => {
+      expect(quill.updateContents).toHaveBeenCalledWith(initialData.delta);
+    });
+
+    it('should set state pending', () => {
+      serverService.updateBlockContent(null, client1Data1).transaction(null);
+      comp.textChange(client2Delta1, null, 'user');
+
+      expect(comp.state.pending).toEqual({
+        id: 1,
+        user: 'client2',
+        delta: client2Delta1
+      });
     });
 
     it(
-      'should set client 1 data 1 on server',
+      'should call tryTransaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
 
-        expect(serverService.content[1]).toEqual({
-          id: 1,
-          user: 'client1',
-          ops: client1Data1
-        });
+        expect(page.tryTransaction).toHaveBeenCalledTimes(1);
+        tick(400);
       })
     );
 
     it(
-      'should reject client 2 data twice',
+      'should abort client 2 data 1 transaction (1)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
 
-        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
+        expect(page.transactionCallback).toHaveBeenCalledWith(
+          null,
+          false,
+          jasmine.anything()
+        );
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes (1)',
+      'should call Quill updateContents with transformed client 1 data 1 ops',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
           new Delta([{ retain: 1 }, { insert: 'b' }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set client 1 data 2 on server',
+      'should set state pending as transformed client 2 data 1',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
 
-        expect(serverService.content[2]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 2,
-          user: 'client1',
-          ops: client1Data2
+          user: 'client2',
+          delta: new Delta([{ retain: 2 }, { insert: ')' }])
         });
+        tick(200);
       })
     );
 
     it(
-      'should call Quill setContents with own transformed changes (2)',
+      'should call tryTransaction (2)',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(200);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(2);
+        tick(200);
+      })
+    );
+
+    it(
+      'should abort client 2 data 1 transaction (2)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        comp.textChange(client2Delta1, null, 'user');
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(200);
+
+        expect(page.transactionCallback).toHaveBeenCalledTimes(2);
+        expect(page.transactionCallback.calls.allArgs()).toEqual([
+          [null, false, jasmine.anything()],
+          [null, false, jasmine.anything()]
+        ]);
+        tick(200);
+      })
+    );
+
+    it(
+      'should set state buffer',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+
+        expect(comp.state.buffer).toEqual(client2Delta2);
+        tick(400);
+      })
+    );
+
+    it(
+      'should merge pending and buffer',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(1);
+
+        expect(comp.state.buffer).toBeUndefined();
+        tick(200);
+      })
+    );
+
+    it(
+      'should call Quill updateContents with transformed client 1 data 2 ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(1);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
-          new Delta([{ retain: 2 }, { insert: 'c' }])
+          new Delta([{ retain: 3 }, { insert: 'c' }])
         );
+        tick(200);
       })
     );
 
     it(
-      'should set merged and transformed client 2 data on server',
+      'should set state pending as transformed client 2 data 1 and data 2',
       fakeAsync(() => {
-        comp.textChange(new Delta(client2Data1), null, 'user');
-        tick(100);
-        comp.textChange(new Delta(client2Data2), null, 'user');
-        tick(100);
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(1);
 
-        expect(serverService.content[3]).toEqual({
+        expect(comp.state.pending).toEqual({
           id: 3,
           user: 'client2',
-          ops: [{ insert: '(' }, { retain: 3 }, { insert: ')' }]
+          delta: new Delta([{ insert: '(' }, { retain: 3 }, { insert: ')' }])
         });
+        tick(200);
+      })
+    );
+
+    it(
+      'should call tryTransaction (3)',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(1);
+
+        expect(page.tryTransaction).toHaveBeenCalledTimes(3);
+        tick(200);
+      })
+    );
+
+    it(
+      'should not have any pending or buffer ops',
+      fakeAsync(() => {
+        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        tick(1);
+        comp.textChange(client2Delta1, null, 'user');
+        tick(1);
+        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        tick(199);
+        comp.textChange(client2Delta2, null, 'user');
+        tick(201);
+
+        expect(comp.state.pending.delta).toBeNull();
+        expect(comp.state.buffer).toBeUndefined();
       })
     );
   });
@@ -505,12 +776,12 @@ function createComponent() {
   fixture = TestBed.createComponent(TextComponent);
   comp = fixture.componentInstance;
   page = new Page();
-  serverService = new ServerServiceMock();
 
   fixture.detectChanges();
   quill = new QuillStub();
   return fixture.whenStable().then(_ => {
     fixture.detectChanges();
+    comp.state.pending.user = 'client2';
     page.addElements();
   });
 }
@@ -526,68 +797,10 @@ class QuillStub {
   }
 }
 
-class ServerServiceMock {
-  getBlockContent: jasmine.Spy;
-  updateBlockContent: jasmine.Spy;
-  blockContent: EventEmitter<Block.Data.TextData> = new EventEmitter();
-  content: Block.Data.TextData[] = [];
-
-  constructor() {
-    const serverService = fixture.debugElement.injector.get(ServerService);
-
-    const updateBlockContent = (
-      block: Block.Base,
-      data: Block.Data.TextData
-    ) => {
-      return {
-        transaction: (
-          transactionUpdate: (a: any) => any,
-          onComplete?: (a: Error | null, b: boolean, c: any) => void
-        ): Promise<any> => {
-          class Deferred {
-            promise: Promise<any>;
-            reject;
-            resolve;
-            constructor() {
-              this.promise = new Promise((resolve, reject) => {
-                this.resolve = resolve;
-                this.reject = reject;
-              });
-            }
-          }
-
-          const deferred = new Deferred();
-
-          if (this.content[data.id]) {
-            transactionUpdate(this.content[data.id]);
-            onComplete(null, false, data.ops);
-            deferred.resolve(false);
-          } else {
-            setTimeout(() => {
-              this.content.push(data);
-              onComplete(null, true, data);
-              deferred.resolve(true);
-            }, 200);
-          }
-          return deferred.promise;
-        }
-      };
-    };
-
-    this.getBlockContent = spyOn(serverService, 'getBlockContent').and.callFake(
-      () => this.blockContent
-    );
-    this.blockContent.subscribe(res => this.content.push(res));
-    this.updateBlockContent = spyOn(
-      serverService,
-      'updateBlockContent'
-    ).and.callFake(updateBlockContent);
-  }
-}
-
 class Page {
   textChange: jasmine.Spy;
   tryTransaction: jasmine.Spy;
+  transactionCallback: jasmine.Spy;
 
   editorEl: HTMLElement;
   addText = (editor: HTMLElement, text: string, offset: number = 0) => {
@@ -599,18 +812,17 @@ class Page {
   };
 
   constructor() {
+    serverService = <any>fixture.debugElement.injector.get(ServerService);
+
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
     this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
-  }
-
-  spyReset() {
-    this.textChange.calls.reset();
-    this.tryTransaction.calls.reset();
+    this.transactionCallback = spyOn(
+      comp,
+      'transactionCallback'
+    ).and.callThrough();
   }
 
   addElements() {
-    if (!comp.user) return;
-
     this.editorEl = (fixture.debugElement.query(By.css('.ql-container'))
       .nativeElement as HTMLElement).querySelector('.ql-editor');
   }

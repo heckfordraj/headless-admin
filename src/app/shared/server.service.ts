@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
+import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 import * as firebase from 'firebase';
 
@@ -18,7 +19,8 @@ export class ServerService {
   constructor(
     private db: AngularFireDatabase,
     private logger: LoggerService,
-    private humanize: HumanizePipe
+    private humanize: HumanizePipe,
+    private fb: FirebaseApp
   ) {}
 
   createTimestamp(): object {
@@ -40,7 +42,7 @@ export class ServerService {
   }
 
   updateBlockContent(block: Block.Base, data: Block.Data.Base) {
-    return firebase.database().ref(`content/${block.id}/${data.id}`);
+    return this.fb.database().ref(`content/${block.id}/${data.id}`);
   }
 
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {

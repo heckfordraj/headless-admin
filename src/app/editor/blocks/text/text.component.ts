@@ -11,11 +11,13 @@ import { Subscription } from 'rxjs/Subscription';
 
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
+import { DatabaseSnapshot } from 'angularfire2/database';
 
 import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
 import { Block } from '../../../shared/block';
 import { TitleBlock } from './quill';
+import { State } from './state';
 
 @Component({
   selector: 'app-text',
@@ -31,19 +33,10 @@ export class TextComponent implements OnInit, OnDestroy {
   @Input() block: Block.Base;
 
   text$: Subscription;
-  text: Block.Data.TextData;
-
-  user: string;
   editor: Quill.Quill;
   @ViewChild('editor') editorEl: ElementRef;
 
-  data: Block.Data.TextData = {
-    id: null,
-    user: null,
-    ops: Delta.ops
-  };
-
-  pendingTransaction: boolean = false;
+  state: State = new State(this, this.logger);
 
   textChange(
     delta: Quill.DeltaStatic,
@@ -52,65 +45,39 @@ export class TextComponent implements OnInit, OnDestroy {
   ) {
     if (source !== 'user') return;
 
-    console.log('textchange', delta);
-
     delta.ops.forEach(op => {
       for (let attr in op.attributes) {
         return (op.attributes[attr] = op.attributes[attr] || false);
       }
     });
 
-    if (this.pendingTransaction)
-      return (this.data.ops = new Delta(this.data.ops).compose(
-        new Delta(delta.ops)
-      ).ops);
-
-    let id = this.text !== undefined ? <number>this.text.id : -1;
-
-    this.data = {
-      id: ++id,
-      user: this.user,
-      ops: delta.ops
-    };
-
-    this.tryTransaction();
+    this.logger.log('textChange', delta);
+    this.state = this.state.addText(delta);
   }
 
   tryTransaction() {
-    this.pendingTransaction = true;
+    this.logger.log('tryTransaction', {
+      state: JSON.parse(JSON.stringify(this.state.state || null)),
+      pending: JSON.parse(JSON.stringify(this.state.pending || null)),
+      buffer: JSON.parse(JSON.stringify(this.state.buffer || null))
+    });
 
     return this.serverService
-      .updateBlockContent(this.block, this.data)
-      .transaction(currentData => {
-        if (!currentData) return this.data;
-
-        console.log('existing data', currentData);
-
-        const existingOps = new Delta(currentData.ops);
-        const newOps = new Delta(this.data.ops);
-        const transformOthers = existingOps.transform(newOps, true);
-        const transformSelf = newOps.transform(existingOps, false);
-
-        this.editor.updateContents(transformSelf);
-
-        console.log('transformOthers', transformOthers);
-        console.log('transformSelf', transformSelf);
-
-        this.data.ops = transformOthers.ops;
-        this.data.id = <number>this.data.id + 1;
-      }, this.transactionCallback.bind(this));
+      .updateBlockContent(this.block, this.state.pending)
+      .transaction(
+        currentData => {
+          if (currentData === null) return this.state.pending;
+        },
+        this.transactionCallback.bind(this),
+        false
+      );
   }
 
-  transactionCallback(error, committed, snapshot) {
+  transactionCallback(error, committed, snapshot: DatabaseSnapshot) {
     if (error) {
-      console.log('transaction failed', error);
+      this.logger.log('transaction failed', error);
     } else if (!committed) {
-      console.log('transaction aborted, trying again', snapshot);
-      return this.tryTransaction();
-    } else {
-      this.pendingTransaction = false;
-
-      console.log('transaction successful', snapshot);
+      this.logger.log('transaction aborted');
     }
   }
 
@@ -151,7 +118,7 @@ export class TextComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.user = this.serverService.createId();
+    this.state.setUser(this.serverService.createId());
 
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));
@@ -159,12 +126,10 @@ export class TextComponent implements OnInit, OnDestroy {
 
     this.text$ = this.serverService
       .getBlockContent(this.block)
-      .subscribe((text: Block.Data.TextData) => {
-        this.text = text;
-
-        if (text.user === this.user) return;
-        this.editor.updateContents(new Delta(text.ops));
-      });
+      .subscribe(
+        (text: Block.Data.TextData) =>
+          (this.state = this.state.receiveServer(text))
+      );
   }
 
   ngOnDestroy() {
