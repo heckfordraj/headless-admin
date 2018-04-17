@@ -41,8 +41,22 @@ export class ServerService {
     return this.db.list('content').push(content);
   }
 
-  updateBlockContent(block: Block.Base, data: Block.Data.Base) {
-    return this.fb.database().ref(`content/${block.id}/${data.id}`);
+  updateBlockContent(block: Block.Base, data: Block.Data.Base): Promise<void> {
+    return this.db.object(`content/${block.id}/${data.id}`).set(data);
+  }
+
+  updateTextBlockContent(
+    block: Block.Base,
+    data: Block.Data.TextData
+  ): Promise<void> {
+    return this.fb
+      .database()
+      .ref(`content/${block.id}/${data.id}`)
+      .transaction(
+        currentData => (currentData === null ? data : undefined),
+        null,
+        false
+      );
   }
 
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {

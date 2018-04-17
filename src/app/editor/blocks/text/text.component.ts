@@ -11,7 +11,6 @@ import { Subscription } from 'rxjs/Subscription';
 
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
-import { DatabaseSnapshot } from 'angularfire2/database';
 
 import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
@@ -63,22 +62,9 @@ export class TextComponent implements OnInit, OnDestroy {
     });
 
     return this.serverService
-      .updateBlockContent(this.block, this.state.pending)
-      .transaction(
-        currentData => {
-          if (currentData === null) return this.state.pending;
-        },
-        this.transactionCallback.bind(this),
-        false
-      );
-  }
-
-  transactionCallback(error, committed, snapshot: DatabaseSnapshot) {
-    if (error) {
-      this.logger.log('transaction failed', error);
-    } else if (!committed) {
-      this.logger.log('transaction aborted');
-    }
+      .updateTextBlockContent(this.block, this.state.pending)
+      .then(_ => this.logger.log('updateTextBlockContent', 'update confirmed'))
+      .catch(_ => this.logger.log('updateTextBlockContent', 'update rejected'));
   }
 
   removeBlockFormat() {

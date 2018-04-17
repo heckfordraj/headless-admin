@@ -22,51 +22,35 @@ export class ServerServiceStub {
     return 'abcdefg';
   }
 
-  updateBlockContent(block: Block.Base, data: Block.Data.TextData) {
-    return {
-      transaction: (
-        transactionUpdate: (a: any) => any,
-        onComplete?: (a: Error | null, b: boolean, c: any) => void
-      ): Promise<any> => {
-        class Deferred {
-          promise: Promise<any>;
-          reject;
-          resolve;
-          constructor() {
-            this.promise = new Promise((resolve, reject) => {
-              this.resolve = resolve;
-              this.reject = reject;
-            });
-          }
-        }
+  updateBlockContent(
+    block: Block.Base,
+    data: Block.Data.TextData
+  ): Promise<void> {
+    return Promise.resolve();
+  }
 
-        const deferred = new Deferred();
+  updateTextBlockContent(
+    block: Block.Base,
+    data: Block.Data.TextData,
+    delayConfirm?: boolean
+  ) {
+    return new Promise((resolve, reject) => {
+      if (delayConfirm) {
+        this.content[data.id] = { id: null, user: null };
 
-        if (!transactionUpdate || !onComplete) {
-          this.content[data.id] = { id: null, user: null };
-
-          setTimeout(() => {
-            this.blockContent.emit(data);
-            deferred.resolve(true);
-          }, 200);
-
-          return;
-        }
-
-        if (this.content[data.id]) {
-          transactionUpdate(this.content[data.id]);
-          onComplete(null, false, data);
-          deferred.resolve(false);
-        } else {
-          setTimeout(() => {
-            this.blockContent.emit(data);
-            onComplete(null, true, data);
-            deferred.resolve(true);
-          }, 200);
-        }
-        return deferred.promise;
+        return setTimeout(() => {
+          this.blockContent.emit(data);
+          resolve();
+        }, 200);
       }
-    };
+
+      if (this.content[data.id]) return reject();
+
+      return setTimeout(() => {
+        this.blockContent.emit(data);
+        resolve();
+      }, 200);
+    });
   }
 
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {

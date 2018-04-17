@@ -47,7 +47,7 @@ fdescribe('TextComponent', () => {
           id: 0,
           delta: new Delta([{ insert: 'abc' }])
         };
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -105,7 +105,7 @@ fdescribe('TextComponent', () => {
           id: 0,
           delta: new Delta([{ insert: 'abc' }])
         };
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -156,7 +156,7 @@ fdescribe('TextComponent', () => {
           id: 0,
           delta: new Delta([{ insert: 'abcd' }])
         };
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -221,7 +221,7 @@ fdescribe('TextComponent', () => {
 
     beforeEach(
       fakeAsync(() => {
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -231,7 +231,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should set state pending', () => {
-      serverService.updateBlockContent(null, client1Data).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data, true);
       comp.textChange(client2Delta, null, 'user');
 
       expect(comp.state.pending).toEqual({
@@ -244,7 +244,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
 
         expect(page.tryTransaction).toHaveBeenCalledTimes(1);
@@ -255,15 +255,14 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 transaction',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
-        expect(page.transactionCallback).toHaveBeenCalledWith(
-          null,
-          false,
-          jasmine.anything()
+        expect(state.pendingRejected).toHaveBeenCalledTimes(1);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data.delta.ops
         );
         tick(200);
       })
@@ -272,7 +271,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -286,7 +285,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -302,7 +301,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -314,7 +313,7 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(400);
 
@@ -346,7 +345,7 @@ fdescribe('TextComponent', () => {
 
     beforeEach(
       fakeAsync(() => {
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -356,7 +355,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should set state pending', () => {
-      serverService.updateBlockContent(null, client1Data).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data, true);
       comp.textChange(client2Delta, null, 'user');
 
       expect(comp.state.pending).toEqual({
@@ -369,7 +368,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
 
         expect(page.tryTransaction).toHaveBeenCalledTimes(1);
@@ -380,15 +379,14 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 transaction',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
-        expect(page.transactionCallback).toHaveBeenCalledWith(
-          null,
-          false,
-          jasmine.anything()
+        expect(state.pendingRejected).toHaveBeenCalledTimes(1);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data.delta.ops
         );
         tick(200);
       })
@@ -397,7 +395,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -411,7 +409,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -427,7 +425,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -439,7 +437,7 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta, null, 'user');
         tick(400);
 
@@ -492,7 +490,7 @@ fdescribe('TextComponent', () => {
 
     beforeEach(
       fakeAsync(() => {
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -502,7 +500,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should set state pending', () => {
-      serverService.updateBlockContent(null, client1Data1).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data1, true);
       comp.textChange(client2Delta, null, 'user');
 
       expect(comp.state.pending).toEqual({
@@ -515,7 +513,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
 
         expect(page.tryTransaction).toHaveBeenCalledTimes(1);
@@ -526,15 +524,14 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 transaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
-        expect(page.transactionCallback).toHaveBeenCalledWith(
-          null,
-          false,
-          jasmine.anything()
+        expect(state.pendingRejected).toHaveBeenCalledTimes(1);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data1.delta.ops
         );
         tick(200);
       })
@@ -543,7 +540,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data 1 ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -557,7 +554,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -573,7 +570,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
         tick(200);
 
@@ -585,16 +582,16 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 transaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(2);
-        expect(page.transactionCallback.calls.allArgs()).toEqual([
-          [null, false, jasmine.anything()],
-          [null, false, jasmine.anything()]
-        ]);
+        expect(state.pendingRejected).toHaveBeenCalledTimes(2);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data1.delta.ops
+        );
         tick(200);
       })
     );
@@ -602,9 +599,9 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data 2 ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(200);
 
         expect(quill.updateContents).toHaveBeenCalledWith(
@@ -617,9 +614,9 @@ fdescribe('TextComponent', () => {
     it(
       'should set deltas outstanding as transformed client 2 data (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(200);
 
         expect(comp.state.pending).toEqual({
@@ -634,9 +631,9 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (3)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(200);
 
         expect(page.tryTransaction).toHaveBeenCalledTimes(3);
@@ -647,9 +644,9 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(400);
 
         expect(comp.state.pending.delta).toBeNull();
@@ -704,7 +701,7 @@ fdescribe('TextComponent', () => {
 
     beforeEach(
       fakeAsync(() => {
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -714,7 +711,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should set state pending', () => {
-      serverService.updateBlockContent(null, client1Data1).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data1, true);
       comp.textChange(client2Delta1, null, 'user');
 
       expect(comp.state.pending).toEqual({
@@ -727,7 +724,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
 
         expect(page.tryTransaction).toHaveBeenCalledTimes(1);
@@ -738,15 +735,14 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 data 1 transaction (1)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
-        expect(page.transactionCallback).toHaveBeenCalledWith(
-          null,
-          false,
-          jasmine.anything()
+        expect(state.pendingRejected).toHaveBeenCalledTimes(1);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data1.delta.ops
         );
         tick(200);
       })
@@ -755,7 +751,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data 1 ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -769,7 +765,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data 1',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -785,7 +781,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -797,16 +793,16 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 data 1 transaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         comp.textChange(client2Delta1, null, 'user');
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(2);
-        expect(page.transactionCallback.calls.allArgs()).toEqual([
-          [null, false, jasmine.anything()],
-          [null, false, jasmine.anything()]
-        ]);
+        expect(state.pendingRejected).toHaveBeenCalledTimes(2);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data2.delta.ops
+        );
         tick(200);
       })
     );
@@ -814,11 +810,11 @@ fdescribe('TextComponent', () => {
     it(
       'should set state buffer',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
 
@@ -830,11 +826,11 @@ fdescribe('TextComponent', () => {
     it(
       'should merge pending and buffer',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(1);
@@ -847,11 +843,11 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data 2 ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(1);
@@ -866,11 +862,11 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data 1 and data 2',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(1);
@@ -887,11 +883,11 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (3)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(1);
@@ -904,11 +900,11 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data1).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data1, true);
         tick(1);
         comp.textChange(client2Delta1, null, 'user');
         tick(1);
-        serverService.updateBlockContent(null, client1Data2).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data2, true);
         tick(199);
         comp.textChange(client2Delta2, null, 'user');
         tick(201);
@@ -954,7 +950,7 @@ fdescribe('TextComponent', () => {
 
     beforeEach(
       fakeAsync(() => {
-        serverService.updateBlockContent(null, initialData).transaction(null);
+        serverService.updateTextBlockContent(null, initialData, true);
         tick(200);
       })
     );
@@ -964,7 +960,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should set state pending', () => {
-      serverService.updateBlockContent(null, client1Data).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data, true);
       comp.textChange(client2Delta1, null, 'user');
 
       expect(comp.state.pending).toEqual({
@@ -975,7 +971,7 @@ fdescribe('TextComponent', () => {
     });
 
     it('should call tryTransaction (1)', () => {
-      serverService.updateBlockContent(null, client1Data).transaction(null);
+      serverService.updateTextBlockContent(null, client1Data, true);
       comp.textChange(client2Delta1, null, 'user');
 
       expect(page.tryTransaction).toHaveBeenCalledTimes(1);
@@ -984,15 +980,14 @@ fdescribe('TextComponent', () => {
     it(
       'should abort client 2 data 1 transaction',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
+        const state = new StateStub();
         tick(200);
 
-        expect(page.transactionCallback).toHaveBeenCalledTimes(1);
-        expect(page.transactionCallback).toHaveBeenCalledWith(
-          null,
-          false,
-          jasmine.anything()
+        expect(state.pendingRejected).toHaveBeenCalledTimes(1);
+        expect(state.pendingRejected).toHaveBeenCalledWith(
+          client1Data.delta.ops
         );
         tick(200);
       })
@@ -1001,7 +996,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call Quill updateContents with transformed client 1 data 1 ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -1015,7 +1010,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending as transformed client 2 data 1',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -1031,7 +1026,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (2)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(200);
 
@@ -1043,7 +1038,7 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(400);
 
@@ -1055,7 +1050,7 @@ fdescribe('TextComponent', () => {
     it(
       'should set state pending',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(400);
         comp.textChange(client2Delta2, null, 'user');
@@ -1072,7 +1067,7 @@ fdescribe('TextComponent', () => {
     it(
       'should call tryTransaction (3)',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(400);
         comp.textChange(client2Delta2, null, 'user');
@@ -1085,7 +1080,7 @@ fdescribe('TextComponent', () => {
     it(
       'should not have any pending or buffer ops',
       fakeAsync(() => {
-        serverService.updateBlockContent(null, client1Data).transaction(null);
+        serverService.updateTextBlockContent(null, client1Data, true);
         comp.textChange(client2Delta1, null, 'user');
         tick(400);
         comp.textChange(client2Delta2, null, 'user');
@@ -1119,6 +1114,17 @@ class QuillStub {
     this.updateContents = spyOn(
       comp.editor,
       'updateContents'
+    ).and.callThrough();
+  }
+}
+
+class StateStub {
+  pendingRejected: jasmine.Spy;
+
+  constructor() {
+    this.pendingRejected = spyOn(
+      comp.state,
+      'pendingRejected'
     ).and.callThrough();
   }
 }
@@ -1162,10 +1168,6 @@ class Page {
 
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
     this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
-    this.transactionCallback = spyOn(
-      comp,
-      'transactionCallback'
-    ).and.callThrough();
   }
 
   addElements() {

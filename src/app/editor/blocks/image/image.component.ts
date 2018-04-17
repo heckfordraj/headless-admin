@@ -25,16 +25,18 @@ export class ImageComponent implements OnInit, OnDestroy {
   image: Block.Data.ImageData;
 
   addImage(files: FileList) {
-    this.imageService.uploadImage(files.item(0)).subscribe(
-      (data: Block.Data.ImageData) =>
-        this.serverService.updateBlockContent(this.block, data)
-      // .then(_ =>
-      //   this.logger.log(
-      //     'updateBlockContent',
-      //     `updated ${this.block.type} block content`
-      //   )
-      // )
-    );
+    this.imageService
+      .uploadImage(files.item(0))
+      .subscribe((data: Block.Data.ImageData) =>
+        this.serverService
+          .updateBlockContent(this.block, data)
+          .then(_ =>
+            this.logger.log(
+              'updateBlockContent',
+              `updated ${this.block.type} block content`
+            )
+          )
+      );
   }
 
   ngOnInit() {
