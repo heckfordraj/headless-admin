@@ -28,6 +28,9 @@
         "lastModified": {
           ".validate": "newData.isNumber()"
         },
+        "users": {
+          ".validate": "newData.hasChildren()"
+        },
         "$other": {
           ".validate": "false"
         },

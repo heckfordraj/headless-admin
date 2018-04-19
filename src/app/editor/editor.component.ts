@@ -8,7 +8,7 @@ import { switchMap } from 'rxjs/operators';
 import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 import { SlugifyPipe } from '../shared/slugify.pipe';
-import { Page } from '../shared/page';
+import { Page, User } from '../shared/page';
 
 @Component({
   selector: 'app-editor',

@@ -3,6 +3,9 @@ import {
   OnInit,
   OnDestroy,
   Input,
+  SimpleChanges,
+  Output,
+  EventEmitter,
   ViewChild,
   ElementRef
 } from '@angular/core';
@@ -14,6 +17,7 @@ const Delta: Quill.DeltaStatic = Quill.import('delta');
 
 import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
+import { User, TextUser } from '../../../shared/page';
 import { Block } from '../../../shared/block';
 import { TitleBlock } from './quill';
 import { State } from './state';
@@ -30,6 +34,8 @@ export class TextComponent implements OnInit, OnDestroy {
   ) {}
 
   @Input() block: Block.Base;
+  @Input() users: User[];
+  @Output() selection: EventEmitter<TextUser> = new EventEmitter();
 
   text$: Subscription;
   editor: Quill.Quill;
@@ -52,6 +58,17 @@ export class TextComponent implements OnInit, OnDestroy {
 
     this.logger.log('textChange', delta);
     this.state = this.state.addText(delta);
+  }
+
+  selectionChange(
+    range: Quill.RangeStatic,
+    oldRange: Quill.RangeStatic,
+    source: string
+  ) {
+    if (!range) return;
+
+    this.logger.log('selectionChange', range);
+    this.selection.emit(range);
   }
 
   tryTransaction() {
@@ -103,11 +120,29 @@ export class TextComponent implements OnInit, OnDestroy {
     this.editor.format('link', url, 'user');
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (!changes.users || !changes.users.currentValue) return;
+
+    this.users = this.users
+      .filter(
+        user =>
+          user.currentBlockId === this.block.id &&
+          user.id !== this.serverService.getUser().id
+      )
+      .map(user => {
+        if (!this.editor) return user;
+
+        const bounds = this.editor.getBounds(user.data.index, user.data.length);
+        return { ...user, data: { ...bounds } };
+      });
+  }
+
   ngOnInit() {
     this.state.setUser(this.serverService.createId());
 
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));
+    this.editor.on('selection-change', this.selectionChange.bind(this));
     Quill.register(TitleBlock, true);
 
     this.text$ = this.serverService

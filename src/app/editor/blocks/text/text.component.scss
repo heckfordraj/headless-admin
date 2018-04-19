@@ -1,4 +1,17 @@
-div {
+#editor {
+  position: relative;
   background: #f1f1f1;
-  font-size: 2em;
+
+  div {
+    position: relative;
+    font-size: 2em;
+    z-index: 2;
+  }
+}
+
+.cursor {
+  position: absolute;
+  min-width: 2px;
+  min-height: 2em;
+  pointer-events: none;
 }

@@ -9,6 +9,7 @@ type Page {
   dataId: String;
   revisions: Revision;
   lastModified: Number;
+  users: Object | Null;
   validate() { this.id == key() }
 }
 

@@ -7,24 +7,36 @@ import { of } from 'rxjs/observable/of';
 import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 import * as firebase from 'firebase';
+import { randomColor } from 'randomcolor';
 
 import { LoggerService } from './logger.service';
 import { HumanizePipe } from '../shared/humanize.pipe';
-import { Page } from './page';
+import { Page, User } from './page';
 import { Block } from './block';
 import { TextData } from '../content/content';
 
 @Injectable()
 export class ServerService {
+  private user: User;
+
   constructor(
     private db: AngularFireDatabase,
     private logger: LoggerService,
     private humanize: HumanizePipe,
     private fb: FirebaseApp
-  ) {}
+  ) {
+    this.user = {
+      id: this.createId(),
+      colour: randomColor()
+    };
+  }
 
   createTimestamp(): object {
     return firebase.database.ServerValue.TIMESTAMP;
+  }
+
+  getUser(): User {
+    return this.user;
   }
 
   updateContent(user: string, ops: Quill.DeltaOperation[]) {
@@ -98,6 +110,7 @@ export class ServerService {
       .object<Page>(`pages/${id}`)
       .valueChanges()
       .pipe(
+        tap(res => (res.users = Object.values(res.users || {}))),
         tap(res => this.logger.log('getPage', res)),
         catchError(this.handleError<Page>('getPage'))
       );
@@ -158,6 +171,20 @@ export class ServerService {
     };
 
     return this.db.database.ref('pages').update(updates);
+  }
+
+  updateUser({ id }: Page, baseUser?: User): Promise<void> {
+    const user: User = {
+      ...baseUser,
+      ...this.user
+    };
+
+    this.logger.log('updateUserserver', id, user);
+
+    const userRef = this.db.database.ref(`pages/${id}/users/${user.id}`);
+
+    userRef.onDisconnect().remove();
+    return userRef.update(user);
   }
 
   updateBlock(

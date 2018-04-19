@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { LoggerService } from '../../shared/logger.service';
 import { ServerService } from '../../shared/server.service';
-import { Page } from '../../shared/page';
+import { Page, User, TextUser } from '../../shared/page';
 import { Blocks, Block } from '../../shared/block';
 
 @Component({
@@ -33,6 +33,16 @@ export class BlocksComponent implements OnChanges, OnDestroy {
 
   trackBy(index, block) {
     return block.id;
+  }
+
+  updateActiveBlock({ id }: Block.Base, data: TextUser) {
+    const baseUser: User = {
+      id: null,
+      colour: null,
+      currentBlockId: id,
+      data: data
+    };
+    this.serverService.updateUser(this.page, baseUser);
   }
 
   orderBlock(index: number, direction: number) {
@@ -74,11 +84,13 @@ export class BlocksComponent implements OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.page.currentValue) {
-      this.blocks$ = this.serverService
-        .getBlocks(this.page)
-        .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
-    }
+    if (this.blocks.length || !changes.page.currentValue) return;
+
+    this.blocks$ = this.serverService
+      .getBlocks(this.page)
+      .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
+
+    this.serverService.updateUser(this.page);
   }
 
   ngOnDestroy() {
