@@ -4,5 +4,6 @@
 <button (click)="formatLinkClick()">Link</button>
 <div id="editor">
   <div #editor></div>
-  <span class="cursor" *ngFor="let user of users" [style.width.px]="user?.data?.width" [style.height.px]="user?.data?.height" [style.top.px]="user?.data?.top" [style.left.px]="user?.data?.left" [style.background]="user?.colour"></span>
+  <span class="cursor" *ngFor="let user of users" [style.width.px]="user?.data?.width" [style.height.px]="user?.data?.height" [style.top.px]="user?.data?.top" [style.left.px]="user?.data?.left" [style.background]="user?.colour">
+  </span>
 </div>

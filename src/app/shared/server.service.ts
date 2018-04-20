@@ -179,7 +179,7 @@ export class ServerService {
       ...this.user
     };
 
-    this.logger.log('updateUserserver', id, user);
+    this.logger.log('updateUser', id, user);
 
     const userRef = this.db.database.ref(`pages/${id}/users/${user.id}`);
 

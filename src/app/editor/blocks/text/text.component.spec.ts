@@ -261,9 +261,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(1);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data);
         tick(200);
       })
     );
@@ -385,9 +383,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(1);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data);
         tick(200);
       })
     );
@@ -530,9 +526,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(1);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data1.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data1);
         tick(200);
       })
     );
@@ -589,9 +583,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(2);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data1.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data1);
         tick(200);
       })
     );
@@ -741,9 +733,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(1);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data1.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data1);
         tick(200);
       })
     );
@@ -800,9 +790,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(2);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data2.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data2);
         tick(200);
       })
     );
@@ -986,9 +974,7 @@ fdescribe('TextComponent', () => {
         tick(200);
 
         expect(state.pendingRejected).toHaveBeenCalledTimes(1);
-        expect(state.pendingRejected).toHaveBeenCalledWith(
-          client1Data.delta.ops
-        );
+        expect(state.pendingRejected).toHaveBeenCalledWith(client1Data);
         tick(200);
       })
     );
@@ -1103,6 +1089,7 @@ function createComponent() {
   return fixture.whenStable().then(_ => {
     fixture.detectChanges();
     comp.state.pending.user = 'client2';
+    comp.users = [];
     page.addElements();
   });
 }

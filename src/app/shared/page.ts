@@ -13,6 +13,7 @@ export interface TextUser {
   right?: number;
   bottom?: number;
   width?: number;
+  height?: number;
 }
 
 export interface User {

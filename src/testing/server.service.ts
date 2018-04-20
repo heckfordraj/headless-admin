@@ -2,7 +2,7 @@ import { EventEmitter } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 
-import { Page } from './page';
+import { Page, User } from './page';
 import { Block } from './block';
 import { Pages, Blocks } from './data';
 
@@ -12,6 +12,13 @@ export class ServerServiceStub {
 
   constructor() {
     this.blockContent.subscribe(data => (this.content[data.id] = data));
+  }
+
+  getUser(): User {
+    return {
+      id: 'abc',
+      colour: '#000'
+    };
   }
 
   createTimestamp(): number {

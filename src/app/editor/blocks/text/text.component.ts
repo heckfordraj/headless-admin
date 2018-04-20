@@ -133,12 +133,12 @@ export class TextComponent implements OnInit, OnDestroy {
         if (!this.editor) return user;
 
         const bounds = this.editor.getBounds(user.data.index, user.data.length);
-        return { ...user, data: { ...bounds } };
+        return { ...user, data: bounds };
       });
   }
 
   ngOnInit() {
-    this.state.setUser(this.serverService.createId());
+    this.state.setUser(this.serverService.getUser().id);
 
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));

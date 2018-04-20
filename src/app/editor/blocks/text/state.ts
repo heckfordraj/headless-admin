@@ -35,7 +35,7 @@ export class State {
   }
 
   pendingRejected(
-    text: Quill.DeltaOperation[]
+    text: Block.Data.TextData
   ): State | PendingState | PendingBufferState {
     this.logger.error('State', 'pendingRejected');
     return this;
@@ -50,6 +50,24 @@ export class State {
     this.component.tryTransaction();
   }
 
+  updateCursor({ user, delta }: Block.Data.TextData) {
+    const pageUser = this.component.users.find(
+      pageUser => pageUser.id === user
+    );
+    if (!pageUser) return;
+
+    const newPos = delta.ops.reduce(
+      (acc: number, op) => acc + (op.retain || (op.insert || []).length || 0),
+      0
+    );
+    pageUser.data = this.component.editor.getBounds(newPos, 0);
+  }
+
+  updateContents(text: Block.Data.TextData) {
+    this.component.editor.updateContents(text.delta);
+    this.updateCursor(text);
+  }
+
   receiveServer(
     text: Block.Data.TextData
   ): State | PendingState | PendingBufferState {
@@ -58,17 +76,18 @@ export class State {
     this.pending.id = text.id;
 
     if (text.user !== this.pending.user) {
-      this.component.editor.updateContents(new Delta(text.delta.ops));
+      this.updateContents({ ...text, delta: new Delta(text.delta.ops) });
     }
 
     return this;
   }
 
-  transform(otherDelta: Quill.DeltaStatic) {
+  transform(text: Block.Data.TextData) {
     this.logger.log('State', 'transform');
+    text.delta = new Delta(text.delta.ops);
 
-    const transformOthers = otherDelta.transform(this.pending.delta, true);
-    const transformSelf = this.pending.delta.transform(otherDelta, false);
+    const transformOthers = text.delta.transform(this.pending.delta, true);
+    const transformSelf = this.pending.delta.transform(text.delta, false);
 
     this.logger.log(
       'transform self: ',
@@ -78,7 +97,10 @@ export class State {
     );
 
     this.pending.delta = transformOthers;
-    this.component.editor.updateContents(transformSelf);
+    this.updateContents({
+      ...text,
+      delta: transformSelf
+    });
   }
 }
 
@@ -115,10 +137,10 @@ export class PendingState extends State {
     return new State(this.component, this.logger, this.pending);
   }
 
-  pendingRejected(otherOps: Quill.DeltaOperation[]) {
+  pendingRejected(text: Block.Data.TextData) {
     this.logger.log('PendingState', 'pendingRejected');
 
-    this.transform(new Delta(otherOps));
+    this.transform(text);
     this.sendServer();
     return this;
   }
@@ -129,7 +151,7 @@ export class PendingState extends State {
     if (text.user == this.pending.user && text.id === this.pending.id)
       return this.pendingConfirmed();
 
-    return this.pendingRejected(text.delta.ops);
+    return this.pendingRejected(text);
   }
 }
 
@@ -163,12 +185,12 @@ export class PendingBufferState extends State {
     return new PendingState(this.component, this.logger, this.pending);
   }
 
-  pendingRejected(otherOps: Quill.DeltaOperation[]) {
+  pendingRejected(text: Block.Data.TextData) {
     this.logger.log('PendingBufferState', 'pendingRejected');
 
     this.pending.delta = this.pending.delta.compose(this.buffer);
     this.buffer = null;
-    this.transform(new Delta(otherOps));
+    this.transform(text);
 
     return new PendingState(this.component, this.logger, this.pending);
   }
@@ -179,6 +201,6 @@ export class PendingBufferState extends State {
     if (text.user == this.pending.user && text.id === this.pending.id)
       return this.pendingConfirmed();
 
-    return this.pendingRejected(text.delta.ops);
+    return this.pendingRejected(text);
   }
 }
