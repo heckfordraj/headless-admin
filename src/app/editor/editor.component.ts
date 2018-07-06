@@ -3,12 +3,13 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 
 import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
 import { SlugifyPipe } from '../shared/slugify.pipe';
-import { Page, User } from '../shared/page';
+import { Page } from '../shared/page';
+import { User, TextUserData } from '../shared/user';
 
 @Component({
   selector: 'app-editor',
@@ -27,6 +28,9 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   page$: Subscription;
   page: Page;
+
+  users$: Subscription;
+  users: User[];
 
   inputSlug: string;
 
@@ -73,10 +77,23 @@ export class EditorComponent implements OnInit, OnDestroy {
       .switchMap((param: ParamMap) =>
         this.serverService.getPage(param.get('id'))
       )
-      .subscribe((page: Page) => (page ? (this.page = page) : undefined));
+      .subscribe((page: Page) => {
+        if (!page) return;
+
+        this.page = page;
+        this.serverService.updateUser(this.page);
+      });
+
+    this.users$ = this.serverService
+      .getUsers()
+      .pipe(
+        map(users => users.filter(user => user.current.pageId === this.page.id))
+      )
+      .subscribe(users => (this.users = users));
   }
 
   ngOnDestroy() {
     this.page$.unsubscribe();
+    this.users$.unsubscribe();
   }
 }

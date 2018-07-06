@@ -1,5 +1,9 @@
 {
   "rules": {
+    "users": {
+      ".read": "true",
+      ".write": "true"
+    },
     "pages": {
       "$page": {
         ".validate":

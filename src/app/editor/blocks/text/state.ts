@@ -60,7 +60,7 @@ export class State {
       (acc: number, op) => acc + (op.retain || (op.insert || []).length || 0),
       0
     );
-    pageUser.data = this.component.editor.getBounds(newPos, 0);
+    pageUser.current.data = this.component.editor.getBounds(newPos, 0);
   }
 
   updateContents(text: Block.Data.TextData) {

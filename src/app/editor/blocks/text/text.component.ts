@@ -3,7 +3,6 @@ import {
   OnInit,
   OnDestroy,
   Input,
-  SimpleChanges,
   Output,
   EventEmitter,
   ViewChild,
@@ -11,13 +10,14 @@ import {
 } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
+import { map } from 'rxjs/operators';
 
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
 
 import { LoggerService } from '../../../shared/logger.service';
 import { ServerService } from '../../../shared/server.service';
-import { User, TextUser } from '../../../shared/page';
+import { User, TextUserData } from '../../../shared/user';
 import { Block } from '../../../shared/block';
 import { TitleBlock } from './quill';
 import { State } from './state';
@@ -34,8 +34,10 @@ export class TextComponent implements OnInit, OnDestroy {
   ) {}
 
   @Input() block: Block.Base;
-  @Input() users: User[];
-  @Output() selection: EventEmitter<TextUser> = new EventEmitter();
+  @Output() selection: EventEmitter<TextUserData> = new EventEmitter();
+
+  users$: Subscription;
+  users: User[] = [];
 
   text$: Subscription;
   editor: Quill.Quill;
@@ -120,23 +122,6 @@ export class TextComponent implements OnInit, OnDestroy {
     this.editor.format('link', url, 'user');
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (!changes.users || !changes.users.currentValue) return;
-
-    this.users = this.users
-      .filter(
-        user =>
-          user.currentBlockId === this.block.id &&
-          user.id !== this.serverService.getUser().id
-      )
-      .map(user => {
-        if (!this.editor) return user;
-
-        const bounds = this.editor.getBounds(user.data.index, user.data.length);
-        return { ...user, data: bounds };
-      });
-  }
-
   ngOnInit() {
     this.state.setUser(this.serverService.getUser().id);
 
@@ -151,9 +136,32 @@ export class TextComponent implements OnInit, OnDestroy {
         (text: Block.Data.TextData) =>
           (this.state = this.state.receiveServer(text))
       );
+
+    this.users$ = this.serverService
+      .getUsers()
+      .pipe(
+        map(users =>
+          users.filter(
+            user =>
+              user.current.blockId === this.block.id &&
+              user.id !== this.state.pending.user
+          )
+        ),
+        map(users =>
+          users.map(user => {
+            user.current.data = this.editor.getBounds(
+              user.current.data.index,
+              user.current.data.length
+            );
+            return user;
+          })
+        )
+      )
+      .subscribe(users => (this.users = users));
   }
 
   ngOnDestroy() {
     this.text$.unsubscribe();
+    this.users$.unsubscribe();
   }
 }

@@ -2,8 +2,9 @@ import { EventEmitter } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 
-import { Page, User } from './page';
+import { Page } from './page';
 import { Block } from './block';
+import { User } from './user';
 import { Pages, Blocks } from './data';
 
 export class ServerServiceStub {

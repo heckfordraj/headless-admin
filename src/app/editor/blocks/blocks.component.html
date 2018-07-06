@@ -11,7 +11,7 @@
     <button class="block-remove" (click)="removeBlock(block)">&times;</button>
 
     <div [ngSwitch]="block?.type">
-      <app-text *ngSwitchCase="'text'" [block]="block" [users]="page?.users" (selection)="updateActiveBlock(block, $event)" class="switch-block"></app-text>
+      <app-text *ngSwitchCase="'text'" [block]="block" (selection)="updateActiveBlock(block, $event)" class="switch-block"></app-text>
       <app-image *ngSwitchCase="'image'" [block]="block" class="switch-block"></app-image>
     </div>
 

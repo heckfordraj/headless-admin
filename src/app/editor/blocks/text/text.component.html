@@ -4,6 +4,7 @@
 <button (click)="formatLinkClick()">Link</button>
 <div id="editor">
   <div #editor></div>
-  <span class="cursor" *ngFor="let user of users" [style.width.px]="user?.data?.width" [style.height.px]="user?.data?.height" [style.top.px]="user?.data?.top" [style.left.px]="user?.data?.left" [style.background]="user?.colour">
-  </span>
+  <span *ngFor="let user of users" class="cursor" [style.width.px]="user?.current?.data?.width" [style.height.px]="user?.current?.data?.height" [style.top.px]="user?.current?.data?.top" [style.left.px]="user?.current?.data?.left" [style.background]="user?.colour"></span>
 </div>
+
+{{ users | json }}

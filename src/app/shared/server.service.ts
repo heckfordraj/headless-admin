@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
-import { catchError, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs/Subject';
+import { catchError, map, tap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
 import { FirebaseApp } from 'angularfire2';
@@ -11,12 +12,14 @@ import { randomColor } from 'randomcolor';
 
 import { LoggerService } from './logger.service';
 import { HumanizePipe } from '../shared/humanize.pipe';
-import { Page, User } from './page';
+import { User, TextUserData } from './user';
+import { Page } from './page';
 import { Block } from './block';
 import { TextData } from '../content/content';
 
 @Injectable()
 export class ServerService {
+  private users: Subject<User[]> = new Subject<User[]>();
   private user: User;
 
   constructor(
@@ -29,6 +32,15 @@ export class ServerService {
       id: this.createId(),
       colour: randomColor()
     };
+
+    this.db
+      .list<User>('users')
+      .valueChanges()
+      .pipe(
+        tap(res => this.logger.log('getUsers', res)),
+        catchError(this.handleError<User[]>('getUsers', []))
+      )
+      .subscribe(users => this.users.next(users));
   }
 
   createTimestamp(): object {
@@ -110,7 +122,6 @@ export class ServerService {
       .object<Page>(`pages/${id}`)
       .valueChanges()
       .pipe(
-        tap(res => (res.users = Object.values(res.users || {}))),
         tap(res => this.logger.log('getPage', res)),
         catchError(this.handleError<Page>('getPage'))
       );
@@ -173,18 +184,36 @@ export class ServerService {
     return this.db.database.ref('pages').update(updates);
   }
 
-  updateUser({ id }: Page, baseUser?: User): Promise<void> {
+  updateUser(
+    { id: pageId }: Page,
+    { current: { blockId, data } }: User = {
+      id: null,
+      colour: null,
+      current: { blockId: null, data: null }
+    }
+  ): Promise<void> {
     const user: User = {
-      ...baseUser,
-      ...this.user
+      ...this.user,
+      current: {
+        pageId: pageId,
+        blockId: blockId,
+        data: data
+      }
     };
 
-    this.logger.log('updateUser', id, user);
+    this.logger.log('updateUser', user);
 
-    const userRef = this.db.database.ref(`pages/${id}/users/${user.id}`);
+    const userRef = this.db.database.ref(`users/${user.id}`);
 
     userRef.onDisconnect().remove();
     return userRef.update(user);
+  }
+
+  getUsers(): Observable<User[]> {
+    // TODO: replace Subject with Observable share operator
+    // https://github.com/angular/angularfire2/issues/1405
+
+    return this.users.asObservable();
   }
 
   updateBlock(
