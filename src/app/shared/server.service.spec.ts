@@ -1,9 +1,15 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { AngularFireDatabaseStub, Page, Block } from '../../testing';
+import {
+  FirebaseAppStub,
+  AngularFireDatabaseStub,
+  Page,
+  Block
+} from '../../testing';
 import { Pages, Blocks, Data } from '../../testing/data';
 
 import { LoggerService } from './logger.service';
 import { ServerService } from './server.service';
+import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { HumanizePipe } from '../shared/humanize.pipe';
 
@@ -26,6 +32,7 @@ describe('ServerService', () => {
         LoggerService,
         ServerService,
         HumanizePipe,
+        { provide: FirebaseApp, useClass: FirebaseAppStub },
         { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub }
       ]
     });

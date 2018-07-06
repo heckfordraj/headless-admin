@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { Page } from './page';
 import { Block } from './block';
 import { User } from './user';
-import { Pages, Blocks } from './data';
+import { Pages, Blocks, Users } from './data';
 
 export class ServerServiceStub {
   private blockContent: EventEmitter<Block.Data.Base> = new EventEmitter();
@@ -20,6 +20,21 @@ export class ServerServiceStub {
       id: 'abc',
       colour: '#000'
     };
+  }
+
+  updateUser(
+    { id: pageId }: Page,
+    { current: { blockId, data } }: User = {
+      id: null,
+      colour: null,
+      current: { blockId: null, data: null }
+    }
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
+  getUsers(): Observable<User[]> {
+    return Observable.of(Users);
   }
 
   createTimestamp(): number {

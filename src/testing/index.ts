@@ -1,3 +1,4 @@
+export * from './firebaseapp';
 export * from './angularfiredatabase';
 export * from './server.service';
 export * from './router';

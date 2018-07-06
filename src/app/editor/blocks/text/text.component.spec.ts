@@ -24,7 +24,7 @@ let page: Page;
 let serverService: ServerServiceStub;
 let quill: QuillStub;
 
-fdescribe('TextComponent', () => {
+describe('TextComponent', () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
@@ -1155,6 +1155,13 @@ class Page {
 
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
     this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
+
+    const block: Block.Base = {
+      id: '1',
+      type: 'text',
+      order: 1
+    };
+    comp.block = block;
   }
 
   addElements() {

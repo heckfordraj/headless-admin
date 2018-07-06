@@ -1,5 +1,6 @@
 import { Page } from './page';
 import { Block } from './block';
+import { User } from './user';
 
 export const Pages: Page[] = [
   {
@@ -73,4 +74,17 @@ export const Data: any[] = [
   { id: '3', text: 'Hello' },
   { id: '4', url: 'http://' },
   { id: '5', text: 'Hello' }
+];
+
+export const Users: User[] = [
+  {
+    id: '1',
+    colour: '#000',
+    current: { pageId: 'page-1', blockId: 'block-1' }
+  },
+  {
+    id: '2',
+    colour: '#fff',
+    current: { pageId: 'page-1', blockId: 'block-1' }
+  }
 ];
