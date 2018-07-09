@@ -3,7 +3,8 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, tap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 
 import { LoggerService } from '../shared/logger.service';
 import { ServerService } from '../shared/server.service';
@@ -29,7 +30,6 @@ export class EditorComponent implements OnInit, OnDestroy {
   page$: Subscription;
   page: Page;
 
-  users$: Subscription;
   users: User[];
 
   inputSlug: string;
@@ -75,25 +75,26 @@ export class EditorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.page$ = this.route.paramMap
       .switchMap((param: ParamMap) =>
-        this.serverService.getPage(param.get('id'))
+        combineLatest(
+          this.serverService
+            .getPage(param.get('id'))
+            .pipe(tap(page => this.serverService.updateUser(page))),
+          this.serverService
+            .getUsers()
+            .pipe(
+              map(users =>
+                users.filter(user => user.current.pageId === param.get('id'))
+              )
+            )
+        )
       )
-      .subscribe((page: Page) => {
-        if (!page) return;
-
+      .subscribe(([page, users]) => {
         this.page = page;
-        this.serverService.updateUser(this.page);
+        this.users = users;
       });
-
-    this.users$ = this.serverService
-      .getUsers()
-      .pipe(
-        map(users => users.filter(user => user.current.pageId === this.page.id))
-      )
-      .subscribe(users => (this.users = users));
   }
 
   ngOnDestroy() {
     this.page$.unsubscribe();
-    this.users$.unsubscribe();
   }
 }

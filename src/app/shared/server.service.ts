@@ -15,7 +15,6 @@ import { HumanizePipe } from '../shared/humanize.pipe';
 import { User, TextUserData } from './user';
 import { Page } from './page';
 import { Block } from './block';
-import { TextData } from '../content/content';
 
 @Injectable()
 export class ServerService {
@@ -51,20 +50,6 @@ export class ServerService {
     return this.user;
   }
 
-  updateContent(user: string, ops: Quill.DeltaOperation[]) {
-    ops.forEach(op => {
-      for (let attr in op.attributes) {
-        return (op.attributes[attr] = op.attributes[attr] || false);
-      }
-    });
-
-    const content: TextData = {
-      user: user,
-      ops: ops
-    };
-    return this.db.list('content').push(content);
-  }
-
   updateBlockContent(block: Block.Base, data: Block.Data.Base): Promise<void> {
     return this.db.object(`content/${block.id}/${data.id}`).set(data);
   }
@@ -92,14 +77,6 @@ export class ServerService {
         tap(content => this.logger.log('getBlockContent', content)),
         catchError(this.handleError<Block.Data.Base>('getBlockContent'))
       );
-  }
-
-  getContent(): Observable<TextData> {
-    return this.db
-      .list('content')
-      .stateChanges(['child_added'])
-      .map(content => content.payload.val())
-      .pipe(catchError(this.handleError<Page[]>('getContent')));
   }
 
   createId(): string {
