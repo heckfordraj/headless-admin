@@ -11,6 +11,7 @@ export namespace Block {
     }
 
     export interface ImageData extends Base {
+      id: string;
       alt: string;
       url: string;
     }

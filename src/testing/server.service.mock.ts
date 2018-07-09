@@ -107,7 +107,7 @@ export class MockServerService {
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
     if (block && block.type === 'text') return this.blockContent;
 
-    return Observable.of(Data.ImageBlock);
+    return Observable.of(Data.ImageBlockData);
   }
 
   getPage(id: string): Observable<Page> {

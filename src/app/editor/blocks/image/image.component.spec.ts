@@ -67,7 +67,7 @@ describe('ImageComponent', () => {
     });
 
     it('should set image', () => {
-      expect(comp.image).toEqual(Data.ImageBlock);
+      expect(comp.image).toBe(Data.ImageBlockData);
     });
 
     it('should display image', () => {

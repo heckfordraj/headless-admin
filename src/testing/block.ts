@@ -11,3 +11,14 @@ export function isBlock(block: any): block is Block.Base {
     (block.order instanceof Number || typeof block.order === 'number')
   );
 }
+
+export function isImageData(data: any): data is Block.Data.ImageData {
+  return (
+    data.id &&
+    (data.id instanceof String || typeof data.id === 'string') &&
+    data.alt &&
+    (data.alt instanceof String || typeof data.alt === 'string') &&
+    data.url &&
+    (data.url instanceof String || typeof data.url === 'string')
+  );
+}

@@ -6,11 +6,11 @@ import { map, tap, catchError } from 'rxjs/operators';
 
 import * as crypto from 'crypto-browserify';
 import { humanize } from 'underscore.string';
-import { environment } from '../../../../environments/environment';
+import { environment } from 'environment';
 
 import { Block } from '../../../shared/block';
 
-interface Response {
+export interface Response {
   public_id: string;
   secure_url: string;
   url: string;
@@ -47,13 +47,11 @@ export class ImageService {
 
     return this.http.post<Response>(this.url, formData).pipe(
       map((res: Response) => {
-        const data: Block.Data.ImageData = {
+        return {
           id: res.public_id,
           alt: humanize(name),
           url: res.secure_url
         };
-
-        return data;
       })
     );
   }

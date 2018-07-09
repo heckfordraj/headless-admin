@@ -97,7 +97,7 @@ export namespace Data {
   };
 
   export const ImageBlockData: Block.Data.ImageData = {
-    id: 1,
+    id: '1',
     alt: 'Image',
     url: 'http://via.placeholder.com/350x150'
   };
