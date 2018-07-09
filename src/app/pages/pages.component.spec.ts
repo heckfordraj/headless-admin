@@ -1,16 +1,21 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
-import { RouterLinkStub } from '../../testing/router';
-import { ServerServiceStub } from '../../testing/server.service';
-import { isPage } from '../../testing/page';
+
+import {
+  RouterLinkStub,
+  LoggerService,
+  MockLoggerService,
+  ServerService,
+  MockServerService,
+  isPage
+} from 'testing';
 
 import { PagesComponent } from './pages.component';
-import { LoggerService } from '../shared/logger.service';
-import { ServerService } from '../shared/server.service';
 
 let comp: PagesComponent;
 let fixture: ComponentFixture<PagesComponent>;
+let serverService: ServerService;
 let page: Page;
 
 describe('PagesComponent', () => {
@@ -19,8 +24,8 @@ describe('PagesComponent', () => {
       TestBed.configureTestingModule({
         declarations: [PagesComponent, RouterLinkStub],
         providers: [
-          LoggerService,
-          { provide: ServerService, useClass: ServerServiceStub }
+          { provide: LoggerService, useClass: MockLoggerService },
+          { provide: ServerService, useClass: MockServerService }
         ]
       }).compileComponents();
     })
@@ -29,7 +34,7 @@ describe('PagesComponent', () => {
   beforeEach(async(() => createComponent()));
 
   it('should call ServerService getCollection on load', () => {
-    expect(page.onInit.calls.any()).toBe(true);
+    expect(serverService.getCollection).toHaveBeenCalled();
   });
 
   it('should get pages', () => {
@@ -65,25 +70,26 @@ describe('PagesComponent', () => {
       page.pageAdd.triggerEventHandler('keyup', null);
       page.pageAdd.triggerEventHandler('input', null);
 
-      expect(page.addPage.calls.any()).toBeFalsy();
+      expect(page.addPage).not.toHaveBeenCalled();
     });
 
     it('should call addPage on enter press', () => {
       page.pageAdd.triggerEventHandler('keyup.enter', null);
-      expect(page.addPage.calls.count()).toBe(1);
+
+      expect(page.addPage).toHaveBeenCalled();
     });
 
     it('should call addPage with input value', () => {
       page.pageAdd.nativeElement.value = 'abc';
       page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-      expect(page.addPage.calls.mostRecent().args).toEqual(['abc']);
+      expect(page.addPage).toHaveBeenCalledWith('abc');
     });
 
     it('should call ServerService addPage', () => {
       page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-      expect(page.serverAddPage.calls.count()).toBe(1);
+      expect(serverService.addPage).toHaveBeenCalled();
     });
 
     describe('create new Page', () => {
@@ -93,7 +99,8 @@ describe('PagesComponent', () => {
         page.pageAdd.nativeElement.value = 'New Title';
         page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-        newPage = page.serverAddPage.calls.mostRecent().args[0];
+        newPage = (serverService.addPage as jasmine.Spy).calls.mostRecent()
+          .args[0];
       });
 
       it('should set name as input value', () => {
@@ -121,7 +128,8 @@ describe('PagesComponent', () => {
       page.pageAdd.nativeElement.value = 'abc';
       page.pageAdd.triggerEventHandler('keyup.enter', null);
 
-      let arg = page.serverAddPage.calls.mostRecent().args[0];
+      const arg = (serverService.addPage as jasmine.Spy).calls.mostRecent()
+        .args[0];
 
       expect(isPage(arg)).toBeTruthy();
     });
@@ -131,32 +139,38 @@ describe('PagesComponent', () => {
     it('should call removePage on click', () => {
       page.pageDelete.triggerEventHandler('click', null);
 
-      expect(page.removePage.calls.count()).toBe(1);
+      expect(page.removePage).toHaveBeenCalled();
     });
 
     it('should call removePage with Page object', () => {
       page.pageDelete.triggerEventHandler('click', null);
-      let arg = page.removePage.calls.mostRecent().args[0];
+      const arg = page.removePage.calls.mostRecent().args[0];
 
       expect(isPage(arg)).toBeTruthy();
     });
 
     it('should call removePage with correct Page', () => {
       page.pageDelete.triggerEventHandler('click', null);
-      let arg = page.removePage.calls.mostRecent().args[0];
 
-      expect(arg.name).toBe('Page 1');
+      expect(page.removePage).toHaveBeenCalledWith({
+        name: 'Page 1',
+        id: jasmine.any(String),
+        dataId: jasmine.any(String),
+        revisions: jasmine.anything(),
+        lastModified: jasmine.any(Number)
+      });
     });
 
     it('should call ServerService removePage', () => {
       page.pageDelete.triggerEventHandler('click', null);
 
-      expect(page.serverRemovePage.calls.count()).toBe(1);
+      expect(serverService.removePage).toHaveBeenCalled();
     });
 
     it('should call ServerService removePage with Page object', () => {
       page.pageDelete.triggerEventHandler('click', null);
-      let arg = page.serverRemovePage.calls.mostRecent().args[0];
+      const arg = (serverService.removePage as jasmine.Spy).calls.mostRecent()
+        .args[0];
 
       expect(isPage(arg)).toBeTruthy();
     });
@@ -166,6 +180,7 @@ describe('PagesComponent', () => {
 function createComponent() {
   fixture = TestBed.createComponent(PagesComponent);
   comp = fixture.componentInstance;
+  serverService = fixture.debugElement.injector.get(ServerService);
   page = new Page();
 
   fixture.detectChanges();
@@ -176,12 +191,8 @@ function createComponent() {
 }
 
 class Page {
-  onInit: jasmine.Spy;
   addPage: jasmine.Spy;
   removePage: jasmine.Spy;
-
-  serverAddPage: jasmine.Spy;
-  serverRemovePage: jasmine.Spy;
 
   pages: DebugElement[];
   pageName: HTMLElement;
@@ -191,16 +202,8 @@ class Page {
   linkDes: DebugElement[];
 
   constructor() {
-    const serverService = fixture.debugElement.injector.get(ServerService);
-
-    this.onInit = spyOn(serverService, 'getCollection').and.callThrough();
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
-    this.serverAddPage = spyOn(serverService, 'addPage').and.callThrough();
-    this.serverRemovePage = spyOn(
-      serverService,
-      'removePage'
-    ).and.callThrough();
   }
 
   addElements() {

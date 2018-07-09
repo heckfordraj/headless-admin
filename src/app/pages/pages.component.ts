@@ -4,9 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { slugify } from 'underscore.string';
 
-import { LoggerService } from '../shared/logger.service';
-import { ServerService } from '../shared/server.service';
-import { Page } from '../shared/page';
+import { LoggerService, ServerService, Page } from 'shared';
 
 @Component({
   selector: 'app-pages',

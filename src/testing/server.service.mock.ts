@@ -5,13 +5,35 @@ import { Observable } from 'rxjs/Observable';
 import { Page } from './page';
 import { Block } from './block';
 import { User } from './user';
-import { Pages, Blocks, Users } from './data';
+import { Data } from './data';
 
-export class ServerServiceStub {
+export { ServerService } from 'shared';
+
+export class MockServerService {
   private blockContent: EventEmitter<Block.Data.Base> = new EventEmitter();
   private content: Block.Data.TextData[] = [];
 
   constructor() {
+    this.getUser = spyOn(this, 'getUser').and.callThrough();
+    this.updateUser = spyOn(this, 'updateUser').and.callThrough();
+    this.getUsers = spyOn(this, 'getUsers').and.callThrough();
+    this.createTimestamp = spyOn(this, 'createTimestamp').and.callThrough();
+    this.createId = spyOn(this, 'createId').and.callThrough();
+    this.updateBlockContent = spyOn(this, 'updateBlockContent').and.callThrough();
+    this.updateTextBlockContent = spyOn(this, 'updateTextBlockContent').and.callThrough();
+    this.getBlockContent = spyOn(this, 'getBlockContent').and.callThrough();
+    this.getPage = spyOn(this, 'getPage').and.callThrough();
+    this.getCollection = spyOn(this, 'getCollection').and.callThrough();
+    this.addPage = spyOn(this, 'addPage').and.callThrough();
+    this.updatePage = spyOn(this, 'updatePage').and.callThrough();
+    this.removePage = spyOn(this, 'removePage').and.callThrough();
+    this.publishPage = spyOn(this, 'publishPage').and.callThrough();
+    this.getBlocks = spyOn(this, 'getBlocks').and.callThrough();
+    this.addBlock = spyOn(this, 'addBlock').and.callThrough();
+    this.removeBlock = spyOn(this, 'removeBlock').and.callThrough();
+    this.updateBlock = spyOn(this, 'updateBlock').and.callThrough();
+    this.orderBlock = spyOn(this, 'orderBlock').and.callThrough();
+
     this.blockContent.subscribe(data => (this.content[data.id] = data));
   }
 
@@ -34,7 +56,7 @@ export class ServerServiceStub {
   }
 
   getUsers(): Observable<User[]> {
-    return Observable.of(Users);
+    return Observable.of(Data.Users);
   }
 
   createTimestamp(): number {
@@ -81,7 +103,7 @@ export class ServerServiceStub {
   }
 
   getPage(id: string): Observable<Page> {
-    let index = Pages.find((page: Page) => page.id === id);
+    let index = Data.Pages.find((page: Page) => page.id === id);
 
     if (index) {
       let page = JSON.stringify(index);
@@ -92,7 +114,7 @@ export class ServerServiceStub {
   }
 
   getCollection(): Observable<Page[]> {
-    let pages = JSON.stringify(Pages);
+    let pages = JSON.stringify(Data.Pages);
 
     return Observable.of(JSON.parse(pages));
   }
@@ -114,10 +136,10 @@ export class ServerServiceStub {
   }
 
   getBlocks(page: Page): Observable<Block.Base[]> {
-    let index = Object.keys(Blocks).find((key: string) => key === page.dataId);
+    let index = Object.keys(Data.Blocks).find((key: string) => key === page.dataId);
 
     if (index) {
-      let block = JSON.stringify(Blocks[index]);
+      let block = JSON.stringify(Data.Blocks[index]);
 
       return Observable.of(JSON.parse(block));
     }

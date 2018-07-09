@@ -2,38 +2,39 @@ import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import {
   FirebaseAppStub,
   AngularFireDatabaseStub,
+  LoggerService,
+  MockLoggerService,
   Page,
-  Block
-} from '../../testing';
-import { Pages, Blocks, Data } from '../../testing/data';
+  Block,
+  Data
+} from 'testing';
 
-import { LoggerService } from './logger.service';
 import { ServerService } from './server.service';
 import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase } from 'angularfire2/database';
-import { HumanizePipe } from '../shared/humanize.pipe';
+import { HumanizePipe } from 'shared';
 
 let serverService: ServerService;
 let angularFireDatabase: AngularFireDatabaseStub;
 let humanizePipe: HumanizePipe;
 let db: Firebase;
 
-const page1: Page = JSON.parse(JSON.stringify(Pages[0]));
-const page2: Page = JSON.parse(JSON.stringify(Pages[1]));
-const block1: Block.Base = JSON.parse(JSON.stringify(Blocks['1'][0]));
-const block2: Block.Base = JSON.parse(JSON.stringify(Blocks['2'][2]));
-const data1 = JSON.parse(JSON.stringify(Data[0]));
-const data2 = JSON.parse(JSON.stringify(Data[1]));
+const page1: Page = JSON.parse(JSON.stringify(Data.Pages[0]));
+const page2: Page = JSON.parse(JSON.stringify(Data.Pages[1]));
+const block1: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['1'][0]));
+const block2: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['2'][2]));
+const data1 = JSON.parse(JSON.stringify(Data.Data[0]));
+const data2 = JSON.parse(JSON.stringify(Data.Data[1]));
 
 describe('ServerService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        LoggerService,
-        ServerService,
-        HumanizePipe,
+        { provide: LoggerService, useClass: MockLoggerService },
         { provide: FirebaseApp, useClass: FirebaseAppStub },
-        { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub }
+        { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub },
+        HumanizePipe,
+        ServerService
       ]
     });
   });

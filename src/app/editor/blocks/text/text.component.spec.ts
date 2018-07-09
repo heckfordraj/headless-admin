@@ -7,21 +7,24 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement, EventEmitter } from '@angular/core';
-import { RouterLinkStub } from '../../../../testing/router';
-import { ServerServiceStub } from '../../../../testing/server.service';
+import {
+  RouterLinkStub,
+  LoggerService,
+  MockLoggerService,
+  ServerService,
+  MockServerService
+} from 'testing';
 
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
 
+import { Block } from 'shared';
 import { TextComponent } from './text.component';
-import { LoggerService } from '../../../shared/logger.service';
-import { ServerService } from '../../../shared/server.service';
-import { Block } from '../../../shared/block';
 
 let comp: TextComponent;
 let fixture: ComponentFixture<TextComponent>;
 let page: Page;
-let serverService: ServerServiceStub;
+let serverService: MockServerService;
 let quill: QuillStub;
 
 describe('TextComponent', () => {
@@ -30,8 +33,8 @@ describe('TextComponent', () => {
       TestBed.configureTestingModule({
         declarations: [TextComponent, RouterLinkStub],
         providers: [
-          LoggerService,
-          { provide: ServerService, useClass: ServerServiceStub }
+          { provide: LoggerService, useClass: MockLoggerService },
+          { provide: ServerService, useClass: MockServerService }
         ]
       }).compileComponents();
     })
@@ -1082,6 +1085,7 @@ describe('TextComponent', () => {
 function createComponent() {
   fixture = TestBed.createComponent(TextComponent);
   comp = fixture.componentInstance;
+  serverService = fixture.debugElement.injector.get(ServerService as any);
   page = new Page();
 
   fixture.detectChanges();
@@ -1151,8 +1155,6 @@ class Page {
   }
 
   constructor() {
-    serverService = <any>fixture.debugElement.injector.get(ServerService);
-
     this.textChange = spyOn(comp, 'textChange').and.callThrough();
     this.tryTransaction = spyOn(comp, 'tryTransaction').and.callThrough();
 

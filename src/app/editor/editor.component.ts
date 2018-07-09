@@ -6,11 +6,14 @@ import { Subscription } from 'rxjs/Subscription';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs/observable/combineLatest';
 
-import { LoggerService } from '../shared/logger.service';
-import { ServerService } from '../shared/server.service';
-import { SlugifyPipe } from '../shared/slugify.pipe';
-import { Page } from '../shared/page';
-import { User, TextUserData } from '../shared/user';
+import {
+  LoggerService,
+  ServerService,
+  SlugifyPipe,
+  Page,
+  User,
+  TextUserData
+} from 'shared';
 
 @Component({
   selector: 'app-editor',

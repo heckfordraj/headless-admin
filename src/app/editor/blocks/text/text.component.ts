@@ -15,10 +15,13 @@ import { map } from 'rxjs/operators';
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
 
-import { LoggerService } from '../../../shared/logger.service';
-import { ServerService } from '../../../shared/server.service';
-import { User, TextUserData } from '../../../shared/user';
-import { Block } from '../../../shared/block';
+import {
+  LoggerService,
+  ServerService,
+  Block,
+  User,
+  TextUserData
+} from 'shared';
 import { TitleBlock } from './quill';
 import { State } from './state';
 

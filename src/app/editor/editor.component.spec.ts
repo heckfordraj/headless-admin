@@ -6,24 +6,27 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   NO_ERRORS_SCHEMA
 } from '@angular/core';
+
 import {
   newEvent,
   Router,
   RouterStub,
   ActivatedRoute,
   ActivatedRouteStub,
-  ServerServiceStub
-} from '../../testing';
-import { isPage } from '../../testing/page';
+  LoggerService,
+  MockLoggerService,
+  ServerService,
+  MockServerService,
+  isPage
+} from 'testing';
 
+import { SlugifyPipe } from 'shared';
 import { EditorComponent } from './editor.component';
-import { LoggerService } from '../shared/logger.service';
-import { ServerService } from '../shared/server.service';
-import { SlugifyPipe } from '../shared/slugify.pipe';
 
 let comp: EditorComponent;
 let fixture: ComponentFixture<EditorComponent>;
 let activatedRoute: ActivatedRouteStub;
+let serverService: ServerService;
 let page: Page;
 
 describe('EditorComponent', () => {
@@ -36,11 +39,11 @@ describe('EditorComponent', () => {
         imports: [FormsModule],
         declarations: [EditorComponent],
         providers: [
-          LoggerService,
-          SlugifyPipe,
           { provide: Router, useClass: RouterStub },
           { provide: ActivatedRoute, useValue: activatedRoute },
-          { provide: ServerService, useClass: ServerServiceStub }
+          { provide: LoggerService, useClass: MockLoggerService },
+          { provide: ServerService, useClass: MockServerService },
+          SlugifyPipe
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
       }).compileComponents();
@@ -50,13 +53,11 @@ describe('EditorComponent', () => {
   beforeEach(async(() => createComponent()));
 
   it('should call ServerService getPage on load', () => {
-    expect(page.onInit.calls.any()).toBe(true);
+    expect(serverService.getPage).toHaveBeenCalled();
   });
 
   it('should call ServerService getPage with page id', () => {
-    let arg = page.onInit.calls.mostRecent().args[0];
-
-    expect(arg).toBe('page-1');
+    expect(serverService.getPage).toHaveBeenCalledWith('page-1');
   });
 
   it('should get initial page', () => {
@@ -71,14 +72,13 @@ describe('EditorComponent', () => {
   it('should call ServerService getPage on param change', () => {
     activatedRoute.testParamMap = { id: 'page-2' };
 
-    expect(page.onInit.calls.count()).toBe(2);
+    expect(serverService.getPage).toHaveBeenCalledTimes(2);
   });
 
   it('should call ServerService getPage with new page id', () => {
     activatedRoute.testParamMap = { id: 'page-2' };
-    let arg = page.onInit.calls.mostRecent().args[0];
 
-    expect(arg).toBe('page-2');
+    expect(serverService.getPage).toHaveBeenCalledWith('page-2');
   });
 
   it('should get new page', () => {
@@ -104,14 +104,13 @@ describe('EditorComponent', () => {
     it('should call SlugifyPipe', () => {
       comp.slugChange('Page Title');
 
-      expect(page.slugify.calls.count()).toBe(1);
+      expect(page.slugify).toHaveBeenCalled();
     });
 
     it('should call SlugifyPipe with input param', () => {
       comp.slugChange('Page Title');
-      let arg = page.slugify.calls.mostRecent().args[0];
 
-      expect(arg).toBe('Page Title');
+      expect(page.slugify).toHaveBeenCalledWith('Page Title');
     });
   });
 
@@ -149,25 +148,27 @@ describe('EditorComponent', () => {
     it('should not call updatePage on key press', () => {
       page.pageInput.triggerEventHandler('keyup', null);
 
-      expect(page.updatePage.calls.any()).toBeFalsy();
+      expect(page.updatePage).not.toHaveBeenCalled();
     });
 
     it('should call updatePage on enter press', () => {
       page.pageInput.triggerEventHandler('keyup.enter', null);
-      expect(page.updatePage.calls.count()).toBe(1);
+
+      expect(page.updatePage).toHaveBeenCalled();
     });
 
     it('should call ServerService updatePage', () => {
       comp.inputSlug = 'new-page';
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
-      expect(page.serverUpdatePage.calls.count()).toBe(1);
+      expect(serverService.updatePage).toHaveBeenCalled();
     });
 
     it('should call ServerService updatePage with current Page object', () => {
       comp.inputSlug = 'new-page';
       page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.serverUpdatePage.calls.mostRecent().args[0];
+      const arg = (serverService.updatePage as jasmine.Spy).calls.mostRecent()
+        .args[0];
 
       expect(isPage(arg)).toBeTruthy();
     });
@@ -175,16 +176,18 @@ describe('EditorComponent', () => {
     it('should call ServerService updatePage with slug input', () => {
       comp.inputSlug = 'abc';
       page.pageInput.triggerEventHandler('keyup.enter', null);
-      let arg = page.serverUpdatePage.calls.mostRecent().args[1];
 
-      expect(arg).toBe('abc');
+      expect(serverService.updatePage).toHaveBeenCalledWith(
+        jasmine.anything(),
+        'abc'
+      );
     });
 
     it('should not call ServerService updatePage on unmodified input', () => {
       page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
-      expect(page.serverUpdatePage.calls.count()).toBe(0);
+      expect(serverService.updatePage).not.toHaveBeenCalled();
     });
 
     it('should not call ServerService updatePage on trailing whitespace input', () => {
@@ -192,7 +195,7 @@ describe('EditorComponent', () => {
       page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
       page.pageInput.triggerEventHandler('keyup.enter', null);
 
-      expect(page.serverUpdatePage.calls.count()).toBe(0);
+      expect(serverService.updatePage).not.toHaveBeenCalled();
     });
 
     it(
@@ -202,7 +205,7 @@ describe('EditorComponent', () => {
         page.pageInput.triggerEventHandler('keyup.enter', null);
 
         fixture.whenStable().then(_ => {
-          expect(page.navigate.calls.any()).toBeTruthy();
+          expect(page.navigate).toHaveBeenCalled();
         });
       })
     );
@@ -214,9 +217,10 @@ describe('EditorComponent', () => {
         page.pageInput.triggerEventHandler('keyup.enter', null);
 
         fixture.whenStable().then(_ => {
-          let arg = page.navigate.calls.mostRecent().args[0];
-
-          expect(arg).toEqual(['/page', 'new-page']);
+          expect(page.navigate).toHaveBeenCalledWith(
+            ['/page', 'new-page'],
+            jasmine.anything()
+          );
         });
       })
     );
@@ -226,13 +230,13 @@ describe('EditorComponent', () => {
     it('should call publishPage on click', () => {
       page.pagePublish.triggerEventHandler('click', null);
 
-      expect(page.publishPage.calls.count()).toBe(1);
+      expect(page.publishPage).toHaveBeenCalled();
     });
 
     it('should call ServerService publishPage', () => {
       page.pagePublish.triggerEventHandler('click', null);
 
-      expect(page.serverPublishPage.calls.count()).toBe(1);
+      expect(serverService.publishPage).toHaveBeenCalled();
     });
   });
 
@@ -240,20 +244,20 @@ describe('EditorComponent', () => {
     it('should call removePage on click', () => {
       page.pageRemove.triggerEventHandler('click', null);
 
-      expect(page.removePage.calls.count()).toBe(1);
+      expect(page.removePage).toHaveBeenCalled();
     });
 
     it('should call ServerService removePage', () => {
       page.pageRemove.triggerEventHandler('click', null);
 
-      expect(page.serverRemovePage.calls.count()).toBe(1);
+      expect(serverService.removePage).toHaveBeenCalled();
     });
 
     it('should call router', () => {
       page.pageRemove.triggerEventHandler('click', null);
 
       fixture.whenStable().then(_ => {
-        expect(page.navigate.calls.count()).toBe(1);
+        expect(page.navigate).toHaveBeenCalled();
       });
     });
 
@@ -261,9 +265,10 @@ describe('EditorComponent', () => {
       page.pageRemove.triggerEventHandler('click', null);
 
       fixture.whenStable().then(_ => {
-        let arg = page.navigate.calls.mostRecent().args[0];
-
-        expect(arg).toEqual(['/pages']);
+        expect(page.navigate).toHaveBeenCalledWith(
+          ['/pages'],
+          jasmine.anything()
+        );
       });
     });
   });
@@ -272,6 +277,7 @@ describe('EditorComponent', () => {
 function createComponent() {
   fixture = TestBed.createComponent(EditorComponent);
   comp = fixture.componentInstance;
+  serverService = fixture.debugElement.injector.get(ServerService);
   page = new Page();
 
   fixture.detectChanges();
@@ -282,14 +288,10 @@ function createComponent() {
 }
 
 class Page {
-  onInit: jasmine.Spy;
   navigate: jasmine.Spy;
   updatePage: jasmine.Spy;
   publishPage: jasmine.Spy;
   removePage: jasmine.Spy;
-  serverUpdatePage: jasmine.Spy;
-  serverPublishPage: jasmine.Spy;
-  serverRemovePage: jasmine.Spy;
   slugify: jasmine.Spy;
 
   pageName: HTMLElement;
@@ -298,27 +300,13 @@ class Page {
   pageRemove: DebugElement;
 
   constructor() {
-    const serverService = fixture.debugElement.injector.get(ServerService);
     const router = fixture.debugElement.injector.get(Router);
     const slugifyPipe = fixture.debugElement.injector.get(SlugifyPipe);
 
-    this.onInit = spyOn(serverService, 'getPage').and.callThrough();
     this.navigate = spyOn(router, 'navigate').and.callThrough();
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
     this.publishPage = spyOn(comp, 'publishPage').and.callThrough();
-    this.serverUpdatePage = spyOn(
-      serverService,
-      'updatePage'
-    ).and.callThrough();
-    this.serverPublishPage = spyOn(
-      serverService,
-      'publishPage'
-    ).and.callThrough();
-    this.serverRemovePage = spyOn(
-      serverService,
-      'removePage'
-    ).and.callThrough();
     this.slugify = spyOn(slugifyPipe, 'transform').and.callThrough();
   }
 

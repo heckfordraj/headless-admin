@@ -10,11 +10,8 @@ import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 import * as firebase from 'firebase';
 import { randomColor } from 'randomcolor';
 
-import { LoggerService } from './logger.service';
-import { HumanizePipe } from '../shared/humanize.pipe';
-import { User, TextUserData } from './user';
-import { Page } from './page';
-import { Block } from './block';
+import { LoggerService, Page, Block, User, TextUserData } from 'shared';
+import { HumanizePipe } from './humanize.pipe';
 
 @Injectable()
 export class ServerService {

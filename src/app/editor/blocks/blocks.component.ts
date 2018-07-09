@@ -8,11 +8,15 @@ import {
 
 import { Subscription } from 'rxjs/Subscription';
 
-import { LoggerService } from '../../shared/logger.service';
-import { ServerService } from '../../shared/server.service';
-import { User, TextUserData } from '../../shared/user';
-import { Page } from '../../shared/page';
-import { Blocks, Block } from '../../shared/block';
+import {
+  LoggerService,
+  ServerService,
+  Page,
+  Blocks,
+  Block,
+  User,
+  TextUserData
+} from 'shared';
 
 @Component({
   selector: 'app-blocks',

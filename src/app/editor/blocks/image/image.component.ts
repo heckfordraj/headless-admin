@@ -2,10 +2,8 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
 
-import { LoggerService } from '../../../shared/logger.service';
-import { ServerService } from '../../../shared/server.service';
+import { LoggerService, ServerService, Block } from 'shared';
 import { ImageService } from './image.service';
-import { Block } from '../../../shared/block';
 
 @Component({
   selector: 'app-image',
