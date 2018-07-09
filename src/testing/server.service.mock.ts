@@ -19,8 +19,14 @@ export class MockServerService {
     this.getUsers = spyOn(this, 'getUsers').and.callThrough();
     this.createTimestamp = spyOn(this, 'createTimestamp').and.callThrough();
     this.createId = spyOn(this, 'createId').and.callThrough();
-    this.updateBlockContent = spyOn(this, 'updateBlockContent').and.callThrough();
-    this.updateTextBlockContent = spyOn(this, 'updateTextBlockContent').and.callThrough();
+    this.updateBlockContent = spyOn(
+      this,
+      'updateBlockContent'
+    ).and.callThrough();
+    this.updateTextBlockContent = spyOn(
+      this,
+      'updateTextBlockContent'
+    ).and.callThrough();
     this.getBlockContent = spyOn(this, 'getBlockContent').and.callThrough();
     this.getPage = spyOn(this, 'getPage').and.callThrough();
     this.getCollection = spyOn(this, 'getCollection').and.callThrough();
@@ -99,7 +105,9 @@ export class MockServerService {
   }
 
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
-    return this.blockContent;
+    if (block && block.type === 'text') return this.blockContent;
+
+    return Observable.of(Data.ImageBlock);
   }
 
   getPage(id: string): Observable<Page> {
@@ -136,7 +144,9 @@ export class MockServerService {
   }
 
   getBlocks(page: Page): Observable<Block.Base[]> {
-    let index = Object.keys(Data.Blocks).find((key: string) => key === page.dataId);
+    let index = Object.keys(Data.Blocks).find(
+      (key: string) => key === page.dataId
+    );
 
     if (index) {
       let block = JSON.stringify(Data.Blocks[index]);

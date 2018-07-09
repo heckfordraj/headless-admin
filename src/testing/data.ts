@@ -89,4 +89,16 @@ export namespace Data {
       current: { pageId: 'page-1', blockId: 'block-1' }
     }
   ];
+
+  export const ImageBlock: Block.Base = {
+    type: 'image',
+    id: '1',
+    order: 1
+  };
+
+  export const ImageBlockData: Block.Data.ImageData = {
+    id: 1,
+    alt: 'Image',
+    url: 'http://via.placeholder.com/350x150'
+  };
 }
