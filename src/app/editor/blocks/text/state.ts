@@ -1,9 +1,8 @@
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
 
+import { LoggerService, Block } from 'shared';
 import { TextComponent } from './text.component';
-import { LoggerService } from '../../../shared/logger.service';
-import { Block } from '../../../shared/block';
 
 export class State {
   state: 'synced' | 'pending' | 'pendingBuffer';
@@ -22,21 +21,19 @@ export class State {
     };
   }
 
-  addText(delta: Quill.DeltaStatic): PendingState | PendingBufferState {
+  addText(delta: Quill.DeltaStatic): PendingState {
     this.logger.log('State', 'addText');
     this.pending.delta = delta;
 
     return new PendingState(this.component, this.logger, this.pending);
   }
 
-  pendingConfirmed(): State | PendingState | PendingBufferState {
+  pendingConfirmed(): State {
     this.logger.error('State', 'pendingConfirmed');
     return this;
   }
 
-  pendingRejected(
-    text: Block.Data.TextData
-  ): State | PendingState | PendingBufferState {
+  pendingRejected(text: Block.Data.TextData): State {
     this.logger.error('State', 'pendingRejected');
     return this;
   }
@@ -68,9 +65,7 @@ export class State {
     this.updateCursor(text);
   }
 
-  receiveServer(
-    text: Block.Data.TextData
-  ): State | PendingState | PendingBufferState {
+  receiveServer(text: Block.Data.TextData): State {
     this.logger.log('State', 'receiveServer');
 
     this.pending.id = text.id;
@@ -118,7 +113,7 @@ export class PendingState extends State {
     this.sendServer();
   }
 
-  addText(delta: Quill.DeltaStatic) {
+  addText(delta: Quill.DeltaStatic): PendingBufferState {
     this.logger.log('PendingState', 'addText');
 
     this.buffer = delta;
@@ -130,14 +125,14 @@ export class PendingState extends State {
     );
   }
 
-  pendingConfirmed() {
+  pendingConfirmed(): State {
     this.logger.log('PendingState', 'pendingConfirmed');
 
     this.pending.delta = null;
     return new State(this.component, this.logger, this.pending);
   }
 
-  pendingRejected(text: Block.Data.TextData) {
+  pendingRejected(text: Block.Data.TextData): PendingState {
     this.logger.log('PendingState', 'pendingRejected');
 
     this.transform(text);
@@ -170,14 +165,14 @@ export class PendingBufferState extends State {
     this.buffer = buffer;
   }
 
-  addText(delta: Quill.DeltaStatic) {
+  addText(delta: Quill.DeltaStatic): PendingBufferState {
     this.logger.log('PendingBufferState', 'addText');
 
     this.buffer = this.buffer.compose(delta);
     return this;
   }
 
-  pendingConfirmed() {
+  pendingConfirmed(): PendingState {
     this.logger.log('PendingBufferState', 'pendingConfirmed');
 
     this.pending.delta = this.buffer;
@@ -185,7 +180,7 @@ export class PendingBufferState extends State {
     return new PendingState(this.component, this.logger, this.pending);
   }
 
-  pendingRejected(text: Block.Data.TextData) {
+  pendingRejected(text: Block.Data.TextData): PendingState {
     this.logger.log('PendingBufferState', 'pendingRejected');
 
     this.pending.delta = this.pending.delta.compose(this.buffer);

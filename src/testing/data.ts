@@ -1,3 +1,6 @@
+import * as Quill from 'quill';
+const Delta: Quill.DeltaStatic = Quill.import('delta');
+
 import { Page } from './page';
 import { Block } from './block';
 import { User } from './user';
@@ -100,5 +103,18 @@ export namespace Data {
     id: '1',
     alt: 'Image',
     url: 'http://via.placeholder.com/350x150'
+  };
+
+  export const TextBlockDataDelta: Quill.DeltaStatic[] = [
+    new Delta([{ insert: 'Hello' }, { insert: ' World.' }]),
+    new Delta([{ insert: 'Lorem ' }, { insert: 'ipsum' }])
+  ];
+
+  export const TextBlockData: Block.Data.TextData = {
+    id: 1,
+    user: 'person',
+    delta: {
+      ops: [{ insert: 'Hello' }, { insert: ' World.' }]
+    } as Quill.DeltaStatic
   };
 }
