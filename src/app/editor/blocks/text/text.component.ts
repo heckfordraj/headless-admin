@@ -56,20 +56,15 @@ export class TextComponent implements OnInit, OnDestroy {
     if (source !== 'user') return;
 
     delta.ops.forEach(op => {
-      for (let attr in op.attributes) {
-        return (op.attributes[attr] = op.attributes[attr] || false);
-      }
+      for (let attr in op.attributes)
+        op.attributes[attr] = op.attributes[attr] || false;
     });
 
     this.logger.log('textChange', delta);
     this.state = this.state.addText(delta);
   }
 
-  selectionChange(
-    range: Quill.RangeStatic,
-    oldRange: Quill.RangeStatic,
-    source: string
-  ) {
+  selectionChange(range: Quill.RangeStatic) {
     if (!range) return;
 
     this.logger.log('selectionChange', range);
@@ -83,13 +78,16 @@ export class TextComponent implements OnInit, OnDestroy {
       buffer: JSON.parse(JSON.stringify(this.state.buffer || null))
     });
 
-    return this.serverService
+    this.serverService
       .updateTextBlockContent(this.block, this.state.pending)
       .then(_ => this.logger.log('updateTextBlockContent', 'update confirmed'))
       .catch(_ => this.logger.log('updateTextBlockContent', 'update rejected'));
   }
 
   removeBlockFormat() {
+    // REVIEW: not selecting entire block reliably
+    // TODO: replace with immutable and undeletable block?
+
     const selection = this.editor.getSelection();
 
     if (selection.length === 0) {
@@ -106,27 +104,28 @@ export class TextComponent implements OnInit, OnDestroy {
   }
 
   formatHeadingClick() {
-    const currentFormats = this.editor.getFormat();
-    const hasExistingFormat = !currentFormats.title;
+    const { title } = this.editor.getFormat();
+    const hasExistingFormat = !title;
 
     this.removeBlockFormat();
     this.editor.format('title', +hasExistingFormat, 'user');
   }
 
   formatLinkClick() {
-    const currentFormats = this.editor.getFormat();
-    const selection = this.editor.getSelection();
+    const { link } = this.editor.getFormat();
+    const { index, length } = this.editor.getSelection();
 
-    if (currentFormats.link) return this.editor.format('link', false, 'user');
+    if (link) return this.editor.format('link', false, 'user');
 
     const url = prompt('Enter URL');
 
-    this.editor.removeFormat(selection.index, selection.length);
+    this.editor.removeFormat(index, length);
     this.editor.format('link', url, 'user');
   }
 
   ngOnInit() {
-    this.state.setUser(this.serverService.getUser().id);
+    const { id } = this.serverService.getUser();
+    this.state.setUser(id);
 
     this.editor = new Quill(this.editorEl.nativeElement);
     this.editor.on('text-change', this.textChange.bind(this));

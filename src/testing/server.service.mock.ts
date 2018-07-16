@@ -62,7 +62,7 @@ export class MockServerService {
   }
 
   getUsers(): Observable<User[]> {
-    return Observable.of(Data.Users);
+    return Observable.of(JSON.parse(JSON.stringify(Data.Users)));
   }
 
   createTimestamp(): number {

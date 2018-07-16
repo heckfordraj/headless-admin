@@ -1,7 +1,7 @@
 {{ block | json }}
 <br>
-<button (click)="formatHeadingClick()">H3</button>
-<button (click)="formatLinkClick()">Link</button>
+<button id="button-heading" (click)="formatHeadingClick()">H3</button>
+<button id="button-link" (click)="formatLinkClick()">Link</button>
 <div id="editor">
   <div #editor></div>
   <span *ngFor="let user of users" class="cursor" [style.width.px]="user?.current?.data?.width" [style.height.px]="user?.current?.data?.height" [style.top.px]="user?.current?.data?.top" [style.left.px]="user?.current?.data?.left" [style.background]="user?.colour"></span>

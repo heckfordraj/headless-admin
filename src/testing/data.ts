@@ -82,14 +82,19 @@ export namespace Data {
 
   export const Users: User[] = [
     {
-      id: '1',
+      id: 'abc',
       colour: '#000',
-      current: { pageId: 'page-1', blockId: 'block-1' }
+      current: { pageId: 'page-1', blockId: '1', data: { index: 0, length: 1 } }
     },
     {
       id: '2',
       colour: '#fff',
-      current: { pageId: 'page-1', blockId: 'block-1' }
+      current: { pageId: 'page-1', blockId: '2', data: { index: 1, length: 2 } }
+    },
+    {
+      id: '3',
+      colour: '#eee',
+      current: { pageId: 'page-1', blockId: '1', data: { index: 2, length: 3 } }
     }
   ];
 
