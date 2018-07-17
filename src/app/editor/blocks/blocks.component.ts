@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnChanges,
-  OnDestroy,
-  SimpleChanges,
-  Input
-} from '@angular/core';
+import { Component, OnDestroy, Input } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
 
@@ -23,8 +17,22 @@ import {
   templateUrl: './blocks.component.html',
   styleUrls: ['./blocks.component.scss']
 })
-export class BlocksComponent implements OnChanges, OnDestroy {
-  @Input() page: Page;
+export class BlocksComponent implements OnDestroy {
+  private _page: Page;
+
+  @Input()
+  set page(page: Page) {
+    if (!page) return;
+
+    this._page = page;
+
+    this.blocks$ = this.serverService
+      .getBlocks(page)
+      .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
+  }
+  get page(): Page {
+    return this._page;
+  }
 
   baseBlocks = Blocks;
 
@@ -88,15 +96,6 @@ export class BlocksComponent implements OnChanges, OnDestroy {
       .addBlock(this.page, block)
       .then(_ => this.logger.log('addBlock', `added ${block.type} block`))
       .catch(err => this.logger.error('addBlock', err));
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    // TODO: replace ngOnChanges with getter/setter
-    if (this.blocks.length || !changes.page.currentValue) return;
-
-    this.blocks$ = this.serverService
-      .getBlocks(this.page)
-      .subscribe((blocks: Block.Base[]) => (this.blocks = blocks));
   }
 
   ngOnDestroy() {
