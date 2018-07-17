@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: 'pages', component: PagesComponent },
   { path: 'page/:id', component: EditorComponent },
   { path: 'page', redirectTo: '/pages', pathMatch: 'full' },
-  { path: '', redirectTo: '/content', pathMatch: 'full' }
+  { path: '', redirectTo: '/pages', pathMatch: 'full' }
 ];
 
 @NgModule({

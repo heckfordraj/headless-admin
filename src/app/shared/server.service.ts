@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, filter, tap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
 import { FirebaseApp } from 'angularfire2';
@@ -10,8 +10,11 @@ import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
 import * as firebase from 'firebase';
 import { randomColor } from 'randomcolor';
 
-import { LoggerService, Page, Block, User, TextUserData } from 'shared';
+import { LoggerService } from './logger.service';
 import { HumanizePipe } from './humanize.pipe';
+import { Page } from './page';
+import { Block } from './block';
+import { User, TextUserData } from './user';
 
 @Injectable()
 export class ServerService {
@@ -96,7 +99,8 @@ export class ServerService {
       .object<Page>(`pages/${id}`)
       .valueChanges()
       .pipe(
-        tap(res => this.logger.log('getPage', res)),
+        filter(Boolean),
+        tap(page => this.logger.log(`getPage: ${id}`, page)),
         catchError(this.handleError<Page>('getPage'))
       );
   }
