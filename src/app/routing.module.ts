@@ -1,12 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { PagesComponent } from './pages/pages.component';
-import { EditorComponent } from './editor/editor.component';
-
 const routes: Routes = [
-  { path: 'pages', component: PagesComponent },
-  { path: 'page/:id', component: EditorComponent },
+  { path: 'pages', loadChildren: 'app/pages/pages.module#PagesModule' },
+  { path: 'page/:id', loadChildren: 'app/editor/editor.module#EditorModule' },
   { path: 'page', redirectTo: '/pages', pathMatch: 'full' },
   { path: '', redirectTo: '/pages', pathMatch: 'full' }
 ];
