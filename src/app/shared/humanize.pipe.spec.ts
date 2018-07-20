@@ -3,11 +3,9 @@ import { HumanizePipe } from './humanize.pipe';
 describe('HumanizePipe', () => {
   let pipe: HumanizePipe;
 
-  beforeEach(() => {
-    pipe = new HumanizePipe();
-  });
+  beforeEach(() => (pipe = new HumanizePipe()));
 
-  it('should create an instance', () => {
+  it('should create pipe', () => {
     expect(pipe).toBeTruthy();
   });
 
