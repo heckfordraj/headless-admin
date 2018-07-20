@@ -9,7 +9,10 @@ import {
   MockLoggerService,
   ServerService,
   MockServerService,
-  isPage
+  SlugifyPipe,
+  MockSlugifyPipe,
+  isPage,
+  Data
 } from 'testing';
 
 import { PagesComponent } from './pages.component';
@@ -17,6 +20,7 @@ import { PagesComponent } from './pages.component';
 let comp: PagesComponent;
 let fixture: ComponentFixture<PagesComponent>;
 let serverService: ServerService;
+let slugifyPipe: jasmine.Spy;
 let page: Page;
 
 describe('PagesComponent', () => {
@@ -27,7 +31,8 @@ describe('PagesComponent', () => {
         declarations: [PagesComponent],
         providers: [
           { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService }
+          { provide: ServerService, useClass: MockServerService },
+          { provide: SlugifyPipe, useClass: MockSlugifyPipe }
         ]
       }).compileComponents();
     })
@@ -35,146 +40,114 @@ describe('PagesComponent', () => {
 
   beforeEach(async(() => createComponent()));
 
-  it('should call ServerService getCollection on load', () => {
-    expect(serverService.getCollection).toHaveBeenCalled();
+  it('should create component', () => {
+    expect(comp).toBeTruthy();
   });
 
-  it('should get pages', () => {
-    expect(comp.pages.length).toBe(5);
-  });
-
-  it('should display pages', () => {
-    expect(page.pages.length).toBe(5);
-  });
-
-  it('should display page name', () => {
-    expect(page.pageName.textContent).toBe('Page 1');
-  });
-
-  xit('should display newly added page', () => {});
-
-  describe('Routing', () => {
-    it('should display links in template', () => {
-      expect(page.links.length).toBe(5);
+  describe('OnInit', () => {
+    it('should call ServerService getCollection', () => {
+      expect(serverService.getCollection).toHaveBeenCalled();
     });
 
-    it('should display correct link url', () => {
-      expect(page.links[0].routerLink).toEqual(['/page', 'page-1']);
+    it(`should call ServerService getCollection with 'pages' arg`, () => {
+      expect(serverService.getCollection).toHaveBeenCalledWith('pages');
+    });
+
+    it('should set pages', () => {
+      expect(comp.pages).toEqual(Data.Pages);
     });
   });
 
-  describe('Page Add', () => {
-    it('should have empty intial value', () => {
-      expect(page.pageAdd.nativeElement.value).toBe('');
-    });
-
-    it('should not call addPage on key press', () => {
-      page.pageAdd.triggerEventHandler('keyup', null);
-      page.pageAdd.triggerEventHandler('input', null);
-
-      expect(page.addPage).not.toHaveBeenCalled();
-    });
-
-    it('should call addPage on enter press', () => {
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
+  describe('addPage', () => {
+    it('should be called on enter key press', () => {
+      page.pageAdd.dispatchEvent(new KeyboardEvent('keyup', { key: 'enter' }));
 
       expect(page.addPage).toHaveBeenCalled();
     });
 
-    it('should call addPage with input value', () => {
-      page.pageAdd.nativeElement.value = 'abc';
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
+    it('should be called on enter key press with input value arg', () => {
+      page.pageAdd.value = 'Title';
+      page.pageAdd.dispatchEvent(new KeyboardEvent('keyup', { key: 'enter' }));
 
-      expect(page.addPage).toHaveBeenCalledWith('abc');
+      expect(page.addPage).toHaveBeenCalledWith('Title');
+    });
+
+    it('should not be called on other key press', () => {
+      page.pageAdd.dispatchEvent(new KeyboardEvent('keyup', { key: 'a' }));
+
+      expect(page.addPage).not.toHaveBeenCalled();
+    });
+
+    it('should call SlugifyPipe', () => {
+      comp.addPage(null);
+
+      expect(slugifyPipe).toHaveBeenCalled();
+    });
+
+    it('should call SlugifyPipe with input value', () => {
+      comp.addPage('Title');
+
+      expect(slugifyPipe).toHaveBeenCalledWith('Title');
+    });
+
+    it('should call ServerService createId twice', () => {
+      comp.addPage(null);
+
+      expect(serverService.createId).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call ServerService createTimestamp', () => {
+      comp.addPage(null);
+
+      expect(serverService.createTimestamp).toHaveBeenCalled();
     });
 
     it('should call ServerService addPage', () => {
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
+      comp.addPage(null);
 
       expect(serverService.addPage).toHaveBeenCalled();
     });
 
-    describe('create new Page', () => {
-      let newPage;
+    it('should call ServerService addPage with new page arg', () => {
+      comp.addPage('Title');
 
-      beforeEach(() => {
-        page.pageAdd.nativeElement.value = 'New Title';
-        page.pageAdd.triggerEventHandler('keyup.enter', null);
-
-        newPage = (serverService.addPage as jasmine.Spy).calls.mostRecent()
-          .args[0];
+      expect(serverService.addPage).toHaveBeenCalledWith({
+        id: 'slugified: Title',
+        name: 'Title',
+        dataId: 'abcdefg',
+        revisions: {
+          currentId: 'abcdefg'
+        },
+        lastModified: {
+          date: 'ddmmyyyy'
+        }
       });
-
-      it('should set name as input value', () => {
-        expect(newPage.name).toBe('New Title');
-      });
-
-      it('should set id as slugified input value', () => {
-        expect(newPage.id).toBe('new-title');
-      });
-
-      it('should set dataId', () => {
-        expect(newPage.dataId).toBe('abcdefg');
-      });
-
-      it('should set revisions currentId', () => {
-        expect(newPage.revisions.currentId).toBe('abcdefg');
-      });
-
-      it('should not set revisions publishedId', () => {
-        expect(newPage.revisions.publishedId).toBeUndefined();
-      });
-    });
-
-    it('should call ServerService addPage with Page object', () => {
-      page.pageAdd.nativeElement.value = 'abc';
-      page.pageAdd.triggerEventHandler('keyup.enter', null);
-
-      const arg = (serverService.addPage as jasmine.Spy).calls.mostRecent()
-        .args[0];
-
-      expect(isPage(arg)).toBeTruthy();
     });
   });
 
-  describe('Page Remove', () => {
-    it('should call removePage on click', () => {
-      page.pageDelete.triggerEventHandler('click', null);
+  describe('removePage', () => {
+    it('should be called on remove button click', () => {
+      page.pageDelete.click();
 
       expect(page.removePage).toHaveBeenCalled();
     });
 
-    it('should call removePage with Page object', () => {
-      page.pageDelete.triggerEventHandler('click', null);
-      const arg = page.removePage.calls.mostRecent().args[0];
+    it('should be called on remove button click with page arg', () => {
+      page.pageDelete.click();
 
-      expect(isPage(arg)).toBeTruthy();
-    });
-
-    it('should call removePage with correct Page', () => {
-      page.pageDelete.triggerEventHandler('click', null);
-
-      expect(page.removePage).toHaveBeenCalledWith({
-        name: 'Page 1',
-        id: jasmine.any(String),
-        dataId: jasmine.any(String),
-        revisions: jasmine.anything(),
-        lastModified: jasmine.any(Number)
-      });
+      expect(page.removePage).toHaveBeenCalledWith(Data.Pages[0]);
     });
 
     it('should call ServerService removePage', () => {
-      page.pageDelete.triggerEventHandler('click', null);
+      comp.removePage(Data.Pages[0]);
 
       expect(serverService.removePage).toHaveBeenCalled();
     });
 
-    it('should call ServerService removePage with Page object', () => {
-      page.pageDelete.triggerEventHandler('click', null);
-      const arg = (serverService.removePage as jasmine.Spy).calls.mostRecent()
-        .args[0];
+    it('should call ServerService removePage with page arg', () => {
+      comp.removePage(Data.Pages[0]);
 
-      expect(isPage(arg)).toBeTruthy();
+      expect(serverService.removePage).toHaveBeenCalledWith(Data.Pages[0]);
     });
   });
 });
@@ -183,44 +156,40 @@ function createComponent() {
   fixture = TestBed.createComponent(PagesComponent);
   comp = fixture.componentInstance;
   serverService = fixture.debugElement.injector.get(ServerService);
+  slugifyPipe = spyOn(MockSlugifyPipe.prototype, 'transform').and.callThrough();
   page = new Page();
 
   fixture.detectChanges();
-  return fixture.whenStable().then(_ => {
-    fixture.detectChanges();
-    page.addElements();
-  });
+  return fixture.whenStable().then(_ => fixture.detectChanges());
 }
 
 class Page {
   addPage: jasmine.Spy;
   removePage: jasmine.Spy;
 
-  pages: DebugElement[];
-  pageName: HTMLElement;
-  pageDelete: DebugElement;
-  pageAdd: DebugElement;
-  links: RouterLink[];
-  linkDes: DebugElement[];
+  get pages() {
+    return this.query<HTMLLIElement>('li');
+  }
+  get pageName() {
+    return this.query<HTMLAnchorElement>('a');
+  }
+  get pageDelete() {
+    return this.query<HTMLButtonElement>('button');
+  }
+  get pageAdd() {
+    return this.query<HTMLInputElement>('#add-page');
+  }
 
   constructor() {
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
   }
 
-  addElements() {
-    if (comp.pages) {
-      this.pages = fixture.debugElement.queryAll(By.css('li'));
+  private query<T>(selector: string): T {
+    return fixture.nativeElement.querySelector(selector);
+  }
 
-      this.pageName = fixture.debugElement.query(By.css('a')).nativeElement;
-
-      this.pageDelete = fixture.debugElement.query(By.css('button'));
-
-      this.pageAdd = fixture.debugElement.query(By.css('#add-page'));
-
-      this.linkDes = fixture.debugElement.queryAll(By.directive(RouterLink));
-
-      this.links = this.linkDes.map(de => de.injector.get(RouterLink));
-    }
+  private queryAll<T>(selector: string): T[] {
+    return fixture.nativeElement.querySelectorAll(selector);
   }
 }

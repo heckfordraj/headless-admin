@@ -65,8 +65,10 @@ export class MockServerService {
     return Observable.of(JSON.parse(JSON.stringify(Data.Users)));
   }
 
-  createTimestamp(): number {
-    return Date.now();
+  createTimestamp(): object {
+    return {
+      date: 'ddmmyyyy'
+    };
   }
 
   createId(): string {

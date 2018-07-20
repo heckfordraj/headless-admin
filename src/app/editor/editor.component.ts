@@ -18,8 +18,7 @@ import {
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss'],
-  providers: [SlugifyPipe]
+  styleUrls: ['./editor.component.scss']
 })
 export class EditorComponent implements OnInit, OnDestroy {
   constructor(
@@ -27,7 +26,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     private router: Router,
     private logger: LoggerService,
     private serverService: ServerService,
-    private slugify: SlugifyPipe
+    private slugifyPipe: SlugifyPipe
   ) {}
 
   page$: Subscription;
@@ -38,7 +37,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   inputSlug: string;
 
   slugChange(input: string) {
-    this.inputSlug = this.slugify.transform(input);
+    this.inputSlug = this.slugifyPipe.transform(input);
   }
 
   publishPage() {

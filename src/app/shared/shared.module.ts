@@ -10,6 +10,6 @@ import { HumanizePipe } from './humanize.pipe';
 @NgModule({
   imports: [CommonModule],
   declarations: [SlugifyPipe, HumanizePipe],
-  providers: [ServerService, LoggerService, HumanizePipe]
+  providers: [ServerService, LoggerService, SlugifyPipe, HumanizePipe]
 })
 export class SharedModule {}

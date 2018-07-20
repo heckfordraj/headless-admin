@@ -46,12 +46,11 @@ describe('EditorComponent', () => {
         providers: [
           { provide: ActivatedRoute, useValue: activatedRoute },
           { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService }
+          { provide: ServerService, useClass: MockServerService },
+          { provide: SlugifyPipe, useClass: MockSlugifyPipe }
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
-      })
-        .overrideProvider(SlugifyPipe, { useValue: new MockSlugifyPipe() })
-        .compileComponents();
+      }).compileComponents();
     })
   );
 
@@ -346,9 +345,7 @@ function createComponent() {
   page = new Page();
 
   fixture.detectChanges();
-  return fixture.whenStable().then(_ => {
-    fixture.detectChanges();
-  });
+  return fixture.whenStable().then(_ => fixture.detectChanges());
 }
 
 class RouterStub {

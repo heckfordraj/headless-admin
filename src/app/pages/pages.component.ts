@@ -2,9 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
 
-import { slugify } from 'underscore.string';
-
-import { LoggerService, ServerService, Page } from 'shared';
+import { LoggerService, ServerService, SlugifyPipe, Page } from 'shared';
 
 @Component({
   selector: 'app-pages',
@@ -17,7 +15,8 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   constructor(
     private logger: LoggerService,
-    private serverService: ServerService
+    private serverService: ServerService,
+    private slugifyPipe: SlugifyPipe
   ) {}
 
   trackBy(index, page) {
@@ -28,20 +27,21 @@ export class PagesComponent implements OnInit, OnDestroy {
     // TODO: clear input on successful submit
 
     const newPage: Page = {
-      id: slugify(name),
+      id: this.slugifyPipe.transform(name),
       name: name,
       dataId: this.serverService.createId(),
       revisions: { currentId: this.serverService.createId() },
       lastModified: this.serverService.createTimestamp()
     };
-    return this.serverService
+
+    this.serverService
       .addPage(newPage)
       .then(_ => this.logger.log('addPage', `added page: ${newPage.name}`))
       .catch(err => this.logger.error('addPage', err));
   }
 
   removePage(page: Page) {
-    return this.serverService
+    this.serverService
       .removePage(page)
       .then(_ => this.logger.log('removePage', `removed page: ${page.name}`))
       .catch(err => this.logger.error('removePage', err));
