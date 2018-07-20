@@ -8,25 +8,30 @@ import {
 } from '@angular/core';
 
 import {
+  RouterTestingModule,
   newEvent,
   Router,
-  RouterStub,
   ActivatedRoute,
   ActivatedRouteStub,
   LoggerService,
   MockLoggerService,
   ServerService,
   MockServerService,
-  isPage
+  SlugifyPipe,
+  MockSlugifyPipe,
+  isPage,
+  Data
 } from 'testing';
 
-import { SlugifyPipe } from 'shared';
+import { PagesComponent } from '../pages/pages.component';
 import { EditorComponent } from './editor.component';
 
 let comp: EditorComponent;
 let fixture: ComponentFixture<EditorComponent>;
 let activatedRoute: ActivatedRouteStub;
 let serverService: ServerService;
+let slugifyPipe: jasmine.Spy;
+let router: RouterStub;
 let page: Page;
 
 describe('EditorComponent', () => {
@@ -36,239 +41,297 @@ describe('EditorComponent', () => {
       activatedRoute.testParamMap = { id: 'page-1' };
 
       TestBed.configureTestingModule({
-        imports: [FormsModule],
+        imports: [RouterTestingModule, FormsModule],
         declarations: [EditorComponent],
         providers: [
-          { provide: Router, useClass: RouterStub },
           { provide: ActivatedRoute, useValue: activatedRoute },
           { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService },
-          SlugifyPipe
+          { provide: ServerService, useClass: MockServerService }
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
-      }).compileComponents();
+      })
+        .overrideProvider(SlugifyPipe, { useValue: new MockSlugifyPipe() })
+        .compileComponents();
     })
   );
 
   beforeEach(async(() => createComponent()));
 
-  it('should call ServerService getPage on load', () => {
-    expect(serverService.getPage).toHaveBeenCalled();
+  it('should create component', () => {
+    expect(comp).toBeTruthy();
   });
 
-  it('should call ServerService getPage with page id', () => {
-    expect(serverService.getPage).toHaveBeenCalledWith('page-1');
-  });
+  describe('OnInit', () => {
+    describe('initial page', () => {
+      it('should call ServerService getPage', () => {
+        expect(serverService.getPage).toHaveBeenCalled();
+      });
 
-  it('should get initial page', () => {
-    expect(comp.page).toBeDefined();
-    expect(comp.page).not.toBeNull();
-  });
+      it('should call ServerService getPage with page id', () => {
+        expect(serverService.getPage).toHaveBeenCalledWith('page-1');
+      });
 
-  it('should display initial page name', () => {
-    expect(page.pageName.textContent).toBe('Page 1');
-  });
+      it('should call ServerService updateUser', () => {
+        expect(serverService.updateUser).toHaveBeenCalled();
+      });
 
-  it('should call ServerService getPage on param change', () => {
-    activatedRoute.testParamMap = { id: 'page-2' };
+      it('should call ServerService updateUser with page', () => {
+        expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[0]);
+      });
 
-    expect(serverService.getPage).toHaveBeenCalledTimes(2);
-  });
+      it('should call ServerService getUsers', () => {
+        expect(serverService.getUsers).toHaveBeenCalled();
+      });
 
-  it('should call ServerService getPage with new page id', () => {
-    activatedRoute.testParamMap = { id: 'page-2' };
+      it('should set page', () => {
+        expect(comp.page).toEqual(Data.Pages[0]);
+      });
 
-    expect(serverService.getPage).toHaveBeenCalledWith('page-2');
-  });
+      it('should set users', () => {
+        expect(comp.users).toBeDefined();
+      });
 
-  it('should get new page', () => {
-    activatedRoute.testParamMap = { id: 'page-2' };
+      it('should set users as filtered to include current page only', () => {
+        comp.users.forEach(user => expect(user.current.pageId).toBe('page-1'));
+      });
 
-    expect(comp.page.id).toBe('page-2');
-  });
-
-  it('should display new page name', () => {
-    activatedRoute.testParamMap = { id: 'page-2' };
-    fixture.detectChanges();
-
-    expect(page.pageName.textContent).toBe('Page 2');
-  });
-
-  xit('should not get nonexistent page', () => {
-    activatedRoute.testParamMap = { id: 'no-page' };
-
-    expect(comp.page.id).toBe('page-1');
-  });
-
-  describe('Slug Change', () => {
-    it('should call SlugifyPipe', () => {
-      comp.slugChange('Page Title');
-
-      expect(page.slugify).toHaveBeenCalled();
-    });
-
-    it('should call SlugifyPipe with input param', () => {
-      comp.slugChange('Page Title');
-
-      expect(page.slugify).toHaveBeenCalledWith('Page Title');
-    });
-  });
-
-  describe('Page Update', () => {
-    it('should have initial page id value', () => {
-      expect(page.pageInput.nativeElement.value).toBe('page-1');
-    });
-
-    it('should slugify value on key press', () => {
-      page.pageInput.nativeElement.value = 'Page Title';
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      fixture.detectChanges();
-
-      fixture.whenStable().then(() => {
-        expect(page.pageInput.nativeElement.value).toBe('page-title');
+      it('should set page input value', () => {
+        fixture.detectChanges();
+        expect(page.pageInput.value).toBe('page-1');
       });
     });
 
-    it('should set inputSlug as slugified value on key press', () => {
-      page.pageInput.nativeElement.value = 'Page Title';
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      fixture.detectChanges();
+    describe('param change', () => {
+      beforeEach(() => {
+        activatedRoute.testParamMap = { id: 'page-2' };
+        fixture.detectChanges();
+        return fixture.whenStable();
+      });
 
-      expect(comp.inputSlug).toBe('page-title');
+      it('should call ServerService getPage', () => {
+        expect(serverService.getPage).toHaveBeenCalledTimes(2);
+      });
+
+      it('should call ServerService getPage with page id', () => {
+        expect(serverService.getPage).toHaveBeenCalledWith('page-2');
+      });
+
+      it('should call ServerService updateUser', () => {
+        expect(serverService.updateUser).toHaveBeenCalled();
+      });
+
+      it('should call ServerService updateUser with page', () => {
+        expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[1]);
+      });
+
+      it('should call ServerService getUsers', () => {
+        expect(serverService.getUsers).toHaveBeenCalled();
+      });
+
+      it('should set page', () => {
+        expect(comp.page).toEqual(Data.Pages[1]);
+      });
+
+      it('should set users', () => {
+        expect(comp.users).toBeDefined();
+      });
+
+      it('should set users as filtered to include current page only', () => {
+        comp.users.forEach(user => expect(user.current.pageId).toBe('page-2'));
+      });
+
+      it('should set page input value', () => {
+        fixture.detectChanges();
+        expect(page.pageInput.value).toBe('page-2');
+      });
+    });
+  });
+
+  describe('slugChange', () => {
+    it('should be called on input change', () => {
+      page.pageInput.value = 'Page Title';
+      page.pageInput.dispatchEvent(newEvent('input'));
+
+      expect(comp.slugChange).toHaveBeenCalled();
     });
 
-    it('should not change page id on key press', () => {
-      page.pageInput.nativeElement.value = 'Page Title';
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      fixture.detectChanges();
+    it('should be called on input change with input arg', () => {
+      page.pageInput.value = 'Page Title';
+      page.pageInput.dispatchEvent(newEvent('input'));
 
-      expect(comp.page.id).toBe('page-1');
+      expect(comp.slugChange).toHaveBeenCalledWith('Page Title');
     });
 
-    it('should not call updatePage on key press', () => {
-      page.pageInput.triggerEventHandler('keyup', null);
+    it('should call SlugifyPipe', () => {
+      comp.slugChange('Page Title');
 
-      expect(page.updatePage).not.toHaveBeenCalled();
+      expect(slugifyPipe).toHaveBeenCalled();
     });
 
-    it('should call updatePage on enter press', () => {
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should call SlugifyPipe with input arg', () => {
+      comp.slugChange('Page Title');
 
-      expect(page.updatePage).toHaveBeenCalled();
+      expect(slugifyPipe).toHaveBeenCalledWith('Page Title');
+    });
+
+    it('should set inputSlug', () => {
+      comp.slugChange('Page Title');
+
+      expect(comp.inputSlug).toBeDefined();
+    });
+
+    it('should set inputSlug as SlugifyPipe return', () => {
+      comp.slugChange('Page Title');
+
+      expect(comp.inputSlug).toBe('slugified: Page Title');
+    });
+  });
+
+  describe('updatePage', () => {
+    it('should be called on page input enter key press', () => {
+      page.pageInput.dispatchEvent(
+        new KeyboardEvent('keyup', { key: 'enter' })
+      );
+
+      expect(comp.updatePage).toHaveBeenCalled();
+    });
+
+    it('should not be called on page input other key press', () => {
+      page.pageInput.dispatchEvent(new KeyboardEvent('keyup', { key: 'a' }));
+
+      expect(comp.updatePage).not.toHaveBeenCalled();
     });
 
     it('should call ServerService updatePage', () => {
-      comp.inputSlug = 'new-page';
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+      comp.inputSlug = 'title';
+      comp.updatePage();
 
       expect(serverService.updatePage).toHaveBeenCalled();
     });
 
-    it('should call ServerService updatePage with current Page object', () => {
-      comp.inputSlug = 'new-page';
-      page.pageInput.triggerEventHandler('keyup.enter', null);
-      const arg = (serverService.updatePage as jasmine.Spy).calls.mostRecent()
-        .args[0];
-
-      expect(isPage(arg)).toBeTruthy();
-    });
-
-    it('should call ServerService updatePage with slug input', () => {
-      comp.inputSlug = 'abc';
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should call ServerService updatePage with page and inputSlug args', () => {
+      comp.inputSlug = 'title';
+      comp.updatePage();
 
       expect(serverService.updatePage).toHaveBeenCalledWith(
-        jasmine.anything(),
-        'abc'
+        Data.Pages[0],
+        'title'
       );
     });
 
-    it('should not call ServerService updatePage on unmodified input', () => {
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should not call ServerService updatePage if no inputSlug', () => {
+      comp.inputSlug = '';
+      comp.updatePage();
 
       expect(serverService.updatePage).not.toHaveBeenCalled();
     });
 
-    it('should not call ServerService updatePage on trailing whitespace input', () => {
-      page.pageInput.nativeElement.value += ' ';
-      page.pageInput.nativeElement.dispatchEvent(newEvent('input'));
-      page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should not call ServerService updatePage if inputSlug is current page id', () => {
+      comp.inputSlug = 'page-1';
+      comp.updatePage();
 
       expect(serverService.updatePage).not.toHaveBeenCalled();
     });
 
-    it(
-      'should call router',
-      async(() => {
-        comp.inputSlug = 'new-page';
-        page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should call Router navigate on ServerService updatePage resolve', () => {
+      comp.inputSlug = 'new-title';
+      comp.updatePage();
 
-        fixture.whenStable().then(_ => {
-          expect(page.navigate).toHaveBeenCalled();
-        });
-      })
-    );
+      fixture.whenStable().then(_ => {
+        expect(router.navigate).toHaveBeenCalled();
+      });
+    });
 
-    it(
-      'should call router with new page id',
-      async(() => {
-        comp.inputSlug = 'new-page';
-        page.pageInput.triggerEventHandler('keyup.enter', null);
+    it('should call Router navigate with inputSlug arg on ServerService updatePage resolve', () => {
+      comp.inputSlug = 'new-title';
+      comp.updatePage();
 
-        fixture.whenStable().then(_ => {
-          expect(page.navigate).toHaveBeenCalledWith(
-            ['/page', 'new-page'],
-            jasmine.anything()
-          );
-        });
-      })
-    );
+      fixture.whenStable().then(_ => {
+        expect(router.navigate).toHaveBeenCalledWith(
+          ['/page', 'new-title'],
+          jasmine.anything()
+        );
+      });
+    });
+
+    it('should not call Router navigate on ServerService updatePage reject', () => {
+      (serverService.updatePage as jasmine.Spy).and.returnValue(
+        Promise.reject(null)
+      );
+      comp.inputSlug = 'new-title';
+
+      fixture.whenStable().then(_ => {
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  describe('Page Publish', () => {
-    it('should call publishPage on click', () => {
-      page.pagePublish.triggerEventHandler('click', null);
+  describe('publishPage', () => {
+    it('should be called on publish button click', () => {
+      page.pagePublish.click();
 
       expect(page.publishPage).toHaveBeenCalled();
     });
 
     it('should call ServerService publishPage', () => {
-      page.pagePublish.triggerEventHandler('click', null);
+      comp.publishPage();
 
       expect(serverService.publishPage).toHaveBeenCalled();
     });
+
+    it('should call ServerService publishPage with page arg', () => {
+      comp.publishPage();
+
+      expect(serverService.publishPage).toHaveBeenCalledWith(Data.Pages[0]);
+    });
   });
 
-  describe('Page Remove', () => {
-    it('should call removePage on click', () => {
-      page.pageRemove.triggerEventHandler('click', null);
+  describe('removePage', () => {
+    it('should be called on remove button click', () => {
+      page.pageRemove.click();
 
       expect(page.removePage).toHaveBeenCalled();
     });
 
     it('should call ServerService removePage', () => {
-      page.pageRemove.triggerEventHandler('click', null);
+      comp.removePage();
 
       expect(serverService.removePage).toHaveBeenCalled();
     });
 
-    it('should call router', () => {
-      page.pageRemove.triggerEventHandler('click', null);
+    it('should call ServerService removePage with page arg', () => {
+      comp.removePage();
+
+      expect(serverService.removePage).toHaveBeenCalledWith(Data.Pages[0]);
+    });
+
+    it('should call Router navigate on ServerService removePage resolve', () => {
+      comp.removePage();
 
       fixture.whenStable().then(_ => {
-        expect(page.navigate).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalled();
       });
     });
 
-    it('should call router with /pages', () => {
-      page.pageRemove.triggerEventHandler('click', null);
+    it(`should call Router navigate with '/pages' on ServerService removePage resolve`, () => {
+      comp.removePage();
 
       fixture.whenStable().then(_ => {
-        expect(page.navigate).toHaveBeenCalledWith(
+        expect(router.navigate).toHaveBeenCalledWith(
           ['/pages'],
           jasmine.anything()
         );
+      });
+    });
+
+    it('should not call Router navigate on ServerService removePage reject', () => {
+      (serverService.removePage as jasmine.Spy).and.returnValue(
+        Promise.reject(null)
+      );
+      comp.removePage();
+
+      fixture.whenStable().then(_ => {
+        expect(router.navigate).not.toHaveBeenCalled();
       });
     });
   });
@@ -278,46 +341,54 @@ function createComponent() {
   fixture = TestBed.createComponent(EditorComponent);
   comp = fixture.componentInstance;
   serverService = fixture.debugElement.injector.get(ServerService);
+  slugifyPipe = spyOn(MockSlugifyPipe.prototype, 'transform').and.callThrough();
+  router = new RouterStub();
   page = new Page();
 
   fixture.detectChanges();
   return fixture.whenStable().then(_ => {
     fixture.detectChanges();
-    page.addElements();
   });
 }
 
-class Page {
+class RouterStub {
   navigate: jasmine.Spy;
-  updatePage: jasmine.Spy;
-  publishPage: jasmine.Spy;
-  removePage: jasmine.Spy;
-  slugify: jasmine.Spy;
-
-  pageName: HTMLElement;
-  pageInput: DebugElement;
-  pagePublish: DebugElement;
-  pageRemove: DebugElement;
 
   constructor() {
     const router = fixture.debugElement.injector.get(Router);
-    const slugifyPipe = fixture.debugElement.injector.get(SlugifyPipe);
 
-    this.navigate = spyOn(router, 'navigate').and.callThrough();
+    this.navigate = spyOn(router, 'navigate').and.callFake(() => undefined);
+  }
+}
+
+class Page {
+  updatePage: jasmine.Spy;
+  publishPage: jasmine.Spy;
+  removePage: jasmine.Spy;
+  slugChange: jasmine.Spy;
+
+  get pageInput() {
+    return this.query<HTMLInputElement>('.page-input');
+  }
+  get pagePublish() {
+    return this.query<HTMLButtonElement>('#publish');
+  }
+  get pageRemove() {
+    return this.query<HTMLButtonElement>('#remove');
+  }
+
+  constructor() {
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
     this.publishPage = spyOn(comp, 'publishPage').and.callThrough();
-    this.slugify = spyOn(slugifyPipe, 'transform').and.callThrough();
+    this.slugChange = spyOn(comp, 'slugChange').and.callThrough();
   }
 
-  addElements() {
-    if (comp.page) {
-      this.pageName = fixture.debugElement.query(By.css('h2')).nativeElement;
-      this.pageInput = fixture.debugElement.query(
-        de => de.references['pageInput']
-      );
-      this.pagePublish = fixture.debugElement.query(By.css('#publish'));
-      this.pageRemove = fixture.debugElement.query(By.css('#remove'));
-    }
+  private query<T>(selector: string): T {
+    return fixture.nativeElement.querySelector(selector);
+  }
+
+  private queryAll<T>(selector: string): T[] {
+    return fixture.nativeElement.querySelectorAll(selector);
   }
 }

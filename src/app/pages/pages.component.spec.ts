@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import {
-  RouterLinkStub,
+  RouterTestingModule,
   LoggerService,
   MockLoggerService,
   ServerService,
@@ -22,7 +23,8 @@ describe('PagesComponent', () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
-        declarations: [PagesComponent, RouterLinkStub],
+        imports: [RouterTestingModule],
+        declarations: [PagesComponent],
         providers: [
           { provide: LoggerService, useClass: MockLoggerService },
           { provide: ServerService, useClass: MockServerService }
@@ -57,7 +59,7 @@ describe('PagesComponent', () => {
     });
 
     it('should display correct link url', () => {
-      expect(page.links[0].linkParams).toEqual(['/page', 'page-1']);
+      expect(page.links[0].routerLink).toEqual(['/page', 'page-1']);
     });
   });
 
@@ -198,7 +200,7 @@ class Page {
   pageName: HTMLElement;
   pageDelete: DebugElement;
   pageAdd: DebugElement;
-  links: RouterLinkStub[];
+  links: RouterLink[];
   linkDes: DebugElement[];
 
   constructor() {
@@ -216,13 +218,9 @@ class Page {
 
       this.pageAdd = fixture.debugElement.query(By.css('#add-page'));
 
-      this.linkDes = fixture.debugElement.queryAll(
-        By.directive(RouterLinkStub)
-      );
+      this.linkDes = fixture.debugElement.queryAll(By.directive(RouterLink));
 
-      this.links = this.linkDes.map(
-        de => de.injector.get(RouterLinkStub) as RouterLinkStub
-      );
+      this.links = this.linkDes.map(de => de.injector.get(RouterLink));
     }
   }
 }

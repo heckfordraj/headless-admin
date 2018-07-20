@@ -8,7 +8,6 @@ import {
 import { By } from '@angular/platform-browser';
 import { DebugElement, EventEmitter } from '@angular/core';
 import {
-  RouterLinkStub,
   LoggerService,
   MockLoggerService,
   ServerService,
@@ -35,7 +34,7 @@ describe('TextComponent', () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
-        declarations: [TextComponent, RouterLinkStub],
+        declarations: [TextComponent],
         providers: [
           { provide: LoggerService, useClass: MockLoggerService },
           { provide: ServerService, useClass: MockServerService }

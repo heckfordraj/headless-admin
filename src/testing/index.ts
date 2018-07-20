@@ -3,6 +3,7 @@ export * from './angularfiredatabase';
 export * from './image.service.mock';
 export * from './logger.service.mock';
 export * from './server.service.mock';
+export * from './slugify.pipe.mock';
 export * from './router';
 export * from './user';
 export * from './page';

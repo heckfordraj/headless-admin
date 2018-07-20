@@ -44,7 +44,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   publishPage() {
     // TODO: add visible publish status (check if doc has changed)
 
-    return this.serverService
+    this.serverService
       .publishPage(this.page)
       .then(_ => this.logger.log('publishPage', 'published page'))
       .catch(err => this.logger.error('publishPage', err));
@@ -68,7 +68,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   removePage() {
-    return this.serverService
+    this.serverService
       .removePage(this.page)
       .then(_ => this.router.navigate(['/pages'], { replaceUrl: true }))
       .then(_ => this.logger.log('removePage', 'removed page'))

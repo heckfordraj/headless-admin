@@ -95,6 +95,16 @@ export namespace Data {
       id: '3',
       colour: '#eee',
       current: { pageId: 'page-1', blockId: '1', data: { index: 2, length: 3 } }
+    },
+    {
+      id: '4',
+      colour: '#ccc',
+      current: { pageId: 'page-2', blockId: '2', data: { index: 3, length: 4 } }
+    },
+    {
+      id: '5',
+      colour: '#bbb',
+      current: { pageId: 'page-2', blockId: '1', data: { index: 4, length: 5 } }
     }
   ];
 
