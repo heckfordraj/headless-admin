@@ -163,7 +163,7 @@ export class ServerService {
   }
 
   updateUser(
-    { id: pageId }: Page,
+    { id }: Page,
     { current: { blockId, data } }: User = {
       id: null,
       colour: null,
@@ -173,7 +173,7 @@ export class ServerService {
     const user: User = {
       ...this.user,
       current: {
-        pageId: pageId,
+        pageId: id,
         blockId: blockId,
         data: data
       }

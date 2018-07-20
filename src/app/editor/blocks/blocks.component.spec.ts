@@ -1,16 +1,20 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Component, DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import {
   LoggerService,
   MockLoggerService,
   ServerService,
   MockServerService,
+  Block,
+  TextUserData,
   isPage,
   isBlock,
   Data
 } from 'testing';
+
+import { TextComponent } from './text/text.component';
 import { BlocksComponent } from './blocks.component';
 
 @Component({
@@ -24,13 +28,14 @@ let compHost: HostComponent;
 let comp: BlocksComponent;
 let fixture: ComponentFixture<HostComponent>;
 let serverService: ServerService;
+let textComponent: TextComponent;
 let page: Page;
 
 describe('BlocksComponent', () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
-        declarations: [HostComponent, BlocksComponent],
+        declarations: [HostComponent, BlocksComponent, TextComponent],
         providers: [
           LoggerService,
           { provide: LoggerService, useClass: MockLoggerService },
@@ -43,12 +48,16 @@ describe('BlocksComponent', () => {
 
   beforeEach(async(() => createComponent()));
 
+  it('should create component', () => {
+    expect(comp).toBeTruthy();
+  });
+
   describe('OnInit', () => {
-    it('should not have page set', () => {
+    it('should not set page', () => {
       expect(comp.page).toBeUndefined();
     });
 
-    it('should not have blocks set', () => {
+    it('should not set blocks', () => {
       expect(comp.blocks.length).toBe(0);
     });
 
@@ -60,394 +69,252 @@ describe('BlocksComponent', () => {
   describe('initial page', () => {
     beforeEach(() => {
       compHost.page = Data.Pages[2];
-
       fixture.detectChanges();
-      page.addElements();
     });
 
-    it('should have page set', () => {
-      expect(comp.page).toBeDefined();
+    it('should set page', () => {
+      expect(comp.page).toEqual(Data.Pages[2]);
     });
 
-    it('should have identical page to host', () => {
-      expect(comp.page).toEqual(compHost.page);
-    });
-
-    it('should call ServerService getBlocks on change', () => {
+    it('should call ServerService getBlocks', () => {
       expect(serverService.getBlocks).toHaveBeenCalled();
     });
 
-    it('should call ServerService getBlocks with Page', () => {
-      expect(serverService.getBlocks).toHaveBeenCalledWith(comp.page);
+    it('should call ServerService getBlocks with page arg', () => {
+      expect(serverService.getBlocks).toHaveBeenCalledWith(Data.Pages[2]);
     });
 
-    it('should get blocks', () => {
+    it('should set blocks', () => {
       expect(comp.blocks.length).toBe(3);
     });
 
-    it('should display blocks type', () => {
-      expect(page.blocksType[0].nativeElement.textContent).toBe('text');
-      expect(page.blocksType[1].nativeElement.textContent).toBe('image');
-      expect(page.blocksType[2].nativeElement.textContent).toBe('text');
-    });
-
     it('should display correct block component', () => {
-      expect(page.blocksSwitch[0].name).toBe('app-text');
-      expect(page.blocksSwitch[1].name).toBe('app-image');
-      expect(page.blocksSwitch[2].name).toBe('app-text');
+      expect(page.blocksSwitch[0].nodeName.toLowerCase()).toBe('app-text');
+      expect(page.blocksSwitch[1].nodeName.toLowerCase()).toBe('app-image');
+      expect(page.blocksSwitch[2].nodeName.toLowerCase()).toBe('app-text');
     });
   });
 
-  describe('new page', () => {
+  describe('page change', () => {
     beforeEach(() => {
-      compHost.page = Data.Pages[3];
-
+      compHost.page = Data.Pages[2];
       fixture.detectChanges();
-      page.addElements();
+      compHost.page = Data.Pages[3];
+      fixture.detectChanges();
     });
 
-    it('should have identical page to host', () => {
-      expect(comp.page).toEqual(compHost.page);
+    it('should set page', () => {
+      expect(comp.page).toEqual(Data.Pages[3]);
     });
 
-    it('should call ServerService getBlocks on change', () => {
-      expect(serverService.getBlocks).toHaveBeenCalled();
+    it('should call ServerService getBlocks', () => {
+      expect(serverService.getBlocks).toHaveBeenCalledTimes(2);
     });
 
-    it('should call ServerService getBlocks with Page', () => {
-      expect(serverService.getBlocks).toHaveBeenCalledWith(comp.page);
-    });
-
-    it('should display blocks type', () => {
-      expect(page.blocksType[0].nativeElement.textContent).toBe('image');
-      expect(page.blocksType[1].nativeElement.textContent).toBe('text');
-      expect(page.blocksType[2].nativeElement.textContent).toBe('image');
+    it('should call ServerService getBlocks with page arg', () => {
+      expect(serverService.getBlocks).toHaveBeenCalledWith(Data.Pages[3]);
     });
 
     it('should display correct block component', () => {
-      expect(page.blocksSwitch[0].name).toBe('app-image');
-      expect(page.blocksSwitch[1].name).toBe('app-text');
-      expect(page.blocksSwitch[2].name).toBe('app-image');
+      expect(page.blocksSwitch[0].nodeName.toLowerCase()).toBe('app-image');
+      expect(page.blocksSwitch[1].nodeName.toLowerCase()).toBe('app-text');
+      expect(page.blocksSwitch[2].nodeName.toLowerCase()).toBe('app-image');
     });
   });
 
-  describe('Add Block', () => {
+  describe('addBlock', () => {
     beforeEach(() => {
       compHost.page = Data.Pages[0];
-
       fixture.detectChanges();
-      page.addElements();
     });
 
-    it('should call addBlock on text click', () => {
-      page.blockAddText.triggerEventHandler('click', null);
+    it('should be called on text block click', () => {
+      page.blockAddText.click();
 
-      expect(page.addBlock).toHaveBeenCalledTimes(1);
-      page.addBlock.calls.reset();
+      expect(page.addBlock).toHaveBeenCalled();
     });
 
-    it('should call addBlock on image click', () => {
-      page.blockAddImage.triggerEventHandler('click', null);
+    it('should be called on text block click with Block.Base arg', () => {
+      page.blockAddText.click();
 
-      expect(page.addBlock).toHaveBeenCalledTimes(1);
-      page.addBlock.calls.reset();
+      expect(page.addBlock).toHaveBeenCalledWith({ type: 'text' });
     });
 
-    it('should call addBlock with bare Block', () => {
-      page.blockAddText.triggerEventHandler('click', null);
+    it('should be called on image block click', () => {
+      page.blockAddImage.click();
 
-      expect(page.addBlock).toHaveBeenCalledWith({ type: jasmine.any(String) });
+      expect(page.addBlock).toHaveBeenCalled();
+    });
+
+    it('should be called on image block click with Block.Base arg', () => {
+      page.blockAddImage.click();
+
+      expect(page.addBlock).toHaveBeenCalledWith({ type: 'image' });
+    });
+
+    it('should call ServerService createId', () => {
+      comp.addBlock({ type: null } as any);
+
+      expect(serverService.createId).toHaveBeenCalled();
     });
 
     it('should call ServerService addBlock', () => {
-      page.blockAddText.triggerEventHandler('click', null);
+      comp.addBlock({ type: null } as any);
 
-      expect(serverService.addBlock).toHaveBeenCalledTimes(1);
+      expect(serverService.addBlock).toHaveBeenCalled();
     });
 
-    describe('create Block', () => {
-      let bareBlock;
-      let newBlock;
+    it('should call ServerService addBlock with page and block args', () => {
+      const block: Block.Base = { type: null, id: 'abcdefg', order: 4 };
+      comp.addBlock({ type: null } as any);
 
-      beforeEach(() => {
-        page.blockAddText.triggerEventHandler('click', null);
-
-        bareBlock = page.addBlock.calls.mostRecent().args[0];
-        newBlock = (serverService.addBlock as jasmine.Spy).calls.mostRecent()
-          .args[1];
-      });
-
-      it('should set id', () => {
-        expect(newBlock.id).toBe('abcdefg');
-      });
-
-      it('should set order', () => {
-        expect(newBlock.order).toBeDefined();
-      });
-
-      it('should set order to be last block', () => {
-        const blocksNum = comp.blocks.length;
-
-        expect(newBlock.order).toBe(blocksNum + 1);
-      });
-
-      it('should set merged type', () => {
-        expect(newBlock.type).toBe(bareBlock.type);
-      });
-
-      it('should set merged data', () => {
-        expect(newBlock.data).toBe(bareBlock.data);
-      });
+      expect(serverService.addBlock).toHaveBeenCalledWith(Data.Pages[0], block);
     });
 
-    it('should call ServerService addBlock with this page', () => {
-      page.blockAddText.triggerEventHandler('click', null);
+    it('should call ServerService addBlock with page and block args with block order as incremented blocks array length', () => {
+      const block: Block.Base = { type: null, id: 'abcdefg', order: null };
+      comp.blocks = [null, null, null, null];
+      comp.addBlock({ type: null } as any);
 
-      expect(serverService.addBlock).toHaveBeenCalledWith(
-        comp.page,
-        jasmine.anything()
-      );
-    });
-
-    it('should call ServerService addBlock with Block', () => {
-      page.blockAddText.triggerEventHandler('click', null);
-      const arg = (serverService.addBlock as jasmine.Spy).calls.mostRecent()
-        .args[1];
-
-      expect(isBlock(arg)).toBe(true);
+      expect(serverService.addBlock).toHaveBeenCalledWith(jasmine.anything(), {
+        ...block,
+        order: 5
+      });
     });
   });
 
-  describe('Remove Block', () => {
+  describe('removeBlock', () => {
+    const block: Block.Base = { type: 'text', id: '1', order: 1 };
+
     beforeEach(() => {
       compHost.page = Data.Pages[1];
-
       fixture.detectChanges();
-      page.addElements();
     });
 
-    it('should call removeBlock on click', () => {
-      page.blocksRemove[1].triggerEventHandler('click', null);
+    it('should be called on button click', () => {
+      page.blocksRemove[1].click();
 
       expect(page.removeBlock).toHaveBeenCalled();
     });
 
-    it('should call ServerService removeBlock on click', () => {
-      page.blocksRemove[1].triggerEventHandler('click', null);
+    it('should call ServerService removeBlock', () => {
+      comp.removeBlock(block);
 
       expect(serverService.removeBlock).toHaveBeenCalled();
     });
 
-    it('should call ServerService removeBlock with this page', () => {
-      page.blocksRemove[1].triggerEventHandler('click', null);
+    it('should call ServerService removeBlock with page and block args', () => {
+      comp.removeBlock(block);
 
       expect(serverService.removeBlock).toHaveBeenCalledWith(
-        comp.page,
-        jasmine.anything()
-      );
-    });
-
-    it('should call ServerService removeBlock with correct block', () => {
-      page.blocksRemove[1].triggerEventHandler('click', null);
-
-      expect(serverService.removeBlock).toHaveBeenCalledWith(
-        jasmine.anything(),
-        { id: '2', type: jasmine.any(String), order: jasmine.any(Number) }
+        Data.Pages[1],
+        block
       );
     });
   });
 
-  xdescribe('Update Block', () => {
-    let block = Data.Blocks['4'][0];
-    let data = Data.Data[2];
+  describe('updateActiveBlock', () => {
+    const textUserData: TextUserData = { index: 1, length: 2 };
 
     beforeEach(() => {
       compHost.page = Data.Pages[0];
-
       fixture.detectChanges();
-      page.addElements();
-      // comp.updateBlock(block, data);
+      textComponent = fixture.debugElement.query(By.directive(TextComponent))
+        .componentInstance;
     });
 
-    // it('should call ServerService updateBlock', () => {
-    //   expect(serverService.updateBlock.calls.count()).toBe(1);
-    // });
-    //
-    // it('should call ServerService updateBlock with this page', () => {
-    //   let arg = serverService.updateBlock.calls.mostRecent().args[0];
-    //
-    //   expect(arg).toEqual(comp.page);
-    // });
-    //
-    // it('should call ServerService updateBlock with unchanged block param', () => {
-    //   let arg = serverService.updateBlock.calls.mostRecent().args[1];
-    //
-    //   expect(arg).toEqual(block);
-    // });
-    //
-    // it('should call ServerService updateBlock with unchanged data param', () => {
-    //   let arg = serverService.updateBlock.calls.mostRecent().args[2];
-    //
-    //   expect(arg).toEqual(data);
-    // });
+    it('should be called on TextComponent selection emit', () => {
+      textComponent.selection.emit(null);
+
+      expect(comp.updateActiveBlock).toHaveBeenCalled();
+    });
+
+    it('should be called with block and TextComponent selection range args', () => {
+      textComponent.selection.emit(textUserData);
+
+      expect(comp.updateActiveBlock).toHaveBeenCalledWith(
+        Data.Blocks['1'][0],
+        textUserData
+      );
+    });
+
+    it('should call ServerService updateUser', () => {
+      comp.updateActiveBlock(Data.Blocks['1'][0], textUserData);
+
+      expect(serverService.updateUser).toHaveBeenCalled();
+    });
+
+    it('should call ServerService updateUser with page and user args', () => {
+      comp.updateActiveBlock(Data.Blocks['1'][0], textUserData);
+
+      expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[0], {
+        id: null,
+        colour: null,
+        current: { blockId: '1', data: textUserData }
+      });
+    });
   });
 
-  describe('Order Block', () => {
+  describe('orderBlock', () => {
     beforeEach(() => {
       compHost.page = Data.Pages[0];
       fixture.detectChanges();
-
-      page.addElements();
     });
 
-    it('should call orderBlock on up click', () => {
-      page.blocksUp[1].triggerEventHandler('click', null);
+    it('should be called on up button click', () => {
+      page.blocksUp[1].click();
 
       expect(page.orderBlock).toHaveBeenCalled();
     });
 
-    it('should call orderBlock on down click', () => {
-      page.blocksDown[1].triggerEventHandler('click', null);
+    it('should be called on up button click with index and up args', () => {
+      page.blocksUp[1].click();
+
+      expect(page.orderBlock).toHaveBeenCalledWith(1, -1);
+    });
+
+    it('should be called on down button click', () => {
+      page.blocksDown[1].click();
 
       expect(page.orderBlock).toHaveBeenCalled();
     });
 
-    it('should call orderBlock with correct index', () => {
-      page.blocksDown[1].triggerEventHandler('click', null);
+    it('should be called on down button click with index and down args', () => {
+      page.blocksDown[1].click();
 
-      expect(page.orderBlock).toHaveBeenCalledWith(1, jasmine.any(Number));
+      expect(page.orderBlock).toHaveBeenCalledWith(1, 1);
     });
 
-    it('should call orderBlock with up direction', () => {
-      page.blocksUp[1].triggerEventHandler('click', null);
-
-      expect(page.orderBlock).toHaveBeenCalledWith(jasmine.any(Number), -1);
-    });
-
-    it('should call orderBlock with down direction', () => {
-      page.blocksDown[1].triggerEventHandler('click', null);
-
-      expect(page.orderBlock).toHaveBeenCalledWith(jasmine.any(Number), 1);
-    });
-
-    it('should call ServerService orderBlock', () => {
-      page.blocksUp[1].triggerEventHandler('click', null);
+    it('should call ServerService orderBlock if block to be moved', () => {
+      comp.orderBlock(0, 1);
 
       expect(serverService.orderBlock).toHaveBeenCalled();
     });
 
-    it('should call ServerService orderBlock on first block down click', () => {
-      page.blocksDown[0].triggerEventHandler('click', null);
+    it('should call ServerService orderBlock if block to be moved with page, block, block replaced args', () => {
+      comp.orderBlock(0, 1);
 
-      expect(serverService.orderBlock).toHaveBeenCalled();
+      expect(serverService.orderBlock).toHaveBeenCalledWith(
+        Data.Pages[0],
+        { ...Data.Blocks['1'][0], order: jasmine.any(Number) },
+        { ...Data.Blocks['1'][1], order: jasmine.any(Number) }
+      );
     });
 
-    it('should call ServerService orderBlock on last block up click', () => {
-      page.blocksUp[2].triggerEventHandler('click', null);
+    it('should call ServerService orderBlock if block to be moved with swapped block args', () => {
+      comp.orderBlock(0, 1);
 
-      expect(serverService.orderBlock).toHaveBeenCalled();
+      expect(serverService.orderBlock).toHaveBeenCalledWith(
+        Data.Pages[0],
+        { ...Data.Blocks['1'][0], order: 2 },
+        { ...Data.Blocks['1'][1], order: 1 }
+      );
     });
 
-    it('should not call ServerService orderBlock on first block up click', () => {
-      page.blocksUp[0].triggerEventHandler('click', null);
+    it('should not call ServerService orderBlock if no block to be moved', () => {
+      comp.orderBlock(0, -1);
 
       expect(serverService.orderBlock).not.toHaveBeenCalled();
-    });
-
-    it('should not call ServerService orderBlock on last block down click', () => {
-      page.blocksDown[2].triggerEventHandler('click', null);
-
-      expect(serverService.orderBlock).not.toHaveBeenCalled();
-    });
-
-    it('should not set both blocks with identical order', () => {
-      page.blocksDown[0].triggerEventHandler('click', null);
-
-      const block = (serverService.orderBlock as jasmine.Spy).calls.mostRecent()
-        .args[1];
-      const blockReplaced = (serverService.orderBlock as jasmine.Spy).calls.mostRecent()
-        .args[2];
-
-      expect(block.order).not.toBe(blockReplaced.order);
-    });
-
-    it('should decrement block order on up click', () => {
-      page.blocksUp[2].triggerEventHandler('click', null);
-
-      expect(serverService.orderBlock).toHaveBeenCalledWith(
-        jasmine.anything(),
-        { order: 2, id: jasmine.any(String), type: jasmine.any(String) },
-        jasmine.anything()
-      );
-    });
-
-    it('should increment replaced block order', () => {
-      page.blocksUp[2].triggerEventHandler('click', null);
-
-      expect(serverService.orderBlock).toHaveBeenCalledWith(
-        jasmine.anything(),
-        jasmine.anything(),
-        { order: 3, id: jasmine.any(String), type: jasmine.any(String) }
-      );
-    });
-
-    it('should increment block order on down click', () => {
-      page.blocksDown[0].triggerEventHandler('click', null);
-
-      expect(serverService.orderBlock).toHaveBeenCalledWith(
-        jasmine.anything(),
-        { order: 2, id: jasmine.any(String), type: jasmine.any(String) },
-        jasmine.anything()
-      );
-    });
-
-    it('should decrement replaced block order', () => {
-      page.blocksDown[0].triggerEventHandler('click', null);
-
-      expect(serverService.orderBlock).toHaveBeenCalledWith(
-        jasmine.anything(),
-        jasmine.anything(),
-        { order: 1, id: jasmine.any(String), type: jasmine.any(String) }
-      );
-    });
-
-    it('should always have sequential order numbers', () => {
-      page.blocksUp.forEach(button =>
-        button.triggerEventHandler('click', null)
-      );
-      page.blocksDown.forEach(button =>
-        button.triggerEventHandler('click', null)
-      );
-
-      const orders = comp.blocks.map(blocks => blocks.order).sort();
-
-      expect(orders).toEqual(
-        Array.from({ length: orders.length }, (v, k) => k + 1)
-      );
-    });
-
-    it('should never have multiple blocks with identical order numbers', () => {
-      page.blocksDown.forEach(button =>
-        button.triggerEventHandler('click', null)
-      );
-      page.blocksUp.forEach(button =>
-        button.triggerEventHandler('click', null)
-      );
-
-      const orders = comp.blocks.map(blocks => blocks.order);
-
-      const isUnique = array => {
-        const temp = [];
-
-        return array.map(arr => {
-          if (temp.includes(arr)) return true;
-
-          temp.push(arr);
-          return false;
-        });
-      };
-
-      expect(isUnique(orders)).toEqual(Array(orders.length).fill(false));
     });
   });
 });
@@ -468,28 +335,39 @@ class Page {
   addBlock: jasmine.Spy;
   removeBlock: jasmine.Spy;
   orderBlock: jasmine.Spy;
+  updateActiveBlock: jasmine.Spy;
 
-  blocksType: DebugElement[];
-  blocksSwitch: DebugElement[];
-  blockAddText: DebugElement;
-  blockAddImage: DebugElement;
-  blocksRemove: DebugElement[];
-  blocksUp: DebugElement[];
-  blocksDown: DebugElement[];
+  get blocksSwitch() {
+    return this.queryAll<HTMLElement>('.switch-block');
+  }
+  get blockAddText() {
+    return this.query<HTMLButtonElement>('#add-text');
+  }
+  get blockAddImage() {
+    return this.query<HTMLButtonElement>('#add-image');
+  }
+  get blocksRemove() {
+    return this.queryAll<HTMLButtonElement>('.block-remove');
+  }
+  get blocksUp() {
+    return this.queryAll<HTMLButtonElement>('.order-up');
+  }
+  get blocksDown() {
+    return this.queryAll<HTMLButtonElement>('.order-down');
+  }
 
   constructor() {
     this.addBlock = spyOn(comp, 'addBlock').and.callThrough();
     this.removeBlock = spyOn(comp, 'removeBlock').and.callThrough();
     this.orderBlock = spyOn(comp, 'orderBlock').and.callThrough();
+    this.updateActiveBlock = spyOn(comp, 'updateActiveBlock').and.callThrough();
   }
 
-  addElements() {
-    this.blocksType = fixture.debugElement.queryAll(By.css('b'));
-    this.blocksSwitch = fixture.debugElement.queryAll(By.css('.switch-block'));
-    this.blockAddText = fixture.debugElement.query(By.css('#add-text'));
-    this.blockAddImage = fixture.debugElement.query(By.css('#add-image'));
-    this.blocksRemove = fixture.debugElement.queryAll(By.css('.block-remove'));
-    this.blocksUp = fixture.debugElement.queryAll(By.css('.order-up'));
-    this.blocksDown = fixture.debugElement.queryAll(By.css('.order-down'));
+  private query<T>(selector: string): T {
+    return fixture.nativeElement.querySelector(selector);
+  }
+
+  private queryAll<T>(selector: string): T[] {
+    return fixture.nativeElement.querySelectorAll(selector);
   }
 }

@@ -1,4 +1,4 @@
-export { User } from '../app/shared/user';
+export { User, TextUserData } from '../app/shared/user';
 import { User } from '../app/shared/user';
 
 export function isUser(user: any): user is User {

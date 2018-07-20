@@ -4,6 +4,7 @@ export * from './image.service.mock';
 export * from './logger.service.mock';
 export * from './server.service.mock';
 export * from './router';
+export * from './user';
 export * from './page';
 export * from './block';
 export * from './data';

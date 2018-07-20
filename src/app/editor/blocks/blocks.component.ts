@@ -57,30 +57,31 @@ export class BlocksComponent implements OnDestroy {
         data: data
       }
     };
+
     this.serverService.updateUser(this.page, userData);
   }
 
-  orderBlock(index: number, direction: number) {
+  orderBlock(index: number, direction: 1 | -1) {
     const block = this.blocks[index];
     const blockReplaced = this.blocks[index + direction];
 
-    if (blockReplaced) {
-      [block.order, blockReplaced.order] = [blockReplaced.order, block.order];
+    if (!blockReplaced) return;
 
-      return this.serverService
-        .orderBlock(this.page, block, blockReplaced)
-        .then(_ =>
-          this.logger.log(
-            'orderBlock',
-            `moved ${block.type} block ${direction === 1 ? 'down' : 'up'}`
-          )
+    [block.order, blockReplaced.order] = [blockReplaced.order, block.order];
+
+    this.serverService
+      .orderBlock(this.page, block, blockReplaced)
+      .then(_ =>
+        this.logger.log(
+          'orderBlock',
+          `moved ${block.type} block ${direction === 1 ? 'down' : 'up'}`
         )
-        .catch(err => this.logger.error('orderBlock', err));
-    }
+      )
+      .catch(err => this.logger.error('orderBlock', err));
   }
 
   removeBlock(block: Block.Base) {
-    return this.serverService
+    this.serverService
       .removeBlock(this.page, block)
       .then(_ => this.logger.log('removeBlock', `removed ${block.type} block`))
       .catch(err => this.logger.error('removeBlock', err));
@@ -88,11 +89,12 @@ export class BlocksComponent implements OnDestroy {
 
   addBlock(base: Block.Base) {
     const block: Block.Base = {
+      ...base,
       id: this.serverService.createId(),
-      order: this.blocks.length + 1,
-      ...base
+      order: this.blocks.length + 1
     };
-    return this.serverService
+
+    this.serverService
       .addBlock(this.page, block)
       .then(_ => this.logger.log('addBlock', `added ${block.type} block`))
       .catch(err => this.logger.error('addBlock', err));
