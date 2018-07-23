@@ -1,23 +1,30 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import {
-  FirebaseAppStub,
-  AngularFireDatabaseStub,
+  FirebaseApp,
+  MockFirebaseApp,
+  AngularFireDatabase,
+  MockAngularFireDatabase,
+  HumanizePipe,
+  MockHumanizePipe,
   LoggerService,
   MockLoggerService,
   Page,
   Block,
+  User,
+  isUser,
   Data
 } from 'testing';
 
+import { Observable } from 'rxjs/Observable';
+import { from } from 'rxjs/observable/from';
+
 import { ServerService } from './server.service';
-import { FirebaseApp } from 'angularfire2';
-import { AngularFireDatabase } from 'angularfire2/database';
-import { HumanizePipe } from 'shared';
 
 let serverService: ServerService;
-let angularFireDatabase: AngularFireDatabaseStub;
-let humanizePipe: HumanizePipe;
-let db: Firebase;
+let firebaseApp: MockFirebaseApp;
+let angularFireDatabase: MockAngularFireDatabase;
+let humanizePipe: jasmine.Spy;
+let service: ServerServiceStub;
 
 const page1: Page = JSON.parse(JSON.stringify(Data.Pages[0]));
 const page2: Page = JSON.parse(JSON.stringify(Data.Pages[1]));
@@ -25,15 +32,18 @@ const block1: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['1'][0]));
 const block2: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['2'][2]));
 const data1 = JSON.parse(JSON.stringify(Data.Data[0]));
 const data2 = JSON.parse(JSON.stringify(Data.Data[1]));
+const textBlockData: Block.Data.TextData = JSON.parse(
+  JSON.stringify(Data.TextBlockData)
+);
 
 describe('ServerService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         { provide: LoggerService, useClass: MockLoggerService },
-        { provide: FirebaseApp, useClass: FirebaseAppStub },
-        { provide: AngularFireDatabase, useClass: AngularFireDatabaseStub },
-        HumanizePipe,
+        { provide: FirebaseApp, useClass: MockFirebaseApp },
+        { provide: AngularFireDatabase, useClass: MockAngularFireDatabase },
+        { provide: HumanizePipe, useClass: MockHumanizePipe },
         ServerService
       ]
     });
@@ -41,534 +51,483 @@ describe('ServerService', () => {
 
   beforeEach(async(() => createService()));
 
+  it('should create service', () => {
+    expect(serverService).toBeTruthy();
+  });
+
+  it('should call createId', () => {
+    expect(service.createId).toHaveBeenCalled();
+  });
+
+  it('should call AngularFireDatabase list', () => {
+    expect(angularFireDatabase.list).toHaveBeenCalled();
+  });
+
+  it(`should call AngularFireDatabase list with 'users' arg`, () => {
+    expect(angularFireDatabase.list).toHaveBeenCalledWith('users');
+  });
+
+  it('should call AngularFireDatabase list valueChanges', () => {
+    expect(angularFireDatabase.listSpy.valueChanges).toHaveBeenCalled();
+  });
+
+  describe('getUser', () => {
+    it('should return user', () => {
+      const user: any = serverService.getUser();
+
+      expect(user).toEqual({
+        id: 'abcdefg',
+        colour: jasmine.any(String)
+      });
+    });
+
+    it('should return user as User', () => {
+      const user = serverService.getUser();
+
+      expect(isUser(user)).toBe(true);
+    });
+  });
+
+  describe('updateBlockContent', () => {
+    beforeEach(() => serverService.updateBlockContent(block1, data1));
+
+    it('should call AngularFireDatabase object', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase object with content path arg', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalledWith('content/1/1');
+    });
+
+    it('should call AngularFireDatabase object set', () => {
+      expect(angularFireDatabase.objectSpy.set).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase object set with data arg', () => {
+      expect(angularFireDatabase.objectSpy.set).toHaveBeenCalledWith(data1);
+    });
+  });
+
+  describe('updateTextBlockContent', () => {
+    beforeEach(() => serverService.updateTextBlockContent(block1, data1));
+
+    it('should call FirebaseApp database', () => {
+      expect(firebaseApp.database).toHaveBeenCalled();
+    });
+
+    it('should call FirebaseApp database ref', () => {
+      expect(firebaseApp.databaseSpy.ref).toHaveBeenCalled();
+    });
+
+    it('should call FirebaseApp database ref with content path arg', () => {
+      expect(firebaseApp.databaseSpy.ref).toHaveBeenCalledWith('content/1/1');
+    });
+
+    it('should call FirebaseApp database ref transaction', () => {
+      expect(firebaseApp.databaseRefSpy.transaction).toHaveBeenCalled();
+    });
+
+    it('should call FirebaseApp database ref transaction with transaction args', () => {
+      expect(firebaseApp.databaseRefSpy.transaction).toHaveBeenCalledWith(
+        jasmine.any(Function),
+        null,
+        false
+      );
+    });
+  });
+
+  describe('getBlockContent', () => {
+    beforeEach(() => serverService.getBlockContent(block1));
+
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list with content path arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith('content/1');
+    });
+
+    it('should call AngularFireDatabase list stateChanges', () => {
+      expect(angularFireDatabase.listSpy.stateChanges).toHaveBeenCalled();
+    });
+
+    it(`should call AngularFireDatabase list stateChanges with 'child_added' arg`, () => {
+      expect(angularFireDatabase.listSpy.stateChanges).toHaveBeenCalledWith([
+        'child_added'
+      ]);
+    });
+  });
+
   describe('createId', () => {
-    it('should call firebase createPushId', () => {
+    it('should call AngularFireDatabase createPushId', () => {
       serverService.createId();
-      expect(db.createPushId.calls.count()).toBe(1);
+
+      expect(angularFireDatabase.createPushId).toHaveBeenCalled();
     });
   });
 
   describe('getCollection', () => {
-    it('should call firebase list', () => {
-      serverService.getCollection('pages').subscribe();
-      expect(db.list.calls.count()).toBe(1);
+    beforeEach(() => serverService.getCollection('posts'));
+
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
     });
 
-    it('should call firebase list with collection param', () => {
-      serverService.getCollection('name').subscribe();
-      let arg = db.list.calls.mostRecent().args[0];
-
-      expect(arg).toBe('name');
+    it('should call AngularFireDatabase list with name arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith(
+        'posts',
+        jasmine.any(Function)
+      );
     });
 
-    it('should call firebase list valueChanges', () => {
-      serverService.getCollection('pages').subscribe();
-      expect(db.valueChanges.calls.count()).toBe(1);
+    it('should call AngularFireDatabase list valueChanges', () => {
+      expect(angularFireDatabase.listSpy.valueChanges).toHaveBeenCalled();
     });
-
-    xit(
-      'should throw if not passed collection name',
-      async(() => {
-        serverService
-          .getCollection(null)
-          .subscribe(
-            res => expect(res).toBeUndefined(),
-            err => expect(err).toBeDefined()
-          );
-      })
-    );
   });
 
   describe('getPage', () => {
-    it('should call firebase object', () => {
-      serverService.getPage('1').subscribe();
-      expect(db.object.calls.count()).toBe(1);
+    beforeEach(() => serverService.getPage('1'));
+
+    it('should call AngularFireDatabase object', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalled();
     });
 
-    it('should call firebase object with page id param', () => {
-      serverService.getPage('1').subscribe();
-      let arg = db.object.calls.mostRecent().args[0];
-
-      expect(arg).toBe('pages/1');
+    it('should call AngularFireDatabase object with page path arg', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalledWith('pages/1');
     });
 
-    it('should call firebase object valueChanges', () => {
-      serverService.getPage('1').subscribe();
-      expect(db.valueChanges.calls.count()).toBe(1);
+    it('should call AngularFireDatabase object valueChanges', () => {
+      expect(angularFireDatabase.objectSpy.valueChanges).toHaveBeenCalled();
     });
 
-    xit('should throw if not passed page name');
+    it('should filter falsy return values', () => {
+      angularFireDatabase.objectSpy.valueChanges.and.callFake(() =>
+        from([true, false, true, null])
+      );
+
+      const results = [];
+      serverService.getPage('page1').subscribe(res => results.push(res));
+
+      expect(results).toEqual([true, true]);
+    });
+  });
+
+  describe('getBlocks', () => {
+    beforeEach(() => serverService.getBlocks(page1));
+
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list with data path arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith(
+        'data/1/a',
+        jasmine.any(Function)
+      );
+    });
+
+    it('should call AngularFireDatabase list valueChanges', () => {
+      expect(angularFireDatabase.listSpy.valueChanges).toHaveBeenCalled();
+    });
   });
 
   describe('addPage', () => {
-    it(
-      'should call firebase object',
-      async(() => {
-        serverService
-          .addPage(page1)
-          .then(_ => expect(db.object.calls.count()).toBe(1));
-      })
-    );
+    beforeEach(() => serverService.addPage(page1));
 
-    it(
-      'should call firebase object with page id param',
-      async(() => {
-        serverService.addPage(page1).then(_ => {
-          let arg = db.object.calls.mostRecent().args[0];
+    it('should call AngularFireDatabase object', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalled();
+    });
 
-          expect(arg).toBe('pages/page-1');
-        });
-      })
-    );
+    it('should call AngularFireDatabase object with page id arg', () => {
+      expect(angularFireDatabase.object).toHaveBeenCalledWith('pages/page-1');
+    });
 
-    xit('should throw if not passed page id');
+    it('should call AngularFireDatabase object set', () => {
+      expect(angularFireDatabase.objectSpy.set).toHaveBeenCalled();
+    });
+  });
+
+  describe('orderBlock', () => {
+    beforeEach(() => serverService.orderBlock(page1, block1, block2));
+
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref with data path arg', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'data/1/a'
+      );
+    });
+
+    it('should call AngularFireDatabase database ref update', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref update with order changes', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
+        '1/order': 1,
+        '3/order': 3
+      });
+    });
+  });
+
+  describe('addBlock', () => {
+    const block: Block.Base = { type: 'text', id: 'abc', order: 5 };
+    beforeEach(() => serverService.addBlock(page1, block));
+
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list with data path arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith('data/1/a');
+    });
+
+    it('should call AngularFireDatabase list set', () => {
+      expect(angularFireDatabase.listSpy.set).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list set with block id and block args', () => {
+      expect(angularFireDatabase.listSpy.set).toHaveBeenCalledWith(
+        'abc',
+        block
+      );
+    });
   });
 
   describe('updatePage', () => {
-    it(
-      'should call humanize pipe',
-      async(() => {
-        serverService
-          .updatePage(page1, 'page-2')
-          .then(_ => expect(db.humanize.calls.count()).toBe(1));
-      })
-    );
+    beforeEach(() => serverService.updatePage(page1, 'new-title'));
 
-    it(
-      'should call firebase ref',
-      async(() => {
-        serverService
-          .updatePage(page1, 'page-2')
-          .then(_ => expect(db.ref.calls.count()).toBe(1));
-      })
-    );
+    it('should call HumanizePipe', () => {
+      expect(humanizePipe).toHaveBeenCalled();
+    });
 
-    it(
-      'should call firebase update',
-      async(() => {
-        serverService
-          .updatePage(page1, 'page-2')
-          .then(_ => expect(db.update.calls.count()).toBe(1));
-      })
-    );
+    it('should call HumanizePipe with newId arg', () => {
+      expect(humanizePipe).toHaveBeenCalledWith('new-title');
+    });
 
-    xit("should reject if currentPage and newPage id's are identical", () => {});
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
+    });
 
-    describe('update object', () => {
-      it(
-        'should set unmodified newPage dataId',
-        async(() => {
-          serverService.updatePage(page1, 'page-2').then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
+    it(`should call AngularFireDatabase database ref with 'pages' arg`, () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith('pages');
+    });
 
-            expect(updateObject['page-2'].dataId).toEqual(page1.dataId);
-          });
-        })
+    it('should call AngularFireDatabase database ref update with replaced pages arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
+        'new-title': {
+          id: 'new-title',
+          name: 'humanized: new-title',
+          dataId: '1',
+          revisions: {
+            currentId: 'a'
+          },
+          lastModified: jasmine.anything()
+        } as Page,
+        'page-1': null
+      });
+    });
+  });
+
+  describe('updateUser', () => {
+    const user: User = {
+      id: 'xyz',
+      colour: '#fff',
+      current: {
+        pageId: '1',
+        blockId: 'a',
+        data: {
+          index: 1,
+          length: 2
+        }
+      }
+    };
+    beforeEach(() => serverService.updateUser(page1, user));
+
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref with users path arg', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'users/abcdefg'
       );
+    });
 
-      it(
-        'should set unmodified newPage revisions currentId',
-        async(() => {
-          serverService.updatePage(page1, 'page-2').then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
+    it('should call AngularFireDatabase database ref onDisconnect', () => {
+      expect(
+        angularFireDatabase.databaseRefSpy.onDisconnect
+      ).toHaveBeenCalled();
+    });
 
-            expect(updateObject['page-2'].revisions.currentId).toEqual(
-              page1.revisions.currentId
-            );
-          });
-        })
-      );
+    it('should call AngularFireDatabase database ref onDisconnect remove', () => {
+      expect(
+        angularFireDatabase.databaseRefOnDisconnectSpy.remove
+      ).toHaveBeenCalled();
+    });
 
-      it(
-        'should not set newPage revisions publishedId',
-        async(() => {
-          serverService.updatePage(page1, 'page-2').then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
+    it('should call AngularFireDatabase database ref update', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalled();
+    });
 
-            expect(
-              updateObject['page-2'].revisions.publishedId
-            ).toBeUndefined();
-          });
-        })
-      );
+    it('should call AngularFireDatabase database ref update with merged user arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
+        id: 'abcdefg',
+        colour: jasmine.any(String),
+        current: {
+          ...user.current,
+          pageId: 'page-1'
+        }
+      });
+    });
+  });
 
-      it(
-        'should delete currentPage',
-        async(() => {
-          serverService.updatePage(page1, 'page-2').then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
+  xdescribe('getUsers', () => {});
 
-            expect(updateObject['page-1']).toBeNull();
-          });
-        })
+  describe('updateBlock', () => {
+    beforeEach(() => serverService.updateBlock(page1, block1, textBlockData));
+
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list with data path arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith('data/1/a/1/data');
+    });
+
+    it('should call AngularFireDatabase list set', () => {
+      expect(angularFireDatabase.listSpy.set).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase list set with data id and data args', () => {
+      expect(angularFireDatabase.listSpy.set).toHaveBeenCalledWith(
+        '1',
+        textBlockData
       );
     });
   });
 
   describe('removePage', () => {
-    it(
-      'should call firebase ref',
-      async(() => {
-        serverService
-          .removePage(page1)
-          .then(_ => expect(db.ref.calls.count()).toBe(1));
-      })
-    );
+    beforeEach(() => serverService.removePage(page1));
 
-    it(
-      'should call firebase update',
-      async(() => {
-        serverService
-          .removePage(page1)
-          .then(_ => expect(db.update.calls.count()).toBe(1));
-      })
-    );
-
-    describe('update object', () => {
-      it(
-        'should delete page',
-        async(() => {
-          serverService.removePage(page2).then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
-
-            expect(updateObject['pages/page-2']).toBeNull();
-          });
-        })
-      );
-
-      it(
-        'should delete page data',
-        async(() => {
-          serverService.removePage(page2).then(_ => {
-            let updateObject = db.update.calls.mostRecent().args[0];
-
-            expect(updateObject['data/2']).toBeNull();
-          });
-        })
-      );
-    });
-  });
-
-  describe('publishPage', () => {
-    it('should call createId', () => {
-      serverService.publishPage(page1);
-
-      expect(db.createId.calls.count()).toBe(1);
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
     });
 
-    it('should call firebase createPushId', () => {
-      serverService.publishPage(page1);
-
-      expect(db.createPushId.calls.count()).toBe(1);
+    it('should call AngularFireDatabase database ref update', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalled();
     });
 
-    it('should call firebase ref (1)', () => {
-      serverService.publishPage(page1);
-
-      expect(db.ref.calls.count()).toBe(1);
-    });
-
-    it('should call firebase ref (1) with page param', () => {
-      serverService.publishPage(page1);
-      let arg = db.ref.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/1/a');
-    });
-
-    it('should call firebase ref once', () => {
-      db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-      serverService.publishPage(page1);
-
-      expect(db.once.calls.count()).toBe(1);
-    });
-
-    it(
-      'should call firebase ref (2)',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.returnValue(
-          Promise.resolve(null)
-        );
-
-        serverService
-          .publishPage(page1)
-          .then(_ => expect(db.ref.calls.count()).toBe(2))
-          .catch(_ => undefined);
-      })
-    );
-
-    it(
-      'should call firebase ref (2) with page param',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.returnValue(
-          Promise.resolve(null)
-        );
-
-        serverService
-          .publishPage(page1)
-          .then(_ => {
-            let arg = db.ref.calls.mostRecent().args[0];
-
-            expect(arg).toBe('data/1/abcdefg');
-          })
-          .catch(_ => undefined);
-      })
-    );
-
-    it(
-      'should call firebase ref set',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-        serverService
-          .publishPage(page1)
-          .then(_ => expect(db.set.calls.count()).toBe(1));
-      })
-    );
-
-    it(
-      'should call firebase ref (3)',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-        serverService
-          .publishPage(page1)
-          .then(_ => expect(db.ref.calls.count()).toBe(3));
-      })
-    );
-
-    it(
-      'should call firebase ref (3) with page param',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-        serverService.publishPage(page1).then(_ => {
-          let arg = db.ref.calls.mostRecent().args[0];
-
-          expect(arg).toBe('pages/page-1/revisions/');
-        });
-      })
-    );
-
-    it(
-      'should call firebase ref update',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-        serverService
-          .publishPage(page1)
-          .then(_ => expect(db.update.calls.count()).toBe(1));
-      })
-    );
-
-    it(
-      'should call firebase ref update with update object',
-      async(() => {
-        db.once = spyOn(angularFireDatabase.database, 'once').and.callThrough();
-
-        serverService.publishPage(page1).then(_ => {
-          let arg = db.update.calls.mostRecent().args[0];
-
-          expect(arg.publishedId).toBe('a');
-          expect(arg.currentId).toBe('abcdefg');
-        });
-      })
-    );
-
-    xit('should reject if not passed page dataId', async(() => {}));
-
-    xit(
-      'should reject if not passed page revisions currentId',
-      async(() => {})
-    );
-
-    xit('should reject if not passed page id', async(() => {}));
-  });
-
-  describe('getBlocks', () => {
-    it('should call firebase list', () => {
-      serverService.getBlocks(page2);
-
-      expect(db.list.calls.count()).toBe(1);
-    });
-
-    it('should call firebase list with page param', () => {
-      serverService.getBlocks(page2);
-      let arg = db.list.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/2/b');
-    });
-
-    it('should call firebase valueChanges', () => {
-      serverService.getBlocks(page2);
-
-      expect(db.valueChanges.calls.count()).toBe(1);
-    });
-  });
-
-  describe('addBlock', () => {
-    it('should call firebase list', () => {
-      serverService.addBlock(page1, block1);
-
-      expect(db.list.calls.count()).toBe(1);
-    });
-
-    it('should call firebase list with page param', () => {
-      serverService.addBlock(page1, block1);
-      let arg = db.list.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/1/a');
-    });
-
-    it('should call firebase set', () => {
-      serverService.addBlock(page1, block1);
-
-      expect(db.set.calls.count()).toBe(1);
-    });
-
-    it('should call firebase set with block params', () => {
-      serverService.addBlock(page1, block1);
-      let args = db.set.calls.mostRecent().args;
-
-      expect(args[0]).toBe('1');
-      expect(args[1]).toBe(block1);
-    });
-  });
-
-  describe('updateBlock', () => {
-    it('should call firebase list', () => {
-      serverService.updateBlock(page2, block2, data2);
-
-      expect(db.list.calls.count()).toBe(1);
-    });
-
-    it('should call firebase list with page and block param', () => {
-      serverService.updateBlock(page2, block2, data2);
-      let arg = db.list.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/2/b/3/data');
-    });
-
-    it('should call firebase list set', () => {
-      serverService.updateBlock(page2, block2, data2);
-
-      expect(db.set.calls.count()).toBe(1);
-    });
-
-    it('should call firebase list set with data params', () => {
-      serverService.updateBlock(page2, block2, data2);
-      let args = db.set.calls.mostRecent().args;
-
-      expect(args[0]).toBe('2');
-      expect(args[1]).toBe(data2);
+    it('should call AngularFireDatabase database ref update with page updates arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
+        'pages/page-1': null,
+        'data/1': null
+      });
     });
   });
 
   describe('removeBlock', () => {
-    it('should call firebase list', () => {
-      serverService.removeBlock(page2, block1);
+    beforeEach(() => serverService.removeBlock(page1, block1));
 
-      expect(db.list.calls.count()).toBe(1);
+    it('should call AngularFireDatabase list', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalled();
     });
 
-    it('should call firebase list with page param', () => {
-      serverService.removeBlock(page2, block1);
-      let arg = db.list.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/2/b');
+    it('should call AngularFireDatabase list with data path arg', () => {
+      expect(angularFireDatabase.list).toHaveBeenCalledWith('data/1/a');
     });
 
-    it('should call firebase list remove', () => {
-      serverService.removeBlock(page2, block1);
-
-      expect(db.remove.calls.count()).toBe(1);
+    it('should call AngularFireDatabase list remove', () => {
+      expect(angularFireDatabase.listSpy.remove).toHaveBeenCalled();
     });
 
-    it('should call firebase list remove with block id', () => {
-      serverService.removeBlock(page2, block1);
-      let arg = db.remove.calls.mostRecent().args[0];
-
-      expect(arg).toBe('1');
+    it('should call AngularFireDatabase list remove with block id arg', () => {
+      expect(angularFireDatabase.listSpy.remove).toHaveBeenCalledWith('1');
     });
   });
 
-  describe('orderBlock', () => {
-    it('should call firebase database ref', () => {
-      serverService.orderBlock(page1, block1, block2);
+  describe('publishPage', () => {
+    beforeEach(() => serverService.publishPage(page1));
 
-      expect(db.ref.calls.count()).toBe(1);
+    it('should call ServerService createId', () => {
+      expect(serverService.createId).toHaveBeenCalled();
     });
 
-    it('should call firebase database ref with page param', () => {
-      serverService.orderBlock(page1, block1, block2);
-      let arg = db.ref.calls.mostRecent().args[0];
-
-      expect(arg).toBe('data/1/a');
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
     });
 
-    it('should call firebase database ref update', () => {
-      serverService.orderBlock(page1, block1, block2);
-
-      expect(db.update.calls.count()).toBe(1);
+    it('should call AngularFireDatabase database ref with current data path arg', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'data/1/a'
+      );
     });
 
-    describe('update object', () => {
-      it('should set block order', () => {
-        serverService.orderBlock(page1, block1, block2);
-        let arg = db.update.calls.mostRecent().args[0];
+    it('should call AngularFireDatabase database ref once', () => {
+      expect(angularFireDatabase.databaseRefSpy.once).toHaveBeenCalled();
+    });
 
-        expect(arg['1/order']).toBe(1);
-      });
+    it(`should call AngularFireDatabase database ref once with 'value' arg`, () => {
+      expect(angularFireDatabase.databaseRefSpy.once).toHaveBeenCalledWith(
+        'value'
+      );
+    });
 
-      it('should set block replaced order', () => {
-        serverService.orderBlock(page1, block1, block2);
-        let arg = db.update.calls.mostRecent().args[0];
+    it('should call AngularFireDatabase database ref with new data path arg', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'data/1/abcdefg'
+      );
+    });
 
-        expect(arg['3/order']).toBe(3);
+    it('should call AngularFireDatabase database ref set', () => {
+      expect(angularFireDatabase.databaseRefSpy.set).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref set with blocks arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.set).toHaveBeenCalledWith(
+        Data.Blocks
+      );
+    });
+
+    it('should call AngularFireDatabase database ref with pages path arg', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'pages/page-1/revisions/'
+      );
+    });
+
+    it('should call AngularFireDatabase database ref update', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref update with revision update arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
+        publishedId: 'a',
+        currentId: 'abcdefg'
       });
     });
   });
 });
 
 function createService() {
+  service = new ServerServiceStub();
   serverService = TestBed.get(ServerService);
+  firebaseApp = TestBed.get(FirebaseApp);
   angularFireDatabase = TestBed.get(AngularFireDatabase);
-  humanizePipe = TestBed.get(HumanizePipe);
-  db = new Firebase();
+  humanizePipe = spyOn(
+    MockHumanizePipe.prototype,
+    'transform'
+  ).and.callThrough();
 }
 
-class Firebase {
+class ServerServiceStub {
   createId: jasmine.Spy;
-  createPushId: jasmine.Spy;
-  list: jasmine.Spy;
-  valueChanges: jasmine.Spy;
-  object: jasmine.Spy;
-  ref: jasmine.Spy;
-  update: jasmine.Spy;
-  once: jasmine.Spy;
-  set: jasmine.Spy;
-  remove: jasmine.Spy;
-  humanize: jasmine.Spy;
 
   constructor() {
-    this.createId = spyOn(serverService, 'createId').and.callThrough();
-    this.createPushId = spyOn(
-      angularFireDatabase,
-      'createPushId'
+    this.createId = spyOn(
+      ServerService.prototype,
+      'createId'
     ).and.callThrough();
-    this.list = spyOn(angularFireDatabase, 'list').and.callThrough();
-    this.valueChanges = spyOn(
-      angularFireDatabase,
-      'valueChanges'
-    ).and.callThrough();
-    this.object = spyOn(angularFireDatabase, 'object').and.callThrough();
-    this.ref = spyOn(angularFireDatabase.database, 'ref').and.callThrough();
-    this.update = spyOn(
-      angularFireDatabase.database,
-      'update'
-    ).and.callThrough();
-    this.set = spyOn(angularFireDatabase, 'set').and.callThrough();
-    this.remove = spyOn(angularFireDatabase, 'remove').and.callThrough();
-    this.humanize = spyOn(humanizePipe, 'transform').and.callThrough();
   }
 }

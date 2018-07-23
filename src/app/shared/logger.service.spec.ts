@@ -18,6 +18,10 @@ describe('LoggerService', () => {
 
   beforeEach(async(() => createService()));
 
+  it('should create service', () => {
+    expect(loggerService).toBeTruthy();
+  });
+
   describe('log', () => {
     it('should be called', () => {
       loggerService.log('');

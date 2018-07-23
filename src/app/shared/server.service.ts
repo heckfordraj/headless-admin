@@ -50,17 +50,17 @@ export class ServerService {
     return this.user;
   }
 
-  updateBlockContent(block: Block.Base, data: Block.Data.Base): Promise<void> {
-    return this.db.object(`content/${block.id}/${data.id}`).set(data);
+  updateBlockContent({ id }: Block.Base, data: Block.Data.Base): Promise<void> {
+    return this.db.object(`content/${id}/${data.id}`).set(data);
   }
 
   updateTextBlockContent(
-    block: Block.Base,
+    { id }: Block.Base,
     data: Block.Data.TextData
   ): Promise<void> {
     return this.fb
       .database()
-      .ref(`content/${block.id}/${data.id}`)
+      .ref(`content/${id}/${data.id}`)
       .transaction(
         currentData => (currentData === null ? data : undefined),
         null,
@@ -68,9 +68,9 @@ export class ServerService {
       );
   }
 
-  getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
+  getBlockContent({ id }: Block.Base): Observable<Block.Data.Base> {
     return this.db
-      .list(`content/${block.id}`)
+      .list(`content/${id}`)
       .stateChanges(['child_added'])
       .map(content => content.payload.val())
       .pipe(
@@ -124,12 +124,12 @@ export class ServerService {
 
   orderBlock(
     page: Page,
-    block: Block.Base,
-    blockReplaced: Block.Base
+    { id, order }: Block.Base,
+    { id: replacedId, order: replacedOrder }: Block.Base
   ): Promise<void> {
     const updates = {
-      [`${block.id}/order`]: block.order,
-      [`${blockReplaced.id}/order`]: blockReplaced.order
+      [`${id}/order`]: order,
+      [`${replacedId}/order`]: replacedOrder
     };
 
     return this.db.database
@@ -196,12 +196,12 @@ export class ServerService {
 
   updateBlock(
     page: Page,
-    block: Block.Base,
+    { id }: Block.Base,
     data: Block.Data.Base
   ): Promise<void> {
     return this.db
       .list<Block.Data.Base>(
-        `data/${page.dataId}/${page.revisions.currentId}/${block.id}/data`
+        `data/${page.dataId}/${page.revisions.currentId}/${id}/data`
       )
       .set(data.id.toString(), data);
   }
@@ -215,10 +215,10 @@ export class ServerService {
     return this.db.database.ref().update(updates);
   }
 
-  removeBlock(page: Page, block: Block.Base): Promise<void> {
+  removeBlock(page: Page, { id }: Block.Base): Promise<void> {
     return this.db
       .list<Block.Base>(`data/${page.dataId}/${page.revisions.currentId}`)
-      .remove(block.id);
+      .remove(id);
   }
 
   publishPage(page: Page): Promise<void> {
@@ -227,8 +227,8 @@ export class ServerService {
     return this.db.database
       .ref(`data/${page.dataId}/${page.revisions.currentId}`)
       .once('value')
-      .then((blocks: DatabaseSnapshot) =>
-        this.db.database.ref(`data/${page.dataId}/${newId}`).set(blocks.val())
+      .then(({ val }: DatabaseSnapshot) =>
+        this.db.database.ref(`data/${page.dataId}/${newId}`).set(val())
       )
       .then(_ =>
         this.db.database.ref(`pages/${page.id}/revisions/`).update({
