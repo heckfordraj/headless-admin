@@ -1,8 +1,30 @@
-import { browser, by, element } from 'protractor';
+import {
+  browser,
+  by,
+  element,
+  ElementFinder,
+  ExpectedConditions
+} from 'protractor';
 
 export class PagesComponent {
+  constructor() {
+    browser.waitForAngularEnabled(false);
+  }
+
+  isVisible(el: ElementFinder) {
+    const isVisible = ExpectedConditions.visibilityOf(el);
+    return browser.wait(isVisible, 3000);
+  }
+
+  isClickable(el: ElementFinder) {
+    const isClickable = ExpectedConditions.elementToBeClickable(el);
+    return browser.wait(isClickable, 3000);
+  }
+
   navigateTo() {
-    return browser.get('/pages');
+    return browser
+      .get('/pages')
+      .then(_ => this.isVisible(this.getPages().first()));
   }
 
   getUrl() {
@@ -10,7 +32,11 @@ export class PagesComponent {
   }
 
   getTitle() {
-    return element(by.css('h1')).getText();
+    return element(by.css('h1'));
+  }
+
+  getEditorPageTitle() {
+    return element(by.css('h2'));
   }
 
   getPages() {
@@ -23,10 +49,6 @@ export class PagesComponent {
 
   getPageLinks() {
     return element.all(by.css('a'));
-  }
-
-  getPageDataIds() {
-    return element.all(by.css('small'));
   }
 
   getPageDeleteButtons() {

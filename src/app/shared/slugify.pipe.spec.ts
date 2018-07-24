@@ -3,11 +3,9 @@ import { SlugifyPipe } from './slugify.pipe';
 describe('SlugifyPipe', () => {
   let pipe: SlugifyPipe;
 
-  beforeEach(() => {
-    pipe = new SlugifyPipe();
-  });
+  beforeEach(() => (pipe = new SlugifyPipe()));
 
-  it('should create an instance', () => {
+  it('should create pipe', () => {
     expect(pipe).toBeTruthy();
   });
 
