@@ -227,8 +227,8 @@ export class ServerService {
     return this.db.database
       .ref(`data/${page.dataId}/${page.revisions.currentId}`)
       .once('value')
-      .then(({ val }: DatabaseSnapshot) =>
-        this.db.database.ref(`data/${page.dataId}/${newId}`).set(val())
+      .then((block: DatabaseSnapshot) =>
+        this.db.database.ref(`data/${page.dataId}/${newId}`).set(block.val())
       )
       .then(_ =>
         this.db.database.ref(`pages/${page.id}/revisions/`).update({

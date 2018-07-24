@@ -1,4 +1,4 @@
-import { browser, ElementFinder, Key } from 'protractor';
+import { ElementFinder, Key } from 'protractor';
 import { EditorComponent } from './editor.po';
 
 import * as FirebaseServer from 'firebase-server';
@@ -15,74 +15,85 @@ describe('EditorComponent', () => {
 
     page = new EditorComponent();
     page.navigateTo();
-    browser.sleep(3000);
-    browser.waitForAngularEnabled(false);
   });
 
-  afterEach(() => {
-    server.close();
-  });
+  afterEach(() => server.close());
 
   it('should display page name', () => {
-    expect(page.getPageName()).toBe('Page 1');
+    expect(page.getPageName().getText()).toBe('Page 1');
   });
 
   describe('page update', () => {
-    let updatePage: ElementFinder;
+    let updatePageInput: ElementFinder;
 
-    beforeEach(() => {
-      updatePage = page.getPageInput();
-    });
+    beforeEach(() => (updatePageInput = page.getPageInput()));
 
     it('should display slugified initial page name in input', () => {
-      expect(updatePage.getAttribute('value')).toBe('page-1');
+      expect(updatePageInput.getAttribute('value')).toBe('page-1');
     });
 
-    it('should display page input value on type', () => {
-      updatePage.clear();
-      updatePage.sendKeys('test');
+    it('should display input value on type', () => {
+      updatePageInput.clear();
+      updatePageInput.sendKeys('test');
 
-      expect(updatePage.getAttribute('value')).toBe('test');
+      expect(updatePageInput.getAttribute('value')).toBe('test');
     });
 
     it('should display slugified input value on type', () => {
-      updatePage.clear();
-      updatePage.sendKeys('Test Page');
+      updatePageInput.clear();
+      updatePageInput.sendKeys('Test Page');
 
-      expect(updatePage.getAttribute('value')).toBe('test-page');
+      expect(updatePageInput.getAttribute('value')).toBe('test-page');
     });
 
-    it('should route to updated page name on submit', () => {
-      updatePage.clear();
-      updatePage.sendKeys('New Page', Key.ENTER);
+    it('should route to updated page on submit', () => {
+      updatePageInput.clear();
 
-      expect(page.getUrl()).toContain('/page/new-page');
+      updatePageInput
+        .sendKeys('New Page', Key.ENTER)
+        .then(() => page.isVisible(page.getPageName()))
+        .then(_ => expect(page.getUrl()).toContain('/page/new-page'));
     });
 
     it('should display updated page name', () => {
-      updatePage.clear();
-      updatePage.sendKeys('New Page', Key.ENTER);
+      updatePageInput.clear();
 
-      browser.sleep(1000);
-
-      expect(page.getPageName()).toBe('New Page');
+      updatePageInput
+        .sendKeys('New Page', Key.ENTER)
+        .then(() => page.isVisible(page.getPageName()))
+        .then(_ => expect(page.getPageName().getText()).toBe('New Page'));
     });
 
     it('should not route to duplicate page name on submit', () => {
-      updatePage.clear();
-      updatePage.sendKeys('Page 2', Key.ENTER);
+      updatePageInput.clear();
 
-      expect(page.getUrl()).not.toContain('/page-2');
+      updatePageInput
+        .sendKeys('Page 2', Key.ENTER)
+        .then(() => page.isVisible(page.getPageName()))
+        .then(_ => expect(page.getUrl()).not.toContain('/page-2'));
     });
   });
 
-  xdescribe('page publish', () => {
-    xit('should expect blocks to be identical', () => {});
+  describe('page publish', () => {
+    beforeEach(() => {
+      const el = page.getPagePublishButton();
+
+      page.isClickable(el).then(_ => el.click());
+    });
+
+    it('should not modify blocks', () => {
+      expect(page.getBlocks().count()).toBe(3);
+    });
   });
 
   describe('page remove', () => {
     beforeEach(() => {
-      page.getPageDeleteButton().click();
+      const el = page.getPageDeleteButton();
+
+      page
+        .isClickable(el)
+        .then(() => el.click())
+        .then(_ => page.isVisible(page.getPagesPageTitle()));
     });
 
     it('should route to pages', () => {
