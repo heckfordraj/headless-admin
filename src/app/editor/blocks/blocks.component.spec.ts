@@ -32,19 +32,17 @@ let textComponent: TextComponent;
 let page: Page;
 
 describe('BlocksComponent', () => {
-  beforeEach(
-    async(() => {
-      TestBed.configureTestingModule({
-        declarations: [HostComponent, BlocksComponent, TextComponent],
-        providers: [
-          LoggerService,
-          { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService }
-        ],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA]
-      }).compileComponents();
-    })
-  );
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [HostComponent, BlocksComponent, TextComponent],
+      providers: [
+        LoggerService,
+        { provide: LoggerService, useClass: MockLoggerService },
+        { provide: ServerService, useClass: MockServerService }
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createComponent()));
 

@@ -371,14 +371,12 @@ describe('State', () => {
     });
 
     describe('PendingState', () => {
-      beforeEach(
-        () =>
-          (state = new PendingState(
-            textComponent,
-            loggerService,
-            Data.TextBlockData
-          ))
-      );
+      beforeEach(() =>
+        (state = new PendingState(
+          textComponent,
+          loggerService,
+          Data.TextBlockData
+        )));
 
       it(`should set state as 'pending'`, () => {
         expect(state.state).toBe('pending');
@@ -576,15 +574,13 @@ describe('State', () => {
     });
 
     describe('PendingBufferState', () => {
-      beforeEach(
-        () =>
-          (state = new PendingBufferState(
-            textComponent,
-            loggerService,
-            Data.TextBlockData,
-            Data.TextBlockDataDelta[1]
-          ))
-      );
+      beforeEach(() =>
+        (state = new PendingBufferState(
+          textComponent,
+          loggerService,
+          Data.TextBlockData,
+          Data.TextBlockDataDelta[1]
+        )));
 
       it(`should set state as 'pendingBuffer'`, () => {
         expect(state.state).toBe('pendingBuffer');

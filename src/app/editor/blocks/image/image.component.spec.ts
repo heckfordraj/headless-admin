@@ -29,18 +29,16 @@ let imageService: ImageService;
 let page: Page;
 
 describe('ImageComponent', () => {
-  beforeEach(
-    async(() => {
-      TestBed.configureTestingModule({
-        declarations: [HostComponent, ImageComponent],
-        providers: [
-          { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService },
-          { provide: ImageService, useClass: MockImageService }
-        ]
-      }).compileComponents();
-    })
-  );
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [HostComponent, ImageComponent],
+      providers: [
+        { provide: LoggerService, useClass: MockLoggerService },
+        { provide: ServerService, useClass: MockServerService },
+        { provide: ImageService, useClass: MockImageService }
+      ]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createComponent()));
 

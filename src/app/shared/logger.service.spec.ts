@@ -8,13 +8,11 @@ let service: Service;
 let _console: ConsoleStub;
 
 describe('LoggerService', () => {
-  beforeEach(
-    async(() => {
-      TestBed.configureTestingModule({
-        providers: [LoggerService]
-      }).compileComponents();
-    })
-  );
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [LoggerService]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createService()));
 

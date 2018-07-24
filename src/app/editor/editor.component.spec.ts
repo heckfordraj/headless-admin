@@ -35,24 +35,22 @@ let router: RouterStub;
 let page: Page;
 
 describe('EditorComponent', () => {
-  beforeEach(
-    async(() => {
-      activatedRoute = new ActivatedRouteStub();
-      activatedRoute.testParamMap = { id: 'page-1' };
+  beforeEach(async(() => {
+    activatedRoute = new ActivatedRouteStub();
+    activatedRoute.testParamMap = { id: 'page-1' };
 
-      TestBed.configureTestingModule({
-        imports: [RouterTestingModule, FormsModule],
-        declarations: [EditorComponent],
-        providers: [
-          { provide: ActivatedRoute, useValue: activatedRoute },
-          { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService },
-          { provide: SlugifyPipe, useClass: MockSlugifyPipe }
-        ],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA]
-      }).compileComponents();
-    })
-  );
+    TestBed.configureTestingModule({
+      imports: [RouterTestingModule, FormsModule],
+      declarations: [EditorComponent],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: LoggerService, useClass: MockLoggerService },
+        { provide: ServerService, useClass: MockServerService },
+        { provide: SlugifyPipe, useClass: MockSlugifyPipe }
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createComponent()));
 

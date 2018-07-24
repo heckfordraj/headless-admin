@@ -31,17 +31,15 @@ let quill: QuillStub;
 let state: StateStub;
 
 describe('TextComponent', () => {
-  beforeEach(
-    async(() => {
-      TestBed.configureTestingModule({
-        declarations: [TextComponent],
-        providers: [
-          { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService }
-        ]
-      }).compileComponents();
-    })
-  );
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [TextComponent],
+      providers: [
+        { provide: LoggerService, useClass: MockLoggerService },
+        { provide: ServerService, useClass: MockServerService }
+      ]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createComponent()));
 
@@ -530,31 +528,25 @@ describe('TextComponent', () => {
         expect(page.editorEl.innerText.trim()).toBe('1');
       });
 
-      it(
-        'should call textChange',
-        async(() => {
-          page.addText(page.editorEl, '1');
+      it('should call textChange', async(() => {
+        page.addText(page.editorEl, '1');
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalled();
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalled();
+        });
+      }));
 
-      it(
-        'should call textChange with delta param',
-        async(() => {
-          page.addText(page.editorEl, '1');
+      it('should call textChange with delta param', async(() => {
+        page.addText(page.editorEl, '1');
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalledWith(
-              new Delta([{ insert: '1' }]),
-              jasmine.anything(),
-              'user'
-            );
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ insert: '1' }]),
+            jasmine.anything(),
+            'user'
+          );
+        });
+      }));
     });
 
     describe('remove text', () => {
@@ -570,42 +562,33 @@ describe('TextComponent', () => {
         })
       );
 
-      it(
-        'should remove text from the editor',
-        async(() => {
-          page.removeText(page.editorEl, 1);
+      it('should remove text from the editor', async(() => {
+        page.removeText(page.editorEl, 1);
 
-          return setTimeout(() => {
-            expect(page.editorEl.innerText.trim()).toBe('ac');
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('ac');
+        });
+      }));
 
-      it(
-        'should call textChange',
-        async(() => {
-          page.removeText(page.editorEl, 1);
+      it('should call textChange', async(() => {
+        page.removeText(page.editorEl, 1);
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalled();
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalled();
+        });
+      }));
 
-      it(
-        'should call textChange with delta param',
-        async(() => {
-          page.removeText(page.editorEl, 1);
+      it('should call textChange with delta param', async(() => {
+        page.removeText(page.editorEl, 1);
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalledWith(
-              new Delta([{ retain: 1 }, { delete: 1 }]),
-              jasmine.anything(),
-              'user'
-            );
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ retain: 1 }, { delete: 1 }]),
+            jasmine.anything(),
+            'user'
+          );
+        });
+      }));
     });
 
     describe('replace text', () => {
@@ -621,42 +604,33 @@ describe('TextComponent', () => {
         })
       );
 
-      it(
-        'should replace text in the editor',
-        async(() => {
-          page.replaceText(page.editorEl, '123', 3);
+      it('should replace text in the editor', async(() => {
+        page.replaceText(page.editorEl, '123', 3);
 
-          return setTimeout(() => {
-            expect(page.editorEl.innerText.trim()).toBe('abc123');
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.editorEl.innerText.trim()).toBe('abc123');
+        });
+      }));
 
-      it(
-        'should call textChange',
-        async(() => {
-          page.replaceText(page.editorEl, '123', 3);
+      it('should call textChange', async(() => {
+        page.replaceText(page.editorEl, '123', 3);
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalled();
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalled();
+        });
+      }));
 
-      it(
-        'should call textChange with delta param',
-        async(() => {
-          page.replaceText(page.editorEl, '123', 3);
+      it('should call textChange with delta param', async(() => {
+        page.replaceText(page.editorEl, '123', 3);
 
-          return setTimeout(() => {
-            expect(page.textChange).toHaveBeenCalledWith(
-              new Delta([{ retain: 3 }, { insert: '123' }, { delete: 1 }]),
-              jasmine.anything(),
-              'user'
-            );
-          });
-        })
-      );
+        return setTimeout(() => {
+          expect(page.textChange).toHaveBeenCalledWith(
+            new Delta([{ retain: 3 }, { insert: '123' }, { delete: 1 }]),
+            jasmine.anything(),
+            'user'
+          );
+        });
+      }));
     });
 
     describe('conflict 1', () => {

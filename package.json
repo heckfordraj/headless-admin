@@ -12,7 +12,10 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,scss,json}": ["prettier --single-quote --write", "git add"]
+    "*.{ts,js,scss,md,yml,json}": [
+      "prettier --single-quote --write",
+      "git add"
+    ]
   },
   "private": true,
   "dependencies": {
@@ -73,7 +76,7 @@
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^0.2.2",
     "lint-staged": "^6.1.0",
-    "prettier": "1.10.2",
+    "prettier": "^1.13.7",
     "protractor": "~5.3.0",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",

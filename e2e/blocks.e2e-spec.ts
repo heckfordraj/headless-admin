@@ -37,8 +37,7 @@ describe('BlocksComponent', () => {
     beforeEach(() =>
       page
         .navigateTo('/page/page-2')
-        .then(_ => page.isVisible(page.getBlocks().first()))
-    );
+        .then(_ => page.isVisible(page.getBlocks().first())));
 
     it('should display blocks', () => {
       const blockNames = page.getBlockTypes().map(block => block.getText());

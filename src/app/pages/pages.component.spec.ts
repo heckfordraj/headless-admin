@@ -24,19 +24,17 @@ let slugifyPipe: jasmine.Spy;
 let page: Page;
 
 describe('PagesComponent', () => {
-  beforeEach(
-    async(() => {
-      TestBed.configureTestingModule({
-        imports: [RouterTestingModule],
-        declarations: [PagesComponent],
-        providers: [
-          { provide: LoggerService, useClass: MockLoggerService },
-          { provide: ServerService, useClass: MockServerService },
-          { provide: SlugifyPipe, useClass: MockSlugifyPipe }
-        ]
-      }).compileComponents();
-    })
-  );
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
+      declarations: [PagesComponent],
+      providers: [
+        { provide: LoggerService, useClass: MockLoggerService },
+        { provide: ServerService, useClass: MockServerService },
+        { provide: SlugifyPipe, useClass: MockSlugifyPipe }
+      ]
+    }).compileComponents();
+  }));
 
   beforeEach(async(() => createComponent()));
 
