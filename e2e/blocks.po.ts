@@ -1,11 +1,31 @@
-import { browser, by, element, ElementArrayFinder } from 'protractor';
+import {
+  browser,
+  by,
+  element,
+  ElementFinder,
+  ExpectedConditions
+} from 'protractor';
 
 export class BlocksComponent {
-  navigateTo(url: string = '/page/page-1') {
+  constructor() {
+    browser.waitForAngularEnabled(false);
+  }
+
+  isVisible(el: ElementFinder) {
+    const isVisible = ExpectedConditions.visibilityOf(el);
+    return browser.wait(isVisible, 3000);
+  }
+
+  isClickable(el: ElementFinder) {
+    const isClickable = ExpectedConditions.elementToBeClickable(el);
+    return browser.wait(isClickable, 3000);
+  }
+
+  navigateTo(url: string) {
     return browser.get(url);
   }
 
-  getBaseBlocks() {
+  getBaseBlocksButtons() {
     return element.all(by.css('.add-block'));
   }
 

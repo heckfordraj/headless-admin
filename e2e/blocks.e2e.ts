@@ -1,4 +1,4 @@
-import { browser, ElementFinder, Key } from 'protractor';
+import { ElementFinder, Key } from 'protractor';
 import { BlocksComponent } from './blocks.po';
 
 import * as FirebaseServer from 'firebase-server';
@@ -14,386 +14,211 @@ describe('BlocksComponent', () => {
     server.setRules(rules);
 
     page = new BlocksComponent();
-    page.navigateTo();
-    browser.sleep(3000);
-    browser.waitForAngularEnabled(false);
+    page
+      .navigateTo('/page/page-1')
+      .then(_ => page.isVisible(page.getBlocks().first()));
   });
 
-  afterEach(() => {
-    server.close();
-  });
+  afterEach(() => server.close());
 
   it('should display base block buttons', () => {
-    expect(page.getBaseBlocks().count()).toBe(2);
+    expect(page.getBaseBlocksButtons().count()).toBe(2);
   });
 
-  it('should display initial blocks', () => {
-    expect(page.getBlocks().count()).toBe(3);
+  describe('initial page', () => {
+    it('should display blocks', () => {
+      const blockNames = page.getBlockTypes().map(block => block.getText());
+
+      expect(blockNames).toEqual(['text', 'image', 'text']);
+    });
   });
 
-  it('should display initial blocks in order', () => {
-    expect(
+  describe('new page', () => {
+    beforeEach(() =>
       page
-        .getBlockTypes()
-        .get(0)
-        .getText()
-    ).toBe('text');
-    expect(
-      page
-        .getBlockTypes()
-        .get(1)
-        .getText()
-    ).toBe('image');
-    expect(
-      page
-        .getBlockTypes()
-        .get(2)
-        .getText()
-    ).toBe('text');
-  });
+        .navigateTo('/page/page-2')
+        .then(_ => page.isVisible(page.getBlocks().first()))
+    );
 
-  it('should display new blocks', () => {
-    page.navigateTo('/page/page-2');
-    browser.sleep(3000);
+    it('should display blocks', () => {
+      const blockNames = page.getBlockTypes().map(block => block.getText());
 
-    expect(page.getBlocks().count()).toBe(3);
-  });
-
-  it('should display new blocks in order', () => {
-    page.navigateTo('/page/page-2');
-    browser.sleep(3000);
-
-    expect(
-      page
-        .getBlockTypes()
-        .get(0)
-        .getText()
-    ).toBe('image');
-    expect(
-      page
-        .getBlockTypes()
-        .get(1)
-        .getText()
-    ).toBe('text');
-    expect(
-      page
-        .getBlockTypes()
-        .get(2)
-        .getText()
-    ).toBe('image');
+      expect(blockNames).toEqual(['image', 'text', 'image']);
+    });
   });
 
   describe('add block', () => {
-    it('should add to list', () => {
-      page.getBaseBlockImage().click();
-
-      expect(page.getBlocks().count()).toBe(4);
-    });
-
-    it('should add block to bottom of list', () => {
-      page.getBaseBlockImage().click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(3)
-          .getText()
-      ).toBe('image');
-    });
-
     it('should add image block', () => {
-      page.getBaseBlockImage().click();
+      const el = page.getBaseBlockImage();
 
-      expect(
-        page
-          .getBlockTypes()
-          .get(3)
-          .getText()
-      ).toBe('image');
+      page
+        .isClickable(el)
+        .then(() => el.click())
+        .then(_ =>
+          expect(
+            page
+              .getBlockTypes()
+              .get(3)
+              .getText()
+          ).toBe('image')
+        );
     });
 
     it('should add text block', () => {
-      page.getBaseBlockText().click();
+      const el = page.getBaseBlockText();
 
-      expect(
-        page
-          .getBlockTypes()
-          .get(3)
-          .getText()
-      ).toBe('text');
-    });
-
-    it('should add multiple blocks to list', () => {
-      page.getBaseBlockText().click();
-      page.getBaseBlockImage().click();
-
-      expect(page.getBlocks().count()).toBe(5);
-    });
-
-    it('should add multiple blocks with correct type', () => {
-      page.getBaseBlockText().click();
-      page.getBaseBlockImage().click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(3)
-          .getText()
-      ).toBe('text');
-      expect(
-        page
-          .getBlockTypes()
-          .get(4)
-          .getText()
-      ).toBe('image');
+      page
+        .isClickable(el)
+        .then(() => el.click())
+        .then(_ =>
+          expect(
+            page
+              .getBlockTypes()
+              .get(3)
+              .getText()
+          ).toBe('text')
+        );
     });
   });
 
   describe('block remove', () => {
-    it('should remove block from list', () => {
-      page
-        .getBlockRemoveButtons()
-        .get(1)
-        .click();
+    it('should remove text block', () => {
+      const el = page.getBlockRemoveButtons().first();
 
-      expect(page.getBlocks().count()).toBe(2);
+      page
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames => expect(blockNames).toEqual(['image', 'text']));
     });
 
-    it('should not display removed block', () => {
+    it('should remove image block', () => {
+      const el = page.getBlockRemoveButtons().get(1);
+
       page
-        .getBlockRemoveButtons()
-        .get(1)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(0)
-          .getText()
-      ).toBe('text');
-      expect(
-        page
-          .getBlockTypes()
-          .get(1)
-          .getText()
-      ).toBe('text');
-    });
-
-    it('should not remove other block with same block type', () => {
-      page.getBaseBlockImage().click();
-      page
-        .getBlockRemoveButtons()
-        .get(1)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(2)
-          .getText()
-      ).toBe('image');
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames => expect(blockNames).toEqual(['text', 'text']));
     });
   });
 
   describe('order block', () => {
-    beforeEach(() => {
-      page.getBaseBlockImage().click();
-    });
-
-    it('should move block up on up click', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .get(1)
-          .getText()
-      ).toBe('image');
+    it('should move middle block up on up click', () => {
+      const el = page.getBlockOrderUpButtons().get(1);
 
       page
-        .getBlockOrderUpButtons()
-        .get(2)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(1)
-          .getText()
-      ).toBe('text');
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['image', 'text', 'text'])
+        );
     });
 
-    it('should move block down on down click', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .get(2)
-          .getText()
-      ).toBe('text');
+    it('should move middle block down on down click', () => {
+      const el = page.getBlockOrderDownButtons().get(1);
 
       page
-        .getBlockOrderDownButtons()
-        .get(1)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(2)
-          .getText()
-      ).toBe('image');
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['text', 'text', 'image'])
+        );
     });
 
     it('should not move top block on up click', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .first()
-          .getText()
-      ).toBe('text');
+      const el = page.getBlockOrderUpButtons().first();
 
       page
-        .getBlockOrderUpButtons()
-        .first()
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .first()
-          .getText()
-      ).toBe('text');
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['text', 'image', 'text'])
+        );
     });
 
     it('should not move bottom block on down click', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .last()
-          .getText()
-      ).toBe('image');
+      const el = page.getBlockOrderDownButtons().last();
 
       page
-        .getBlockOrderDownButtons()
-        .last()
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .last()
-          .getText()
-      ).toBe('image');
+        .isClickable(el)
+        .then(() => el.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['text', 'image', 'text'])
+        );
     });
 
     it('should move block to original position on down and up click', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .get(1)
-          .getText()
-      ).toBe('image');
+      const elUp = page.getBlockOrderUpButtons().last();
+      const elDown = page.getBlockOrderDownButtons().get(1);
 
       page
-        .getBlockOrderDownButtons()
-        .get(1)
-        .click();
-      page
-        .getBlockOrderUpButtons()
-        .get(2)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(1)
-          .getText()
-      ).toBe('image');
+        .isClickable(elDown)
+        .then(() => elDown.click())
+        .then(() => page.isClickable(elUp))
+        .then(() => elUp.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['text', 'image', 'text'])
+        );
     });
 
-    it('should move block to top', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .first()
-          .getText()
-      ).toBe('text');
+    it('should move bottom block to top', () => {
+      page.getBaseBlockImage().click();
+
+      const el = page.getBlockOrderUpButtons();
 
       page
-        .getBlockOrderUpButtons()
-        .get(3)
-        .click();
-      page
-        .getBlockOrderUpButtons()
-        .get(2)
-        .click();
-      page
-        .getBlockOrderUpButtons()
-        .get(1)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .first()
-          .getText()
-      ).toBe('image');
+        .isClickable(el.last())
+        .then(() => el.last().click())
+        .then(() => page.isClickable(el.get(2)))
+        .then(() => el.get(2).click())
+        .then(() => page.isClickable(el.get(1)))
+        .then(() => el.get(1).click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['image', 'text', 'image', 'text'])
+        );
     });
 
-    it('should move block to bottom', () => {
-      expect(
-        page
-          .getBlockTypes()
-          .last()
-          .getText()
-      ).toBe('image');
+    it('should move top block to bottom', () => {
+      page.getBaseBlockImage().click();
+
+      const el = page.getBlockOrderDownButtons();
 
       page
-        .getBlockOrderDownButtons()
-        .get(0)
-        .click();
-      page
-        .getBlockOrderDownButtons()
-        .get(1)
-        .click();
-      page
-        .getBlockOrderDownButtons()
-        .get(2)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .last()
-          .getText()
-      ).toBe('text');
+        .isClickable(el.first())
+        .then(() => el.first().click())
+        .then(() => page.isClickable(el.get(1)))
+        .then(() => el.get(1).click())
+        .then(() => page.isClickable(el.get(2)))
+        .then(() => el.get(2).click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['image', 'text', 'image', 'text'])
+        );
     });
 
     it('should move blocks correctly with middle block removed', () => {
-      page.getBaseBlockImage().click();
       page.getBaseBlockText().click();
+      page.getBaseBlockImage().click();
 
-      browser.sleep(1000);
+      const elRemove = page.getBlockRemoveButtons().get(3);
+      const elUp = page.getBlockOrderUpButtons().last();
 
       page
-        .getBlockRemoveButtons()
-        .get(4)
-        .click();
-      page
-        .getBlockOrderUpButtons()
-        .get(4)
-        .click();
-
-      expect(
-        page
-          .getBlockTypes()
-          .get(3)
-          .getText()
-      ).toBe('text');
-      expect(
-        page
-          .getBlockTypes()
-          .get(4)
-          .getText()
-      ).toBe('image');
+        .isClickable(elRemove)
+        .then(() => elRemove.click())
+        .then(() => page.isClickable(elUp))
+        .then(() => elUp.click())
+        .then(() => page.getBlockTypes().map(block => block.getText()))
+        .then(blockNames =>
+          expect(blockNames).toEqual(['text', 'image', 'image', 'text'])
+        );
     });
   });
 });
