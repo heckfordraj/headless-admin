@@ -15,8 +15,7 @@ import {
   Data
 } from 'testing';
 
-import { Observable } from 'rxjs/Observable';
-import { from } from 'rxjs/observable/from';
+import { Observable, from } from 'rxjs';
 
 import { ServerService } from './server.service';
 

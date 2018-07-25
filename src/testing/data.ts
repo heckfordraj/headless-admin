@@ -44,7 +44,7 @@ export namespace Data {
     }
   ];
 
-  export const Blocks: { [id: string]: [Block.Base] } = {
+  export const Blocks: { [id: string]: Block.Base[] } = {
     '1': [
       { id: '1', type: 'text', order: 1 },
       { id: '2', type: 'image', order: 2 },

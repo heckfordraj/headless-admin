@@ -1,6 +1,6 @@
 import { EventEmitter } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable, of } from 'rxjs';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -62,7 +62,7 @@ export class MockServerService {
   }
 
   getUsers(): Observable<User[]> {
-    return Observable.of(JSON.parse(JSON.stringify(Data.Users)));
+    return of(JSON.parse(JSON.stringify(Data.Users)));
   }
 
   createTimestamp(): object {
@@ -109,7 +109,7 @@ export class MockServerService {
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
     if (block && block.type === 'text') return this.blockContent;
 
-    return Observable.of(Data.ImageBlockData);
+    return of(Data.ImageBlockData);
   }
 
   getPage(id: string): Observable<Page> {
@@ -118,15 +118,15 @@ export class MockServerService {
     if (index) {
       let page = JSON.stringify(index);
 
-      return Observable.of(JSON.parse(page));
+      return of(JSON.parse(page));
     }
-    return Observable.of(undefined);
+    return of(undefined);
   }
 
   getCollection(): Observable<Page[]> {
     let pages = JSON.stringify(Data.Pages);
 
-    return Observable.of(JSON.parse(pages));
+    return of(JSON.parse(pages));
   }
 
   addPage(page: Page): Promise<void> {
@@ -153,9 +153,9 @@ export class MockServerService {
     if (index) {
       let block = JSON.stringify(Data.Blocks[index]);
 
-      return Observable.of(JSON.parse(block));
+      return of(JSON.parse(block));
     }
-    return Observable.of(undefined);
+    return of(undefined);
   }
 
   addBlock(page: Page, block: Block.Base): Promise<void> {

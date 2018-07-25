@@ -7,7 +7,11 @@ exports.config = {
   allScriptsTimeout: 11000,
   specs: ['./e2e/**/*.e2e-spec.ts'],
   capabilities: {
-    browserName: 'chrome'
+    browserName: 'chrome',
+    loggingPrefs: {
+      driver: 'INFO',
+      browser: 'INFO'
+    }
   },
   directConnect: true,
   baseUrl: 'http://localhost:4200/',
@@ -24,5 +28,11 @@ exports.config = {
     jasmine
       .getEnv()
       .addReporter(new SpecReporter({ spec: { displayStacktrace: true } }));
-  }
+  },
+  plugins: [
+    {
+      package: 'protractor-console',
+      logLevels: ['debug', 'info']
+    }
+  ]
 };

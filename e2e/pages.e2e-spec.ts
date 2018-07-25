@@ -1,12 +1,12 @@
 import { ElementFinder, Key } from 'protractor';
 import { PagesComponent } from './pages.po';
 
-import * as FirebaseServer from 'firebase-server';
+const FirebaseServer = require('firebase-server');
 import * as rules from '../database.rules.json';
 import * as data from '../src/testing/data.json';
 
 describe('PagesComponent', () => {
-  let server: FirebaseServer;
+  let server: any;
   let page: PagesComponent;
 
   beforeEach(() => {

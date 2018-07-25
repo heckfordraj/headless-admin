@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/throw';
+import { of } from 'rxjs';
 
 import { Page } from './page';
 import { Block } from './block';
@@ -15,14 +14,14 @@ export class MockAngularFireDatabase {
   databaseRefOnDisconnectSpy: { [name: string]: jasmine.Spy } = {};
 
   private listFn = {
-    valueChanges: () => Observable.of(null),
-    stateChanges: () => Observable.of(null),
+    valueChanges: () => of(null),
+    stateChanges: () => of(null),
     set: () => Promise.resolve(),
     remove: () => Promise.resolve()
   };
 
   private objectFn = {
-    valueChanges: () => Observable.of(null),
+    valueChanges: () => of(null),
     set: () => Promise.resolve()
   };
 

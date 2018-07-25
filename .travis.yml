@@ -9,8 +9,8 @@ cache:
   directories:
     - node_modules
 script:
-- yarn test --single-run --browser=HeadlessChromeNoSandbox
-- yarn e2e --config=protractor-ci.conf.js
+- yarn test --watch=false --no-progress --browsers=HeadlessChromeNoSandbox
+- yarn e2e --protractor-config=protractor-ci.conf.js
 notifications:
   slack:
     secure: mzES7zuJM+irXSJ7TjzL2b2h1SmpUKu2ExJY20Qn58XDr+BT9FYFLxahP4WeTNkU1bs3bsaSTDuiRdUs9pc2c1CJZ8Nj44npjNq1d24X18ek/FlAiGcEiVVyziKUw3HT8KvCbnqPgjboaJ0cqrcHjqXtmWc20zY9wZjBu6RwKLndyDEGiVvqZiFUD47FNrXqQJTMd2GLp8bt+wFtb8uObbRJDY423+b3VYip64a2nJDFoSD2inbucqNPVj5EncrhKdvBduEnBo+rGgCjrCfB3uTst51Is/r09/ikwJt+ymICv8j+TnNFbnHwfVbmYGxLiPJcKy3vfiVJyX+7//c3qHrXyOL8IwgAVVoXlKW3rbIWkZTONA6xXcrZ6oFkPPqwmhCqgNr3/IxMfp0fHv6UBwilHW6nTTwmglUshi7lFHMeVlg+gdwcjjggvf3Hl9QFdeqCj/kxG1a/G0kZh6Uta3zhBSUf7Z5bWQ/S0l4MvWoQDtSzwQCOmmh2oHdAy5ncsbG4bJnh6rBBwwEuRelfB0AFnnQFvYq8bqpIQwNSPHIhdqQ1KJzHNG+TAkiFaYIy3VsCSbRkjyCGMNaNzfNcv/PU9Bl4d4IcvJjhfDU9MLt3WG64ZbiUiwSvdnQAbb8srHwvuwpILzD2DN24mQddz4ezinv9xPxGLF0AFyZuAQ0=

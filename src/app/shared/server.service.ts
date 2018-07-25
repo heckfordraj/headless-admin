@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject, of } from 'rxjs';
 import { catchError, map, filter, tap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
 
 import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, DatabaseSnapshot } from 'angularfire2/database';
-import * as firebase from 'firebase';
+import { database } from 'firebase/app';
 import { randomColor } from 'randomcolor';
 
 import { LoggerService } from './logger.service';
@@ -43,7 +41,7 @@ export class ServerService {
   }
 
   createTimestamp(): object {
-    return firebase.database.ServerValue.TIMESTAMP;
+    return database.ServerValue.TIMESTAMP;
   }
 
   getUser(): User {
@@ -68,12 +66,12 @@ export class ServerService {
       );
   }
 
-  getBlockContent({ id }: Block.Base): Observable<Block.Data.Base> {
+  getBlockContent({ id }: Block.Base): Observable<Block.Data.Base | {}> {
     return this.db
       .list(`content/${id}`)
       .stateChanges(['child_added'])
-      .map(content => content.payload.val())
       .pipe(
+        map(content => content.payload.val()),
         tap(content => this.logger.log('getBlockContent', content)),
         catchError(this.handleError<Block.Data.Base>('getBlockContent'))
       );
@@ -87,8 +85,8 @@ export class ServerService {
     return this.db
       .list<Page>(name, ref => ref.orderByChild('lastModified'))
       .valueChanges()
-      .map(pages => pages.reverse())
       .pipe(
+        map(pages => pages.reverse()),
         tap(res => this.logger.log('getCollection', res)),
         catchError(this.handleError<Page[]>('getCollection', []))
       );
@@ -227,7 +225,7 @@ export class ServerService {
     return this.db.database
       .ref(`data/${page.dataId}/${page.revisions.currentId}`)
       .once('value')
-      .then((block: DatabaseSnapshot) =>
+      .then((block: DatabaseSnapshot<Block.Base>) =>
         this.db.database.ref(`data/${page.dataId}/${newId}`).set(block.val())
       )
       .then(_ =>

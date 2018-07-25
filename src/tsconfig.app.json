@@ -6,5 +6,8 @@
     "module": "es2015",
     "types": []
   },
-  "exclude": ["test.ts", "**/*.spec.ts", "testing/**"]
+  "exclude": ["test.ts", "**/*.spec.ts", "testing/**"],
+  "angularCompilerOptions": {
+    "preserveWhitespaces": false
+  }
 }

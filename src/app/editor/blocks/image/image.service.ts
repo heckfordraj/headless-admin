@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 
-import * as crypto from 'crypto-browserify';
+// import crypto from 'crypto-browserify';
 import { humanize } from 'underscore.string';
 import { environment } from 'environment';
 
@@ -27,23 +27,23 @@ export class ImageService {
   uploadImage(image: File): Observable<Block.Data.ImageData> {
     const timestamp = Date.now();
     const name = image.name.replace(/\.[^/.]+$/, '');
-    const id = `${name}_${crypto.randomBytes(3).toString('hex')}`;
+    // const id = `${name}_${crypto.randomBytes(3).toString('hex')}`;
 
-    const signature = crypto
-      .createHash('sha1')
-      .update(
-        `public_id=${id}&` +
-          `timestamp=${timestamp}` +
-          `${environment.cloudinary.apiSecret}`
-      )
-      .digest('hex');
+    // const signature = crypto
+    //   .createHash('sha1')
+    //   .update(
+    //     `public_id=${id}&` +
+    //       `timestamp=${timestamp}` +
+    //       `${environment.cloudinary.apiSecret}`
+    //   )
+    //   .digest('hex');
 
     const formData = new FormData();
     formData.append('file', image);
-    formData.append('public_id', id);
+    // formData.append('public_id', id);
     formData.append('api_key', environment.cloudinary.apiKey);
     formData.append('timestamp', timestamp.toString());
-    formData.append('signature', signature);
+    // formData.append('signature', signature);
 
     return this.http.post<Response>(this.url, formData).pipe(
       map((res: Response) => {

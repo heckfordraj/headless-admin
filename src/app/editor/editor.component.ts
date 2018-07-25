@@ -1,10 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription, combineLatest } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 
 import {
   LoggerService,
@@ -76,18 +74,20 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.page$ = this.route.paramMap
-      .switchMap((param: ParamMap) =>
-        combineLatest(
-          this.serverService
-            .getPage(param.get('id'))
-            .pipe(tap(page => this.serverService.updateUser(page))),
-          this.serverService
-            .getUsers()
-            .pipe(
-              map(users =>
-                users.filter(user => user.current.pageId === param.get('id'))
+      .pipe(
+        switchMap((param: ParamMap) =>
+          combineLatest(
+            this.serverService
+              .getPage(param.get('id'))
+              .pipe(tap(page => this.serverService.updateUser(page))),
+            this.serverService
+              .getUsers()
+              .pipe(
+                map(users =>
+                  users.filter(user => user.current.pageId === param.get('id'))
+                )
               )
-            )
+          )
         )
       )
       .subscribe(([page, users]) => {
