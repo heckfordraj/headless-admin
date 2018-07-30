@@ -57,44 +57,14 @@ describe('ImageService', () => {
       expect(file.name).toBe('image');
     });
 
-    xit(`should set request FormData 'public_id' as randomised name`, () => {
+    it(`should set request FormData 'upload_preset' as environment cloudinary uploadPreset`, () => {
       const {
         request: { body }
       }: { request: { body: FormData } } = mockHttp.expectOne(req =>
         req.url.includes('api.cloudinary.com')
       );
 
-      expect(body.get('public_id')).toContain('image_');
-    });
-
-    it(`should set request FormData 'api_key' as env cloudinary apiKey`, () => {
-      const {
-        request: { body }
-      }: { request: { body: FormData } } = mockHttp.expectOne(req =>
-        req.url.includes('api.cloudinary.com')
-      );
-
-      expect(body.get('api_key')).toBe('null');
-    });
-
-    it(`should set request FormData 'timestamp'`, () => {
-      const {
-        request: { body }
-      }: { request: { body: FormData } } = mockHttp.expectOne(req =>
-        req.url.includes('api.cloudinary.com')
-      );
-
-      expect(body.get('timestamp')).toBeDefined();
-    });
-
-    xit(`should set request FormData 'signature'`, () => {
-      const {
-        request: { body }
-      }: { request: { body: FormData } } = mockHttp.expectOne(req =>
-        req.url.includes('api.cloudinary.com')
-      );
-
-      expect(body.get('signature')).toBeTruthy();
+      expect(body.get('upload_preset')).toBe('uploadPreset');
     });
 
     it('should return ImageData', () => {

@@ -10,7 +10,6 @@ export const environment = {
   },
   cloudinary: {
     cloudName: null,
-    apiKey: null,
-    apiSecret: null
+    uploadPreset: null
   }
 };

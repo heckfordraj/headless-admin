@@ -9,8 +9,7 @@ export const environment = {
     messagingSenderId: null
   },
   cloudinary: {
-    cloudName: null,
-    apiKey: null,
-    apiSecret: null
+    cloudName: 'cloudName',
+    uploadPreset: 'uploadPreset'
   }
 };
