@@ -31,7 +31,10 @@ export class PagesComponent implements OnInit, OnDestroy {
       name: name,
       dataId: this.serverService.createId(),
       revisions: { currentId: this.serverService.createId() },
-      lastModified: this.serverService.createTimestamp()
+      lastModified: this.serverService.createTimestamp(),
+      status: {
+        draft: true
+      }
     };
 
     this.serverService

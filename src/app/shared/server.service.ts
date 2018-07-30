@@ -151,6 +151,7 @@ export class ServerService {
       name: newName,
       dataId: currentPage.dataId,
       revisions: { currentId: currentPage.revisions.currentId },
+      status: { ...currentPage.status, draft: true },
       lastModified: this.createTimestamp()
     };
 
@@ -231,10 +232,16 @@ export class ServerService {
         this.db.database.ref(`data/${page.dataId}/${newId}`).set(block.val())
       )
       .then(_ =>
-        this.db.database.ref(`pages/${page.id}/revisions/`).update({
-          publishedId: page.revisions.currentId,
-          currentId: newId
-        })
+        this.db.database.ref(`pages/${page.id}/`).update({
+          status: {
+            published: true,
+            draft: null
+          },
+          revisions: {
+            publishedId: page.revisions.currentId,
+            currentId: newId
+          }
+        } as Partial<Page>)
       );
   }
 

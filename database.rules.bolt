@@ -3,11 +3,18 @@ type Revision {
   publishedId: String | Null;
 }
 
+type PageStatus {
+  published: Boolean | Null;
+  draft: Boolean | Null;
+  archived: Boolean | Null;
+}
+
 type Page {
   id: String;
   name: String;
   dataId: String;
   revisions: Revision;
+  status: PageStatus;
   lastModified: Number;
   validate() { this.id == key() }
 }

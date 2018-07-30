@@ -51,7 +51,7 @@
     "pages": {
       "$page": {
         ".validate":
-          "newData.hasChildren(['id', 'name', 'dataId', 'revisions', 'lastModified']) && newData.child('id').val() == $page",
+          "newData.hasChildren(['id', 'name', 'dataId', 'revisions', 'status', 'lastModified']) && newData.child('id').val() == $page",
         "id": {
           ".validate": "newData.isString()"
         },
@@ -68,6 +68,21 @@
           },
           "publishedId": {
             ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        },
+        "status": {
+          ".validate": "newData.hasChildren()",
+          "published": {
+            ".validate": "newData.isBoolean()"
+          },
+          "draft": {
+            ".validate": "newData.isBoolean()"
+          },
+          "archived": {
+            ".validate": "newData.isBoolean()"
           },
           "$other": {
             ".validate": "false"

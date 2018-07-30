@@ -321,6 +321,9 @@ describe('ServerService', () => {
           revisions: {
             currentId: 'a'
           },
+          status: {
+            draft: true
+          },
           lastModified: jasmine.anything()
         } as Page,
         'page-1': null
@@ -490,7 +493,7 @@ describe('ServerService', () => {
 
     it('should call AngularFireDatabase database ref with pages path arg', () => {
       expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
-        'pages/page-1/revisions/'
+        'pages/page-1/'
       );
     });
 
@@ -498,10 +501,16 @@ describe('ServerService', () => {
       expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalled();
     });
 
-    it('should call AngularFireDatabase database ref update with revision update arg', () => {
+    it('should call AngularFireDatabase database ref update with page update arg', () => {
       expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
-        publishedId: 'a',
-        currentId: 'abcdefg'
+        status: {
+          draft: null,
+          published: true
+        },
+        revisions: {
+          publishedId: 'a',
+          currentId: 'abcdefg'
+        }
       });
     });
   });

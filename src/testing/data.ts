@@ -12,6 +12,9 @@ export namespace Data {
       name: 'Page 1',
       dataId: '1',
       revisions: { currentId: 'a' },
+      status: {
+        draft: true
+      },
       lastModified: 1
     },
     {
@@ -19,6 +22,9 @@ export namespace Data {
       name: 'Page 2',
       dataId: '2',
       revisions: { currentId: 'b' },
+      status: {
+        draft: true
+      },
       lastModified: 2
     },
     {
@@ -26,6 +32,9 @@ export namespace Data {
       name: 'Page 3',
       dataId: '3',
       revisions: { currentId: 'c' },
+      status: {
+        draft: true
+      },
       lastModified: 3
     },
     {
@@ -33,6 +42,9 @@ export namespace Data {
       name: 'Page 4',
       dataId: '4',
       revisions: { currentId: 'd' },
+      status: {
+        draft: true
+      },
       lastModified: 4
     },
     {
@@ -40,6 +52,9 @@ export namespace Data {
       name: 'Page 5',
       dataId: '5',
       revisions: { currentId: 'e' },
+      status: {
+        draft: true
+      },
       lastModified: 5
     }
   ];

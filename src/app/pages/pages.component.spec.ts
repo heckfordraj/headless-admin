@@ -112,6 +112,9 @@ describe('PagesComponent', () => {
         revisions: {
           currentId: 'abcdefg'
         },
+        status: {
+          draft: true
+        },
         lastModified: {
           date: 'ddmmyyyy'
         }
