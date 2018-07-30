@@ -1,6 +1,50 @@
 {
   "rules": {
     "users": {
+      "$userId": {
+        ".validate":
+          "newData.hasChildren(['id', 'colour']) && newData.child('id').val() == $userId",
+        "id": {
+          ".validate": "newData.isString()"
+        },
+        "colour": {
+          ".validate": "newData.isString()"
+        },
+        "current": {
+          ".validate": "newData.hasChildren()"
+        },
+        "$other": {
+          ".validate": "false"
+        }
+      },
+      ".read": "true",
+      ".write": "true"
+    },
+    "content": {
+      "$blockId": {
+        "$contentId": {
+          ".validate":
+            "newData.hasChildren() && newData.hasChildren(['id', 'user']) || newData.hasChildren() && newData.hasChildren(['id', 'alt', 'url']) && newData.child('id').val() == $contentId",
+          "id": {
+            ".validate": "newData.isNumber() || newData.isString()"
+          },
+          "user": {
+            ".validate": "newData.isString()"
+          },
+          "delta": {
+            ".validate": "newData.hasChildren()"
+          },
+          "$other": {
+            ".validate": "false"
+          },
+          "alt": {
+            ".validate": "newData.isString()"
+          },
+          "url": {
+            ".validate": "newData.isString()"
+          }
+        }
+      },
       ".read": "true",
       ".write": "true"
     },
@@ -32,9 +76,6 @@
         "lastModified": {
           ".validate": "newData.isNumber()"
         },
-        "users": {
-          ".validate": "newData.hasChildren()"
-        },
         "$other": {
           ".validate": "false"
         },
@@ -55,9 +96,6 @@
             "type": {
               ".validate": "newData.isString()"
             },
-            "data": {
-              ".validate": "newData.hasChildren()"
-            },
             "order": {
               ".validate": "newData.isNumber()"
             },
@@ -68,10 +106,6 @@
           }
         }
       },
-      ".read": "true",
-      ".write": "true"
-    },
-    "content": {
       ".read": "true",
       ".write": "true"
     }

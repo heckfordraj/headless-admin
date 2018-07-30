@@ -71,6 +71,9 @@ export class TextComponent implements OnInit, OnDestroy {
   }
 
   tryTransaction() {
+    // TODO: updateTextBlockContent catch run tryTransaction again
+    // currently: firebase reject causes no following tryTransaction's as state is awaiting data from server (pending or rejected)
+
     this.logger.log('tryTransaction', {
       state: JSON.parse(JSON.stringify(this.state.state || null)),
       pending: JSON.parse(JSON.stringify(this.state.pending || null)),

@@ -9,27 +9,52 @@ type Page {
   dataId: String;
   revisions: Revision;
   lastModified: Number;
-  users: Object | Null;
   validate() { this.id == key() }
 }
 
 type Block {
   id: String;
   type: String;
-  data: Object | Null;
   order: Number;
   validate() { this.id == key() }
 }
 
-type Content {
-  clientID: Number;
-  steps: Object;
-  version: Number;
+type User {
+  id: String;
+  colour: String;
+  current: Object | Null;
+  validate() { this.id == key() }
+}
+
+type TextData {
+  id: Number;
+  user: String;
+  delta: Object | Null;
+}
+
+type ImageData {
+  id: String;
+  alt: String;
+  url: String;
+  validate() { this.id == key() }
 }
 
 path /users {
   read() { true }
   write() { true }
+
+  /{userId} is User {
+  }
+}
+
+path /content {
+  read() { true }
+  write() { true }
+
+  /{blockId}{
+    /{contentId} is TextData | ImageData{
+    }
+  }
 }
 
 path /pages {
