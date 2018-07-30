@@ -428,6 +428,30 @@ describe('ServerService', () => {
     });
   });
 
+  describe('archivePage', () => {
+    beforeEach(() => serverService.archivePage(page1));
+
+    it('should call AngularFireDatabase database ref', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref with page status path', () => {
+      expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalledWith(
+        'pages/page-1/status'
+      );
+    });
+
+    it('should call AngularFireDatabase database ref set', () => {
+      expect(angularFireDatabase.databaseRefSpy.set).toHaveBeenCalled();
+    });
+
+    it('should call AngularFireDatabase database ref set with archived arg', () => {
+      expect(angularFireDatabase.databaseRefSpy.set).toHaveBeenCalledWith({
+        archived: true
+      });
+    });
+  });
+
   describe('removeBlock', () => {
     beforeEach(() => serverService.removeBlock(page1, block1));
 

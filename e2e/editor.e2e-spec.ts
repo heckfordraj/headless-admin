@@ -1,16 +1,20 @@
 import { ElementFinder, Key } from 'protractor';
 import { EditorComponent } from './editor.po';
+import { Data } from './data';
 
 const FirebaseServer = require('firebase-server');
 import * as rules from '../database.rules.json';
-import * as data from '../src/testing/data.json';
 
 describe('EditorComponent', () => {
   let server: any;
   let page: EditorComponent;
 
   beforeEach(() => {
-    server = new FirebaseServer(5000, '127.0.1', data);
+    server = new FirebaseServer(
+      5000,
+      '127.0.1',
+      JSON.parse(JSON.stringify(Data))
+    );
     server.setRules(rules);
 
     page = new EditorComponent();
@@ -86,9 +90,9 @@ describe('EditorComponent', () => {
     });
   });
 
-  describe('page remove', () => {
+  describe('page archive', () => {
     beforeEach(() => {
-      const el = page.getPageDeleteButton();
+      const el = page.getPageArchiveButton();
 
       page
         .isClickable(el)

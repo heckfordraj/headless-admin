@@ -207,10 +207,14 @@ export class ServerService {
       .set(data.id.toString(), data);
   }
 
-  removePage(page: Page): Promise<void> {
+  archivePage({ id }: Page): Promise<void> {
+    return this.db.database.ref(`pages/${id}/status`).set({ archived: true });
+  }
+
+  removePage({ id, dataId }: Page): Promise<void> {
     const updates = {
-      [`pages/${page.id}`]: null,
-      [`data/${page.dataId}`]: null
+      [`pages/${id}`]: null,
+      [`data/${dataId}`]: null
     };
 
     return this.db.database.ref().update(updates);

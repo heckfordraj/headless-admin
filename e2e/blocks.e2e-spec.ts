@@ -1,15 +1,19 @@
 import { BlocksComponent } from './blocks.po';
+import { Data } from './data';
 
 const FirebaseServer = require('firebase-server');
 import * as rules from '../database.rules.json';
-import * as data from '../src/testing/data.json';
 
 describe('BlocksComponent', () => {
   let server: any;
   let page: BlocksComponent;
 
   beforeEach(() => {
-    server = new FirebaseServer(5000, '127.0.1', data);
+    server = new FirebaseServer(
+      5000,
+      '127.0.1',
+      JSON.parse(JSON.stringify(Data))
+    );
     server.setRules(rules);
 
     page = new BlocksComponent();

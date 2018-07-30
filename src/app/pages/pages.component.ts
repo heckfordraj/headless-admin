@@ -43,6 +43,13 @@ export class PagesComponent implements OnInit, OnDestroy {
       .catch(err => this.logger.error('addPage', err));
   }
 
+  archivePage(page: Page) {
+    this.serverService
+      .archivePage(page)
+      .then(_ => this.logger.log('archivePage', `archived page: ${page.name}`))
+      .catch(err => this.logger.error('archivePage', err));
+  }
+
   removePage(page: Page) {
     this.serverService
       .removePage(page)

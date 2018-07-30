@@ -124,13 +124,13 @@ describe('PagesComponent', () => {
 
   describe('removePage', () => {
     it('should be called on remove button click', () => {
-      page.pageDelete.click();
+      page.pageRemove.click();
 
       expect(page.removePage).toHaveBeenCalled();
     });
 
     it('should be called on remove button click with page arg', () => {
-      page.pageDelete.click();
+      page.pageRemove.click();
 
       expect(page.removePage).toHaveBeenCalledWith(Data.Pages[0]);
     });
@@ -145,6 +145,32 @@ describe('PagesComponent', () => {
       comp.removePage(Data.Pages[0]);
 
       expect(serverService.removePage).toHaveBeenCalledWith(Data.Pages[0]);
+    });
+  });
+
+  describe('archivePage', () => {
+    it('should be called on archive button click', () => {
+      page.pageArchive.click();
+
+      expect(page.archivePage).toHaveBeenCalled();
+    });
+
+    it('should be called on archive button click with page arg', () => {
+      page.pageArchive.click();
+
+      expect(page.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
+    });
+
+    it('should call ServerService archivePage', () => {
+      comp.archivePage(Data.Pages[0]);
+
+      expect(serverService.archivePage).toHaveBeenCalled();
+    });
+
+    it('should call ServerService archivePage with page arg', () => {
+      comp.archivePage(Data.Pages[0]);
+
+      expect(serverService.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
     });
   });
 });
@@ -162,6 +188,7 @@ function createComponent() {
 
 class Page {
   addPage: jasmine.Spy;
+  archivePage: jasmine.Spy;
   removePage: jasmine.Spy;
 
   get pages() {
@@ -170,8 +197,11 @@ class Page {
   get pageName() {
     return this.query<HTMLAnchorElement>('a');
   }
-  get pageDelete() {
-    return this.query<HTMLButtonElement>('button');
+  get pageRemove() {
+    return this.query<HTMLButtonElement>('.remove');
+  }
+  get pageArchive() {
+    return this.query<HTMLButtonElement>('.archive');
   }
   get pageAdd() {
     return this.query<HTMLInputElement>('#add-page');
@@ -179,6 +209,7 @@ class Page {
 
   constructor() {
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
+    this.archivePage = spyOn(comp, 'archivePage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
   }
 

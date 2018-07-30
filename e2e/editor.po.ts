@@ -47,8 +47,8 @@ export class EditorComponent {
     return element(by.css('#publish'));
   }
 
-  getPageDeleteButton() {
-    return element(by.css('#remove'));
+  getPageArchiveButton() {
+    return element(by.css('#archive'));
   }
 
   getBlocks() {

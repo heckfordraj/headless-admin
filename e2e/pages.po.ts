@@ -52,7 +52,7 @@ export class PagesComponent {
   }
 
   getPageDeleteButtons() {
-    return element.all(by.css('button'));
+    return element.all(by.css('.remove'));
   }
 
   getAddPageInput() {

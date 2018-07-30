@@ -6,7 +6,8 @@
     <small>{{ page?.dataId }}</small>
 
     <a [routerLink]="['/page', page?.id]">{{ page?.name }}</a>
-    <button (click)="removePage(page)">&times;</button>
+    <button class="archive" (click)="archivePage(page)">🗄</button>
+    <button class="remove" (click)="removePage(page)">❌</button>
   </li>
 </ul>
 

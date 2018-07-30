@@ -275,35 +275,35 @@ describe('EditorComponent', () => {
     });
   });
 
-  describe('removePage', () => {
-    it('should be called on remove button click', () => {
-      page.pageRemove.click();
+  describe('archivePage', () => {
+    it('should be called on archive button click', () => {
+      page.pageArchive.click();
 
-      expect(page.removePage).toHaveBeenCalled();
+      expect(page.archivePage).toHaveBeenCalled();
     });
 
-    it('should call ServerService removePage', () => {
-      comp.removePage();
+    it('should call ServerService archivePage', () => {
+      comp.archivePage();
 
-      expect(serverService.removePage).toHaveBeenCalled();
+      expect(serverService.archivePage).toHaveBeenCalled();
     });
 
-    it('should call ServerService removePage with page arg', () => {
-      comp.removePage();
+    it('should call ServerService archivePage with page arg', () => {
+      comp.archivePage();
 
-      expect(serverService.removePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(serverService.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
     });
 
-    it('should call Router navigate on ServerService removePage resolve', () => {
-      comp.removePage();
+    it('should call Router navigate on ServerService archivePage resolve', () => {
+      comp.archivePage();
 
       fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalled();
       });
     });
 
-    it(`should call Router navigate with '/pages' on ServerService removePage resolve`, () => {
-      comp.removePage();
+    it(`should call Router navigate with '/pages' on ServerService archivePage resolve`, () => {
+      comp.archivePage();
 
       fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalledWith(
@@ -313,11 +313,11 @@ describe('EditorComponent', () => {
       });
     });
 
-    it('should not call Router navigate on ServerService removePage reject', () => {
-      (serverService.removePage as jasmine.Spy).and.returnValue(
+    it('should not call Router navigate on ServerService archivePage reject', () => {
+      (serverService.archivePage as jasmine.Spy).and.returnValue(
         Promise.reject(null)
       );
-      comp.removePage();
+      comp.archivePage();
 
       fixture.whenStable().then(_ => {
         expect(router.navigate).not.toHaveBeenCalled();
@@ -351,7 +351,7 @@ class RouterStub {
 class Page {
   updatePage: jasmine.Spy;
   publishPage: jasmine.Spy;
-  removePage: jasmine.Spy;
+  archivePage: jasmine.Spy;
   slugChange: jasmine.Spy;
 
   get pageInput() {
@@ -360,13 +360,13 @@ class Page {
   get pagePublish() {
     return this.query<HTMLButtonElement>('#publish');
   }
-  get pageRemove() {
-    return this.query<HTMLButtonElement>('#remove');
+  get pageArchive() {
+    return this.query<HTMLButtonElement>('#archive');
   }
 
   constructor() {
     this.updatePage = spyOn(comp, 'updatePage').and.callThrough();
-    this.removePage = spyOn(comp, 'removePage').and.callThrough();
+    this.archivePage = spyOn(comp, 'archivePage').and.callThrough();
     this.publishPage = spyOn(comp, 'publishPage').and.callThrough();
     this.slugChange = spyOn(comp, 'slugChange').and.callThrough();
   }

@@ -33,6 +33,7 @@ export class MockServerService {
     this.addPage = spyOn(this, 'addPage').and.callThrough();
     this.updatePage = spyOn(this, 'updatePage').and.callThrough();
     this.removePage = spyOn(this, 'removePage').and.callThrough();
+    this.archivePage = spyOn(this, 'archivePage').and.callThrough();
     this.publishPage = spyOn(this, 'publishPage').and.callThrough();
     this.getBlocks = spyOn(this, 'getBlocks').and.callThrough();
     this.addBlock = spyOn(this, 'addBlock').and.callThrough();
@@ -134,6 +135,10 @@ export class MockServerService {
   }
 
   updatePage(_currentPage: Page, _newPage: Page): Promise<void> {
+    return Promise.resolve(null);
+  }
+
+  archivePage(_page: Page): Promise<void> {
     return Promise.resolve(null);
   }
 

@@ -4,7 +4,7 @@
 {{ page | json }}
 
 <button id="publish" (click)="publishPage()">publish</button>
-<button id="remove" (click)="removePage()">&times;</button>
+<button id="archive" (click)="archivePage()">🗄</button>
 
 <app-blocks [page]="page"></app-blocks>
 

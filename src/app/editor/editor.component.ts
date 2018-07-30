@@ -57,12 +57,12 @@ export class EditorComponent implements OnInit, OnDestroy {
       .catch(err => this.logger.error('updatePage', err));
   }
 
-  removePage() {
+  archivePage() {
     this.serverService
-      .removePage(this.page)
+      .archivePage(this.page)
       .then(_ => this.router.navigate(['/pages'], { replaceUrl: true }))
-      .then(_ => this.logger.log('removePage', 'removed page'))
-      .catch(err => this.logger.error('removePage', err));
+      .then(_ => this.logger.log('archivePage', 'archived page'))
+      .catch(err => this.logger.error('archivePage', err));
   }
 
   ngOnInit() {
