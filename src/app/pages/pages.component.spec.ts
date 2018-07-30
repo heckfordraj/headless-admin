@@ -1,7 +1,4 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import {
   RouterTestingModule,
@@ -11,7 +8,6 @@ import {
   MockServerService,
   SlugifyPipe,
   MockSlugifyPipe,
-  isPage,
   Data
 } from 'testing';
 
@@ -185,9 +181,5 @@ class Page {
 
   private query<T>(selector: string): T {
     return fixture.nativeElement.querySelector(selector);
-  }
-
-  private queryAll<T>(selector: string): T[] {
-    return fixture.nativeElement.querySelectorAll(selector);
   }
 }

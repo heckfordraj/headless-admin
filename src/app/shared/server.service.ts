@@ -12,7 +12,7 @@ import { LoggerService } from './logger.service';
 import { HumanizePipe } from './humanize.pipe';
 import { Page } from './page';
 import { Block } from './block';
-import { User, TextUserData } from './user';
+import { User } from './user';
 
 @Injectable()
 export class ServerService {

@@ -19,7 +19,7 @@ export class PagesComponent implements OnInit, OnDestroy {
     private slugifyPipe: SlugifyPipe
   ) {}
 
-  trackBy(index, page) {
+  trackBy(_index, page) {
     return page.id;
   }
 

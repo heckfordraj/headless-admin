@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { TestBed, async } from '@angular/core/testing';
 import {
   FirebaseApp,
   MockFirebaseApp,
@@ -15,7 +15,7 @@ import {
   Data
 } from 'testing';
 
-import { Observable, from } from 'rxjs';
+import { from } from 'rxjs';
 
 import { ServerService } from './server.service';
 
@@ -26,11 +26,9 @@ let humanizePipe: jasmine.Spy;
 let service: ServerServiceStub;
 
 const page1: Page = JSON.parse(JSON.stringify(Data.Pages[0]));
-const page2: Page = JSON.parse(JSON.stringify(Data.Pages[1]));
 const block1: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['1'][0]));
 const block2: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['2'][2]));
 const data1 = JSON.parse(JSON.stringify(Data.Data[0]));
-const data2 = JSON.parse(JSON.stringify(Data.Data[1]));
 const textBlockData: Block.Data.TextData = JSON.parse(
   JSON.stringify(Data.TextBlockData)
 );

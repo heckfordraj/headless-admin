@@ -1,15 +1,15 @@
 export { LoggerService } from 'shared';
 
 export class MockLoggerService {
-  log(val: any, ...params: any[]) {
+  log(_val: any, ..._params: any[]) {
     return;
   }
 
-  warn(val: any, ...params: any[]) {
+  warn(_val: any, ..._params: any[]) {
     return;
   }
 
-  error(val: any, ...params: any[]) {
+  error(_val: any, ..._params: any[]) {
     return;
   }
 }

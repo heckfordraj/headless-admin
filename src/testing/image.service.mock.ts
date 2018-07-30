@@ -10,7 +10,7 @@ export class MockImageService {
     this.uploadImage = spyOn(this, 'uploadImage').and.callThrough();
   }
 
-  uploadImage(image: File): Observable<Block.Data.ImageData> {
+  uploadImage(_image: File): Observable<Block.Data.ImageData> {
     return of(Data.ImageBlockData);
   }
 }

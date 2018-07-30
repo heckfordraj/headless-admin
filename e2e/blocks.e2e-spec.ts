@@ -1,4 +1,3 @@
-import { ElementFinder, Key } from 'protractor';
 import { BlocksComponent } from './blocks.po';
 
 const FirebaseServer = require('firebase-server');

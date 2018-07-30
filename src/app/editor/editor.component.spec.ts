@@ -1,15 +1,9 @@
 import { FormsModule } from '@angular/forms';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import {
-  DebugElement,
-  CUSTOM_ELEMENTS_SCHEMA,
-  NO_ERRORS_SCHEMA
-} from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import {
   RouterTestingModule,
-  newEvent,
   Router,
   ActivatedRoute,
   ActivatedRouteStub,
@@ -19,11 +13,9 @@ import {
   MockServerService,
   SlugifyPipe,
   MockSlugifyPipe,
-  isPage,
   Data
 } from 'testing';
 
-import { PagesComponent } from '../pages/pages.component';
 import { EditorComponent } from './editor.component';
 
 let comp: EditorComponent;
@@ -147,14 +139,14 @@ describe('EditorComponent', () => {
   describe('slugChange', () => {
     it('should be called on input change', () => {
       page.pageInput.value = 'Page Title';
-      page.pageInput.dispatchEvent(newEvent('input'));
+      page.pageInput.dispatchEvent(new Event('input'));
 
       expect(comp.slugChange).toHaveBeenCalled();
     });
 
     it('should be called on input change with input arg', () => {
       page.pageInput.value = 'Page Title';
-      page.pageInput.dispatchEvent(newEvent('input'));
+      page.pageInput.dispatchEvent(new Event('input'));
 
       expect(comp.slugChange).toHaveBeenCalledWith('Page Title');
     });
@@ -381,9 +373,5 @@ class Page {
 
   private query<T>(selector: string): T {
     return fixture.nativeElement.querySelector(selector);
-  }
-
-  private queryAll<T>(selector: string): T[] {
-    return fixture.nativeElement.querySelectorAll(selector);
   }
 }

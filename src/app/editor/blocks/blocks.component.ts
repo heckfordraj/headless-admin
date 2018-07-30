@@ -44,7 +44,7 @@ export class BlocksComponent implements OnDestroy {
     private serverService: ServerService
   ) {}
 
-  trackBy(index, block) {
+  trackBy(_index, block) {
     return block.id;
   }
 

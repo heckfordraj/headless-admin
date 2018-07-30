@@ -51,8 +51,8 @@ export class MockServerService {
   }
 
   updateUser(
-    { id: pageId }: Page,
-    { current: { blockId, data } }: User = {
+    { id: _pageId }: Page,
+    { current: { blockId: _blockId, data: _data } }: User = {
       id: null,
       colour: null,
       current: { blockId: null, data: null }
@@ -76,14 +76,14 @@ export class MockServerService {
   }
 
   updateBlockContent(
-    block: Block.Base,
-    data: Block.Data.TextData
+    _block: Block.Base,
+    _data: Block.Data.TextData
   ): Promise<void> {
     return Promise.resolve();
   }
 
   updateTextBlockContent(
-    block: Block.Base,
+    _block: Block.Base,
     data: Block.Data.TextData,
     delayConfirm?: boolean
   ) {
@@ -129,19 +129,19 @@ export class MockServerService {
     return of(JSON.parse(pages));
   }
 
-  addPage(page: Page): Promise<void> {
+  addPage(_page: Page): Promise<void> {
     return Promise.resolve(null);
   }
 
-  updatePage(currentPage: Page, newPage: Page): Promise<void> {
+  updatePage(_currentPage: Page, _newPage: Page): Promise<void> {
     return Promise.resolve(null);
   }
 
-  removePage(page: Page): Promise<void> {
+  removePage(_page: Page): Promise<void> {
     return Promise.resolve(null);
   }
 
-  publishPage(page: Page): Promise<void> {
+  publishPage(_page: Page): Promise<void> {
     return Promise.resolve(null);
   }
 
@@ -158,26 +158,26 @@ export class MockServerService {
     return of(undefined);
   }
 
-  addBlock(page: Page, block: Block.Base): Promise<void> {
+  addBlock(_page: Page, _block: Block.Base): Promise<void> {
     return Promise.resolve(null);
   }
 
-  removeBlock(page: Page, block: Block.Base): Promise<void> {
+  removeBlock(_page: Page, _block: Block.Base): Promise<void> {
     return Promise.resolve(null);
   }
 
   updateBlock(
-    page: Page,
-    block: Block.Base,
-    data: Block.Data.Base
+    _page: Page,
+    _block: Block.Base,
+    _data: Block.Data.Base
   ): Promise<void> {
     return Promise.resolve(null);
   }
 
   orderBlock(
-    page: Page,
-    block: Block.Base,
-    blockReplaced: Block.Base
+    _page: Page,
+    _block: Block.Base,
+    _blockReplaced: Block.Base
   ): Promise<void> {
     return Promise.resolve(null);
   }

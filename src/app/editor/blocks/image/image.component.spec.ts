@@ -133,8 +133,4 @@ class Page {
   private query<T>(selector: string): T {
     return fixture.nativeElement.querySelector(selector);
   }
-
-  private queryAll<T>(selector: string): T[] {
-    return fixture.nativeElement.querySelectorAll(selector);
-  }
 }

@@ -33,7 +33,7 @@ export class State {
     return this;
   }
 
-  pendingRejected(text: Block.Data.TextData): State {
+  pendingRejected(_text: Block.Data.TextData): State {
     this.logger.error('State', 'pendingRejected');
     return this;
   }

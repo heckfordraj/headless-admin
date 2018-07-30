@@ -9,8 +9,6 @@ import {
   MockServerService,
   Block,
   TextUserData,
-  isPage,
-  isBlock,
   Data
 } from 'testing';
 

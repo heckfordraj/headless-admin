@@ -13,7 +13,6 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import * as Quill from 'quill';
-const Delta: Quill.DeltaStatic = Quill.import('delta');
 
 import {
   LoggerService,
@@ -50,7 +49,7 @@ export class TextComponent implements OnInit, OnDestroy {
 
   textChange(
     delta: Quill.DeltaStatic,
-    oldDelta: Quill.DeltaStatic,
+    _oldDelta: Quill.DeltaStatic,
     source: string
   ) {
     if (source !== 'user') return;

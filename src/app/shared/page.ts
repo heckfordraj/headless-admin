@@ -1,5 +1,3 @@
-import { Block } from './block';
-
 interface Revision {
   currentId: string;
   publishedId?: string;

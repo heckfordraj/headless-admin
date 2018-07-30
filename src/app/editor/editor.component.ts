@@ -1,17 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
-import { Observable, Subscription, combineLatest } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 
-import {
-  LoggerService,
-  ServerService,
-  SlugifyPipe,
-  Page,
-  User,
-  TextUserData
-} from 'shared';
+import { LoggerService, ServerService, SlugifyPipe, Page, User } from 'shared';
 
 @Component({
   selector: 'app-editor',

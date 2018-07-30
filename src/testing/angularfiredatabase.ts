@@ -1,7 +1,5 @@
 import { of } from 'rxjs';
 
-import { Page } from './page';
-import { Block } from './block';
 import { Data } from './data';
 
 export { AngularFireDatabase } from 'angularfire2/database';
@@ -86,11 +84,11 @@ export class MockAngularFireDatabase {
     return 'abcdefg';
   }
 
-  list(path: string) {
+  list(_path: string) {
     return this.listFn;
   }
 
-  object(path: string) {
+  object(_path: string) {
     return this.objectFn;
   }
 }
