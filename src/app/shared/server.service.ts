@@ -14,7 +14,9 @@ import { Page } from './page';
 import { Block } from './block';
 import { User } from './user';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ServerService {
   private users: Subject<User[]> = new Subject<User[]>();
   private user: User;

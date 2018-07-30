@@ -6,6 +6,7 @@ import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { environment } from 'environment';
 
+import { SharedModule } from './shared/shared.module';
 import { RoutingModule } from './routing.module';
 
 import { AppComponent } from './app.component';
@@ -17,6 +18,7 @@ import { AppComponent } from './app.component';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     HttpClientModule,
+    SharedModule,
     RoutingModule
   ],
   bootstrap: [AppComponent]

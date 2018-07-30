@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 
 import { environment } from 'environment';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class LoggerService {
   log(val: any, ...params: any[]) {
     if (environment.production) return;
