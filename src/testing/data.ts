@@ -23,7 +23,7 @@ export namespace Data {
       dataId: '2',
       revisions: { currentId: 'b' },
       status: {
-        draft: true
+        published: true
       },
       lastModified: 2
     },
@@ -43,7 +43,7 @@ export namespace Data {
       dataId: '4',
       revisions: { currentId: 'd' },
       status: {
-        draft: true
+        archived: true
       },
       lastModified: 4
     },
@@ -53,7 +53,7 @@ export namespace Data {
       dataId: '5',
       revisions: { currentId: 'e' },
       status: {
-        draft: true
+        archived: true
       },
       lastModified: 5
     }

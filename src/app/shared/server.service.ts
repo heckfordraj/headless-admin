@@ -83,13 +83,21 @@ export class ServerService {
     return this.db.createPushId();
   }
 
-  getCollection(name: string): Observable<Page[]> {
+  getCollection(name: string, status: string): Observable<Page[]> {
     return this.db
       .list<Page>(name, ref => ref.orderByChild('lastModified'))
       .valueChanges()
       .pipe(
         map(pages => pages.reverse()),
-        tap(res => this.logger.log('getCollection', res)),
+        map(pages =>
+          pages.filter(
+            page =>
+              status
+                ? page.status[status]
+                : page.status.draft || page.status.published
+          )
+        ),
+        tap(res => this.logger.log(`getCollection status: ${status}`, res)),
         catchError(this.handleError<Page[]>('getCollection', []))
       );
   }

@@ -95,7 +95,8 @@
           ".validate": "false"
         },
         ".write":
-          "data.val() == null && (data.val() == null || data.child('dataId').val() == newData.child('dataId').val()) || data.val() != null && newData.val() != null && (data.val() == null || data.child('dataId').val() == newData.child('dataId').val()) || data.val() != null && newData.val() == null"
+          "data.val() == null && (data.val() == null || data.child('dataId').val() == newData.child('dataId').val()) || data.val() != null && newData.val() != null && (data.val() == null || data.child('dataId').val() == newData.child('dataId').val()) || data.val() != null && newData.val() == null",
+        ".indexOn": ["lastModified"]
       },
       ".read": "true"
     },

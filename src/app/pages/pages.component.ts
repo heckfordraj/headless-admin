@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { LoggerService, ServerService, SlugifyPipe, Page } from 'shared';
 
@@ -12,6 +13,8 @@ import { LoggerService, ServerService, SlugifyPipe, Page } from 'shared';
 export class PagesComponent implements OnInit, OnDestroy {
   pages$: Subscription;
   pages: Page[];
+
+  pagesStatus$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   constructor(
     private logger: LoggerService,
@@ -57,13 +60,22 @@ export class PagesComponent implements OnInit, OnDestroy {
       .catch(err => this.logger.error('removePage', err));
   }
 
+  filterPages(status: string = null) {
+    this.logger.log('filterPages', status);
+
+    this.pagesStatus$.next(status);
+  }
+
   ngOnInit() {
-    this.pages$ = this.serverService
-      .getCollection('pages')
+    this.pages$ = this.pagesStatus$
+      .pipe(
+        switchMap(status => this.serverService.getCollection('pages', status))
+      )
       .subscribe((pages: Page[]) => (this.pages = pages));
   }
 
   ngOnDestroy() {
     this.pages$.unsubscribe();
+    this.pagesStatus$.unsubscribe();
   }
 }

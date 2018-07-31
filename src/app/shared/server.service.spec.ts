@@ -15,7 +15,7 @@ import {
   Data
 } from 'testing';
 
-import { from } from 'rxjs';
+import { of, from } from 'rxjs';
 
 import { ServerService } from './server.service';
 
@@ -164,13 +164,15 @@ describe('ServerService', () => {
   });
 
   describe('getCollection', () => {
-    beforeEach(() => serverService.getCollection('posts'));
-
     it('should call AngularFireDatabase list', () => {
+      serverService.getCollection('posts', null);
+
       expect(angularFireDatabase.list).toHaveBeenCalled();
     });
 
     it('should call AngularFireDatabase list with name arg', () => {
+      serverService.getCollection('posts', null);
+
       expect(angularFireDatabase.list).toHaveBeenCalledWith(
         'posts',
         jasmine.any(Function)
@@ -178,7 +180,56 @@ describe('ServerService', () => {
     });
 
     it('should call AngularFireDatabase list valueChanges', () => {
+      serverService.getCollection('posts', null);
+
       expect(angularFireDatabase.listSpy.valueChanges).toHaveBeenCalled();
+    });
+
+    it('should map return as reversed array', () => {
+      angularFireDatabase.listSpy.valueChanges.and.returnValue(
+        of([
+          { name: 'Page 1', status: { draft: true } },
+          { name: 'Page 2', status: { draft: true } }
+        ])
+      );
+
+      serverService.getCollection('pages', null).subscribe(pages => {
+        const pageNames = pages.map(page => page.name);
+
+        expect(pageNames).toEqual(['Page 2', 'Page 1']);
+      });
+    });
+
+    describe('status: null', () => {
+      beforeEach(() =>
+        angularFireDatabase.listSpy.valueChanges.and.returnValue(
+          of(JSON.parse(JSON.stringify(Data.Pages)))
+        ));
+
+      it('should return filtered page status as `draft` or `published`', () => {
+        serverService
+          .getCollection('pages', null)
+          .subscribe(pages =>
+            pages.map(page =>
+              expect(page.status.draft || page.status.published).toBe(true)
+            )
+          );
+      });
+    });
+
+    describe('status: `archived`', () => {
+      beforeEach(() =>
+        angularFireDatabase.listSpy.valueChanges.and.returnValue(
+          of(JSON.parse(JSON.stringify(Data.Pages)))
+        ));
+
+      it('should return filtered page status as `archived`', () => {
+        serverService
+          .getCollection('pages', 'archived')
+          .subscribe(pages =>
+            pages.map(page => expect(page.status.archived).toBe(true))
+          );
+      });
     });
   });
 

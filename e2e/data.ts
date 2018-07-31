@@ -22,7 +22,7 @@ export const Data = {
         currentId: 'b'
       },
       status: {
-        draft: true
+        published: true
       },
       lastModified: 1
     },
@@ -46,7 +46,7 @@ export const Data = {
         currentId: 'd'
       },
       status: {
-        draft: true
+        archived: true
       },
       lastModified: 1
     },
@@ -58,7 +58,7 @@ export const Data = {
         currentId: 'e'
       },
       status: {
-        draft: true
+        archived: true
       },
       lastModified: 1
     }

@@ -43,12 +43,50 @@ describe('PagesComponent', () => {
       expect(serverService.getCollection).toHaveBeenCalled();
     });
 
-    it(`should call ServerService getCollection with 'pages' arg`, () => {
-      expect(serverService.getCollection).toHaveBeenCalledWith('pages');
+    it('should call ServerService getCollection with `pages` and null args', () => {
+      expect(serverService.getCollection).toHaveBeenCalledWith('pages', null);
     });
 
     it('should set pages', () => {
       expect(comp.pages).toEqual(Data.Pages);
+    });
+  });
+
+  describe('filterPages', () => {
+    it('should be called by filter current button click', () => {
+      page.pagesFilterCurrent.click();
+
+      expect(comp.filterPages).toHaveBeenCalled();
+    });
+
+    it('should be called by filter current button click with void arg', () => {
+      page.pagesFilterCurrent.click();
+
+      expect(comp.filterPages).toHaveBeenCalledWith();
+    });
+
+    it('should be called by filter archived button click', () => {
+      page.pagesFilterArchived.click();
+
+      expect(comp.filterPages).toHaveBeenCalled();
+    });
+
+    it('should be called by filter archived button click with `archived` arg', () => {
+      page.pagesFilterArchived.click();
+
+      expect(comp.filterPages).toHaveBeenCalledWith('archived');
+    });
+
+    it('should trigger ServerService getCollection', () => {
+      comp.filterPages('new');
+
+      expect(serverService.getCollection).toHaveBeenCalled();
+    });
+
+    it('should trigger ServerService getCollection with status arg', () => {
+      comp.filterPages('new');
+
+      expect(serverService.getCollection).toHaveBeenCalledWith('pages', 'new');
     });
   });
 
@@ -190,6 +228,7 @@ class Page {
   addPage: jasmine.Spy;
   archivePage: jasmine.Spy;
   removePage: jasmine.Spy;
+  filterPages: jasmine.Spy;
 
   get pages() {
     return this.query<HTMLLIElement>('li');
@@ -206,11 +245,18 @@ class Page {
   get pageAdd() {
     return this.query<HTMLInputElement>('#add-page');
   }
+  get pagesFilterCurrent() {
+    return this.query<HTMLButtonElement>('#filter-current');
+  }
+  get pagesFilterArchived() {
+    return this.query<HTMLButtonElement>('#filter-archived');
+  }
 
   constructor() {
     this.addPage = spyOn(comp, 'addPage').and.callThrough();
     this.archivePage = spyOn(comp, 'archivePage').and.callThrough();
     this.removePage = spyOn(comp, 'removePage').and.callThrough();
+    this.filterPages = spyOn(comp, 'filterPages').and.callThrough();
   }
 
   private query<T>(selector: string): T {

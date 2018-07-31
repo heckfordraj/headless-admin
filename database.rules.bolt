@@ -71,6 +71,7 @@ path /pages {
     create() { prior(this) == null || prior(this.dataId) == this.dataId }
     update() { prior(this) == null || prior(this.dataId) == this.dataId }
     delete() { true }
+    index() { 'lastModified' }
   }
 }
 

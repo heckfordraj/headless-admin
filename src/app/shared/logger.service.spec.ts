@@ -102,9 +102,11 @@ class ConsoleStub {
   error: jasmine.Spy;
 
   constructor() {
-    this.log = spyOn(console, 'log').and.callThrough();
-    this.warn = spyOn(console, 'warn').and.callThrough();
-    this.error = spyOn(console, 'error').and.callThrough();
+    const noop = () => undefined;
+
+    this.log = spyOn(console, 'log').and.callFake(noop);
+    this.warn = spyOn(console, 'warn').and.callFake(noop);
+    this.error = spyOn(console, 'error').and.callFake(noop);
   }
 }
 

@@ -124,10 +124,8 @@ export class MockServerService {
     return of(undefined);
   }
 
-  getCollection(): Observable<Page[]> {
-    let pages = JSON.stringify(Data.Pages);
-
-    return of(JSON.parse(pages));
+  getCollection(_name: string, _status: string): Observable<Page[]> {
+    return of(JSON.parse(JSON.stringify(Data.Pages)));
   }
 
   addPage(_page: Page): Promise<void> {

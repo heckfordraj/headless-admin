@@ -55,7 +55,19 @@ export class PagesComponent {
     return element.all(by.css('.remove'));
   }
 
+  getPageArchiveButtons() {
+    return element.all(by.css('.archive'));
+  }
+
   getAddPageInput() {
     return element(by.css('#add-page'));
+  }
+
+  getFilterCurrentButton() {
+    return element(by.css('#filter-current'));
+  }
+
+  getFilterArchivedButton() {
+    return element(by.css('#filter-archived'));
   }
 }
