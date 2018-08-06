@@ -9,7 +9,8 @@ import {
   MockServerService,
   Block,
   TextUserData,
-  Data
+  Data,
+  makeImmutable
 } from 'testing';
 
 import { TextComponent } from './text/text.component';
@@ -64,12 +65,12 @@ describe('BlocksComponent', () => {
 
   describe('initial page', () => {
     beforeEach(() => {
-      compHost.page = Data.Pages[2];
+      compHost.page = Data.getPages('page-3');
       fixture.detectChanges();
     });
 
     it('should set page', () => {
-      expect(comp.page).toEqual(Data.Pages[2]);
+      expect(comp.page).toEqual(Data.getPages('page-3'));
     });
 
     it('should call ServerService getBlocks', () => {
@@ -77,7 +78,9 @@ describe('BlocksComponent', () => {
     });
 
     it('should call ServerService getBlocks with page arg', () => {
-      expect(serverService.getBlocks).toHaveBeenCalledWith(Data.Pages[2]);
+      expect(serverService.getBlocks).toHaveBeenCalledWith(
+        Data.getPages('page-3')
+      );
     });
 
     it('should set blocks', () => {
@@ -93,14 +96,14 @@ describe('BlocksComponent', () => {
 
   describe('page change', () => {
     beforeEach(() => {
-      compHost.page = Data.Pages[2];
+      compHost.page = Data.getPages('page-3');
       fixture.detectChanges();
-      compHost.page = Data.Pages[3];
+      compHost.page = Data.getPages('page-4');
       fixture.detectChanges();
     });
 
     it('should set page', () => {
-      expect(comp.page).toEqual(Data.Pages[3]);
+      expect(comp.page).toEqual(Data.getPages('page-4'));
     });
 
     it('should call ServerService getBlocks', () => {
@@ -108,19 +111,21 @@ describe('BlocksComponent', () => {
     });
 
     it('should call ServerService getBlocks with page arg', () => {
-      expect(serverService.getBlocks).toHaveBeenCalledWith(Data.Pages[3]);
+      expect(serverService.getBlocks).toHaveBeenCalledWith(
+        Data.getPages('page-4')
+      );
     });
 
     it('should display correct block component', () => {
-      expect(page.blocksSwitch[0].nodeName.toLowerCase()).toBe('app-image');
-      expect(page.blocksSwitch[1].nodeName.toLowerCase()).toBe('app-text');
-      expect(page.blocksSwitch[2].nodeName.toLowerCase()).toBe('app-image');
+      expect(page.blocksSwitch[0].nodeName.toLowerCase()).toBe('app-text');
+      expect(page.blocksSwitch[1].nodeName.toLowerCase()).toBe('app-image');
+      expect(page.blocksSwitch[2].nodeName.toLowerCase()).toBe('app-text');
     });
   });
 
   describe('addBlock', () => {
     beforeEach(() => {
-      compHost.page = Data.Pages[0];
+      compHost.page = Data.getPages('page-1');
       fixture.detectChanges();
     });
 
@@ -161,14 +166,25 @@ describe('BlocksComponent', () => {
     });
 
     it('should call ServerService addBlock with page and block args', () => {
-      const block: Block.Base = { type: null, id: 'abcdefg', order: 4 };
+      const block: Block.Base = makeImmutable({
+        type: null,
+        id: 'abcdefg',
+        order: 4
+      });
       comp.addBlock({ type: null } as any);
 
-      expect(serverService.addBlock).toHaveBeenCalledWith(Data.Pages[0], block);
+      expect(serverService.addBlock).toHaveBeenCalledWith(
+        Data.getPages('page-1'),
+        block
+      );
     });
 
     it('should call ServerService addBlock with page and block args with block order as incremented blocks array length', () => {
-      const block: Block.Base = { type: null, id: 'abcdefg', order: null };
+      const block: Block.Base = makeImmutable({
+        type: null,
+        id: 'abcdefg',
+        order: null
+      });
       comp.blocks = [null, null, null, null];
       comp.addBlock({ type: null } as any);
 
@@ -180,10 +196,14 @@ describe('BlocksComponent', () => {
   });
 
   describe('removeBlock', () => {
-    const block: Block.Base = { type: 'text', id: '1', order: 1 };
+    const block: Block.Base = makeImmutable({
+      type: 'text',
+      id: '1',
+      order: 1
+    });
 
     beforeEach(() => {
-      compHost.page = Data.Pages[1];
+      compHost.page = Data.getPages('page-2');
       fixture.detectChanges();
     });
 
@@ -203,17 +223,17 @@ describe('BlocksComponent', () => {
       comp.removeBlock(block);
 
       expect(serverService.removeBlock).toHaveBeenCalledWith(
-        Data.Pages[1],
+        Data.getPages('page-2'),
         block
       );
     });
   });
 
   describe('updateActiveBlock', () => {
-    const textUserData: TextUserData = { index: 1, length: 2 };
+    const textUserData: TextUserData = makeImmutable({ index: 1, length: 2 });
 
     beforeEach(() => {
-      compHost.page = Data.Pages[0];
+      compHost.page = Data.getPages('page-1');
       fixture.detectChanges();
       textComponent = fixture.debugElement.query(By.directive(TextComponent))
         .componentInstance;
@@ -229,31 +249,34 @@ describe('BlocksComponent', () => {
       textComponent.selection.emit(textUserData);
 
       expect(comp.updateActiveBlock).toHaveBeenCalledWith(
-        Data.Blocks['1'][0],
+        Data.getBlocks('text'),
         textUserData
       );
     });
 
     it('should call ServerService updateUser', () => {
-      comp.updateActiveBlock(Data.Blocks['1'][0], textUserData);
+      comp.updateActiveBlock(Data.getBlocks('text'), textUserData);
 
       expect(serverService.updateUser).toHaveBeenCalled();
     });
 
     it('should call ServerService updateUser with page and user args', () => {
-      comp.updateActiveBlock(Data.Blocks['1'][0], textUserData);
+      comp.updateActiveBlock(Data.getBlocks('text'), textUserData);
 
-      expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[0], {
-        id: null,
-        colour: null,
-        current: { blockId: '1', data: textUserData }
-      });
+      expect(serverService.updateUser).toHaveBeenCalledWith(
+        Data.getPages('page-1'),
+        {
+          id: null,
+          colour: null,
+          current: { blockId: '1', data: textUserData }
+        }
+      );
     });
   });
 
   describe('orderBlock', () => {
     beforeEach(() => {
-      compHost.page = Data.Pages[0];
+      compHost.page = Data.getPages('page-1');
       fixture.detectChanges();
     });
 
@@ -291,9 +314,9 @@ describe('BlocksComponent', () => {
       comp.orderBlock(0, 1);
 
       expect(serverService.orderBlock).toHaveBeenCalledWith(
-        Data.Pages[0],
-        { ...Data.Blocks['1'][0], order: jasmine.any(Number) },
-        { ...Data.Blocks['1'][1], order: jasmine.any(Number) }
+        Data.getPages('page-1'),
+        { ...Data.getBlocks('text'), order: jasmine.any(Number) },
+        { ...Data.getBlocks('image'), order: jasmine.any(Number) }
       );
     });
 
@@ -301,9 +324,9 @@ describe('BlocksComponent', () => {
       comp.orderBlock(0, 1);
 
       expect(serverService.orderBlock).toHaveBeenCalledWith(
-        Data.Pages[0],
-        { ...Data.Blocks['1'][0], order: 2 },
-        { ...Data.Blocks['1'][1], order: 1 }
+        Data.getPages('page-1'),
+        { ...Data.getBlocks('text'), order: 2 },
+        { ...Data.getBlocks('image'), order: 1 }
       );
     });
 

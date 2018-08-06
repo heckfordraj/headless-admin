@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { Data } from 'testing';
+import { Data } from './data';
 import { Block } from 'shared';
 
 export { ImageService } from '../app/editor/blocks/image/image.service';
@@ -11,6 +11,6 @@ export class MockImageService {
   }
 
   uploadImage(_image: File): Observable<Block.Data.ImageData> {
-    return of(Data.ImageBlockData);
+    return of(Data.getImageBlockData());
   }
 }

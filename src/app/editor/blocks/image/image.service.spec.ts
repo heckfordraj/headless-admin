@@ -38,11 +38,17 @@ describe('ImageService', () => {
     });
 
     it('should call HttpClient POST', () => {
-      mockHttp.expectOne(req => req.method === 'POST');
+      const request = mockHttp.expectOne(req => req.method === 'POST');
+
+      expect(request).toBeTruthy();
     });
 
     it(`should call HttpClient POST to 'api.cloudinary.com'`, () => {
-      mockHttp.expectOne(req => req.url.includes('api.cloudinary.com'));
+      const request = mockHttp.expectOne(req =>
+        req.url.includes('api.cloudinary.com')
+      );
+
+      expect(request).toBeTruthy();
     });
 
     it(`should set request FormData 'file'`, () => {

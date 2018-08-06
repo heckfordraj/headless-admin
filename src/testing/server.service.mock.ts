@@ -52,8 +52,8 @@ export class MockServerService {
   }
 
   updateUser(
-    { id: _pageId }: Page,
-    { current: { blockId: _blockId, data: _data } }: User = {
+    _page: Page,
+    _user: User = {
       id: null,
       colour: null,
       current: { blockId: null, data: null }
@@ -63,7 +63,7 @@ export class MockServerService {
   }
 
   getUsers(): Observable<User[]> {
-    return of(JSON.parse(JSON.stringify(Data.Users)));
+    return of(Data.getUsers());
   }
 
   createTimestamp(): object {
@@ -110,22 +110,15 @@ export class MockServerService {
   getBlockContent(block: Block.Base): Observable<Block.Data.Base> {
     if (block && block.type === 'text') return this.blockContent;
 
-    return of(Data.ImageBlockData);
+    return of(Data.getImageBlockData());
   }
 
   getPage(id: string): Observable<Page> {
-    let index = Data.Pages.find((page: Page) => page.id === id);
-
-    if (index) {
-      let page = JSON.stringify(index);
-
-      return of(JSON.parse(page));
-    }
-    return of(undefined);
+    return of(Data.getPages(id));
   }
 
   getCollection(_name: string, _status: string): Observable<Page[]> {
-    return of(JSON.parse(JSON.stringify(Data.Pages)));
+    return of(Data.getPages<void>());
   }
 
   addPage(_page: Page): Promise<void> {
@@ -148,17 +141,8 @@ export class MockServerService {
     return Promise.resolve(null);
   }
 
-  getBlocks(page: Page): Observable<Block.Base[]> {
-    let index = Object.keys(Data.Blocks).find(
-      (key: string) => key === page.dataId
-    );
-
-    if (index) {
-      let block = JSON.stringify(Data.Blocks[index]);
-
-      return of(JSON.parse(block));
-    }
-    return of(undefined);
+  getBlocks(_page: Page): Observable<Block.Base[]> {
+    return of(Data.getBlocks<void>());
   }
 
   addBlock(_page: Page, _block: Block.Base): Promise<void> {

@@ -43,7 +43,7 @@ describe('ImageComponent', () => {
   beforeEach(async(() => createComponent()));
 
   beforeEach(() => {
-    compHost.block = Data.ImageBlock;
+    compHost.block = Data.getImageBlock();
     fixture.detectChanges();
   });
 
@@ -60,12 +60,12 @@ describe('ImageComponent', () => {
       comp.ngOnInit();
 
       expect(serverService.getBlockContent).toHaveBeenCalledWith(
-        Data.ImageBlock
+        Data.getImageBlock()
       );
     });
 
     it('should set image', () => {
-      expect(comp.image).toBe(Data.ImageBlockData);
+      expect(comp.image).toEqual(Data.getImageBlockData());
     });
 
     it('should display image', () => {
@@ -96,8 +96,8 @@ describe('ImageComponent', () => {
       page.input.dispatchEvent(new Event('change'));
 
       expect(serverService.updateBlockContent).toHaveBeenCalledWith(
-        Data.ImageBlock,
-        Data.ImageBlockData
+        Data.getImageBlock(),
+        Data.getImageBlockData()
       );
     });
   });

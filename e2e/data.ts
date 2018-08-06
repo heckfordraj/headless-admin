@@ -1,4 +1,4 @@
-import { Page, Block } from 'shared';
+import { Page, Block } from '../src/app/shared';
 
 export const Data = {
   pages: {

@@ -48,7 +48,7 @@ describe('PagesComponent', () => {
     });
 
     it('should set pages', () => {
-      expect(comp.pages).toEqual(Data.Pages);
+      expect(comp.pages).toEqual(Data.getPages<void>());
     });
   });
 
@@ -170,19 +170,21 @@ describe('PagesComponent', () => {
     it('should be called on remove button click with page arg', () => {
       page.pageRemove.click();
 
-      expect(page.removePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(page.removePage).toHaveBeenCalledWith(Data.getPages('page-1'));
     });
 
     it('should call ServerService removePage', () => {
-      comp.removePage(Data.Pages[0]);
+      comp.removePage(Data.getPages('page-1'));
 
       expect(serverService.removePage).toHaveBeenCalled();
     });
 
     it('should call ServerService removePage with page arg', () => {
-      comp.removePage(Data.Pages[0]);
+      comp.removePage(Data.getPages('page-1'));
 
-      expect(serverService.removePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(serverService.removePage).toHaveBeenCalledWith(
+        Data.getPages('page-1')
+      );
     });
   });
 
@@ -196,19 +198,21 @@ describe('PagesComponent', () => {
     it('should be called on archive button click with page arg', () => {
       page.pageArchive.click();
 
-      expect(page.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(page.archivePage).toHaveBeenCalledWith(Data.getPages('page-1'));
     });
 
     it('should call ServerService archivePage', () => {
-      comp.archivePage(Data.Pages[0]);
+      comp.archivePage(Data.getPages('page-1'));
 
       expect(serverService.archivePage).toHaveBeenCalled();
     });
 
     it('should call ServerService archivePage with page arg', () => {
-      comp.archivePage(Data.Pages[0]);
+      comp.archivePage(Data.getPages('page-1'));
 
-      expect(serverService.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(serverService.archivePage).toHaveBeenCalledWith(
+        Data.getPages('page-1')
+      );
     });
   });
 });

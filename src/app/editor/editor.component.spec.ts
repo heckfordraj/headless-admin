@@ -65,7 +65,9 @@ describe('EditorComponent', () => {
       });
 
       it('should call ServerService updateUser with page', () => {
-        expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[0]);
+        expect(serverService.updateUser).toHaveBeenCalledWith(
+          Data.getPages('page-1')
+        );
       });
 
       it('should call ServerService getUsers', () => {
@@ -73,7 +75,7 @@ describe('EditorComponent', () => {
       });
 
       it('should set page', () => {
-        expect(comp.page).toEqual(Data.Pages[0]);
+        expect(comp.page).toEqual(Data.getPages('page-1'));
       });
 
       it('should set users', () => {
@@ -110,7 +112,9 @@ describe('EditorComponent', () => {
       });
 
       it('should call ServerService updateUser with page', () => {
-        expect(serverService.updateUser).toHaveBeenCalledWith(Data.Pages[1]);
+        expect(serverService.updateUser).toHaveBeenCalledWith(
+          Data.getPages('page-2')
+        );
       });
 
       it('should call ServerService getUsers', () => {
@@ -118,7 +122,7 @@ describe('EditorComponent', () => {
       });
 
       it('should set page', () => {
-        expect(comp.page).toEqual(Data.Pages[1]);
+        expect(comp.page).toEqual(Data.getPages('page-2'));
       });
 
       it('should set users', () => {
@@ -203,7 +207,7 @@ describe('EditorComponent', () => {
       comp.updatePage();
 
       expect(serverService.updatePage).toHaveBeenCalledWith(
-        Data.Pages[0],
+        Data.getPages('page-1'),
         'title'
       );
     });
@@ -226,7 +230,7 @@ describe('EditorComponent', () => {
       comp.inputSlug = 'new-title';
       comp.updatePage();
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalled();
       });
     });
@@ -235,7 +239,7 @@ describe('EditorComponent', () => {
       comp.inputSlug = 'new-title';
       comp.updatePage();
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalledWith(
           ['/page', 'new-title'],
           jasmine.anything()
@@ -244,12 +248,12 @@ describe('EditorComponent', () => {
     });
 
     it('should not call Router navigate on ServerService updatePage reject', () => {
-      (serverService.updatePage as jasmine.Spy).and.returnValue(
-        Promise.reject(null)
+      (serverService.updatePage as jasmine.Spy).and.callFake(() =>
+        Promise.reject()
       );
       comp.inputSlug = 'new-title';
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).not.toHaveBeenCalled();
       });
     });
@@ -271,7 +275,9 @@ describe('EditorComponent', () => {
     it('should call ServerService publishPage with page arg', () => {
       comp.publishPage();
 
-      expect(serverService.publishPage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(serverService.publishPage).toHaveBeenCalledWith(
+        Data.getPages('page-1')
+      );
     });
   });
 
@@ -291,13 +297,15 @@ describe('EditorComponent', () => {
     it('should call ServerService archivePage with page arg', () => {
       comp.archivePage();
 
-      expect(serverService.archivePage).toHaveBeenCalledWith(Data.Pages[0]);
+      expect(serverService.archivePage).toHaveBeenCalledWith(
+        Data.getPages('page-1')
+      );
     });
 
     it('should call Router navigate on ServerService archivePage resolve', () => {
       comp.archivePage();
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalled();
       });
     });
@@ -305,7 +313,7 @@ describe('EditorComponent', () => {
     it(`should call Router navigate with '/pages' on ServerService archivePage resolve`, () => {
       comp.archivePage();
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).toHaveBeenCalledWith(
           ['/pages'],
           jasmine.anything()
@@ -319,7 +327,7 @@ describe('EditorComponent', () => {
       );
       comp.archivePage();
 
-      fixture.whenStable().then(_ => {
+      return fixture.whenStable().then(_ => {
         expect(router.navigate).not.toHaveBeenCalled();
       });
     });

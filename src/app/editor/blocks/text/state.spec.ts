@@ -4,7 +4,8 @@ import {
   MockServerService,
   ServerService,
   Block,
-  Data
+  Data,
+  makeImmutable
 } from 'testing';
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
@@ -66,18 +67,18 @@ describe('State', () => {
     });
 
     describe('addText', () => {
-      const pending: Block.Data.TextData = {
+      const pending: Block.Data.TextData = makeImmutable({
         id: 1,
         user: 'Name'
-      };
+      });
 
       beforeEach(() => {
         state.pending = pending;
-        state = state.addText(Data.TextBlockDataDelta[0]);
+        state = state.addText(Data.getTextBlockDataDeltas(0));
       });
 
       it('should set pending delta', () => {
-        expect(state.pending.delta).toEqual(Data.TextBlockDataDelta[0]);
+        expect(state.pending.delta).toEqual(Data.getTextBlockDataDeltas(0));
       });
 
       it('should not have buffer', () => {
@@ -94,7 +95,7 @@ describe('State', () => {
         expect(state.logger).toEqual(loggerService);
         expect(state.pending).toEqual({
           ...pending,
-          delta: Data.TextBlockDataDelta[0]
+          delta: Data.getTextBlockDataDeltas(0)
         });
       });
     });
@@ -118,7 +119,7 @@ describe('State', () => {
     describe('setUser', () => {
       beforeEach(() => {
         state.pending.id = 1;
-        state.pending.delta = Data.TextBlockDataDelta[0];
+        state.pending.delta = Data.getTextBlockDataDeltas(0);
         state.setUser('Name Surname');
       });
 
@@ -131,7 +132,7 @@ describe('State', () => {
       });
 
       it('should not modify pending delta', () => {
-        expect(state.pending.delta).toBe(Data.TextBlockDataDelta[0]);
+        expect(state.pending.delta).toEqual(Data.getTextBlockDataDeltas(0));
       });
     });
 
@@ -154,7 +155,7 @@ describe('State', () => {
       describe('existing user', () => {
         beforeEach(() => {
           textComponent.users = [{ id: 'person', colour: '#fff', current: {} }];
-          state.updateCursor(Data.TextBlockData);
+          state.updateCursor(Data.getTextBlockData());
         });
 
         it('should call TextComponent editor getBounds', () => {
@@ -250,7 +251,7 @@ describe('State', () => {
     });
 
     describe('updateContents', () => {
-      beforeEach(() => state.updateContents(Data.TextBlockData));
+      beforeEach(() => state.updateContents(Data.getTextBlockData()));
 
       it('should call TextComponent editor updateContents', () => {
         expect(textComponentStub.editor.updateContents).toHaveBeenCalled();
@@ -258,7 +259,7 @@ describe('State', () => {
 
       it('should call TextComponent editor updateContents with delta arg', () => {
         expect(textComponentStub.editor.updateContents).toHaveBeenCalledWith(
-          Data.TextBlockData.delta
+          Data.getTextBlockData().delta
         );
       });
 
@@ -267,7 +268,9 @@ describe('State', () => {
       });
 
       it('should call updateCursor with text arg', () => {
-        expect(stateStub.updateCursor).toHaveBeenCalledWith(Data.TextBlockData);
+        expect(stateStub.updateCursor).toHaveBeenCalledWith(
+          Data.getTextBlockData()
+        );
       });
     });
 
@@ -275,8 +278,8 @@ describe('State', () => {
       describe('', () => {
         beforeEach(() => {
           state.pending.user = 'Name';
-          state.pending.delta = Data.TextBlockDataDelta[0];
-          state = state.receiveServer(Data.TextBlockData);
+          state.pending.delta = Data.getTextBlockDataDeltas(0);
+          state = state.receiveServer(Data.getTextBlockData());
         });
 
         it('should set pending id as text id', () => {
@@ -288,7 +291,7 @@ describe('State', () => {
         });
 
         it('should not modify pending delta', () => {
-          expect(state.pending.delta).toEqual(Data.TextBlockDataDelta[0]);
+          expect(state.pending.delta).toEqual(Data.getTextBlockDataDeltas(0));
         });
 
         it('should return State', () => {
@@ -299,7 +302,7 @@ describe('State', () => {
       describe('this user', () => {
         beforeEach(() => {
           state.pending.user = 'person';
-          state = state.receiveServer(Data.TextBlockData);
+          state = state.receiveServer(Data.getTextBlockData());
         });
 
         it('should not call updateContents', () => {
@@ -310,7 +313,7 @@ describe('State', () => {
       describe('other user', () => {
         beforeEach(() => {
           state.pending.user = 'other';
-          state = state.receiveServer(Data.TextBlockData);
+          state = state.receiveServer(Data.getTextBlockData());
         });
 
         it('should call updateContents', () => {
@@ -319,26 +322,26 @@ describe('State', () => {
 
         it('should call updateContents with text arg', () => {
           expect(stateStub.updateContents).toHaveBeenCalledWith({
-            ...Data.TextBlockData,
+            ...Data.getTextBlockData(),
             delta: jasmine.anything()
           });
         });
 
         it('should call updateContents with text delta arg as Delta', () => {
           expect(stateStub.updateContents).toHaveBeenCalledWith({
-            ...Data.TextBlockData,
-            delta: new Delta(Data.TextBlockData.delta.ops)
+            ...Data.getTextBlockData(),
+            delta: new Delta(Data.getTextBlockData().delta.ops)
           });
         });
       });
     });
 
     describe('transform', () => {
-      const textData: Block.Data.TextData = {
+      const textData: Block.Data.TextData = makeImmutable({
         id: 1,
         user: 'other',
         delta: { ops: [{ retain: 1 }, { insert: '1' }] } as Quill.DeltaStatic
-      };
+      });
 
       beforeEach(() => {
         state.pending.delta = new Delta([{ retain: 1 }, { insert: 'b' }]);
@@ -375,7 +378,7 @@ describe('State', () => {
         (state = new PendingState(
           textComponent,
           loggerService,
-          Data.TextBlockData
+          Data.getTextBlockData()
         )));
 
       it(`should set state as 'pending'`, () => {
@@ -383,7 +386,7 @@ describe('State', () => {
       });
 
       it('should set pending delta', () => {
-        expect(state.pending.delta).toEqual(Data.TextBlockData.delta);
+        expect(state.pending.delta).toEqual(Data.getTextBlockData().delta);
       });
 
       it('should not have buffer', () => {
@@ -395,19 +398,19 @@ describe('State', () => {
       });
 
       describe('addText', () => {
-        const pending: Block.Data.TextData = {
+        const pending: Block.Data.TextData = makeImmutable({
           id: 0,
           user: 'Name',
-          delta: Data.TextBlockDataDelta[0]
-        };
+          delta: Data.getTextBlockDataDeltas(0)
+        });
 
         beforeEach(() => {
           state.pending = pending;
-          state = state.addText(Data.TextBlockDataDelta[1]);
+          state = state.addText(Data.getTextBlockDataDeltas(1));
         });
 
         it('should set buffer', () => {
-          expect(state.buffer).toEqual(Data.TextBlockDataDelta[1]);
+          expect(state.buffer).toEqual(Data.getTextBlockDataDeltas(1));
         });
 
         it('should not modify pending', () => {
@@ -423,16 +426,16 @@ describe('State', () => {
           expect(state.component).toEqual(textComponent);
           expect(state.logger).toEqual(loggerService);
           expect(state.pending).toEqual(pending);
-          expect(state.buffer).toEqual(Data.TextBlockDataDelta[1]);
+          expect(state.buffer).toEqual(Data.getTextBlockDataDeltas(1));
         });
       });
 
       describe('pendingConfirmed', () => {
-        const pending: Block.Data.TextData = {
+        const pending: Block.Data.TextData = makeImmutable({
           id: 0,
           user: 'Name',
-          delta: Data.TextBlockDataDelta[0]
-        };
+          delta: Data.getTextBlockDataDeltas(0)
+        });
 
         beforeEach(() => {
           state.pending = pending;
@@ -464,7 +467,8 @@ describe('State', () => {
       });
 
       describe('pendingRejected', () => {
-        beforeEach(() => (state = state.pendingRejected(Data.TextBlockData)));
+        beforeEach(() =>
+          (state = state.pendingRejected(Data.getTextBlockData())));
 
         it('should call transform', () => {
           expect(pendingStateStub.transform).toHaveBeenCalled();
@@ -472,7 +476,7 @@ describe('State', () => {
 
         it('should call transform with text arg', () => {
           expect(pendingStateStub.transform).toHaveBeenCalledWith(
-            Data.TextBlockData
+            Data.getTextBlockData()
           );
         });
 
@@ -483,11 +487,11 @@ describe('State', () => {
 
       describe('receiveServer', () => {
         describe('pending block', () => {
-          const textData: Block.Data.TextData = {
+          const textData: Block.Data.TextData = makeImmutable({
             id: 0,
             user: 'me',
             delta: new Delta([{ insert: 'abc' }])
-          };
+          });
 
           beforeEach(() => {
             state.pending = textData;
@@ -505,32 +509,32 @@ describe('State', () => {
 
         describe('other block', () => {
           it('should call pendingRejected', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingStateStub.pendingRejected).toHaveBeenCalled();
           });
 
           it('should call pendingRejected with text arg', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingStateStub.pendingRejected).toHaveBeenCalledWith(
@@ -539,32 +543,32 @@ describe('State', () => {
           });
 
           it('should not call pendingConfirmed if identical user', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 1,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingStateStub.pendingConfirmed).not.toHaveBeenCalled();
           });
 
           it('should not call pendingConfirmed if identical id', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingStateStub.pendingConfirmed).not.toHaveBeenCalled();
@@ -578,8 +582,8 @@ describe('State', () => {
         (state = new PendingBufferState(
           textComponent,
           loggerService,
-          Data.TextBlockData,
-          Data.TextBlockDataDelta[1]
+          Data.getTextBlockData(),
+          Data.getTextBlockDataDeltas(1)
         )));
 
       it(`should set state as 'pendingBuffer'`, () => {
@@ -587,16 +591,16 @@ describe('State', () => {
       });
 
       it('should set pending delta', () => {
-        expect(state.pending.delta).toEqual(Data.TextBlockData.delta);
+        expect(state.pending.delta).toEqual(Data.getTextBlockData().delta);
       });
 
       it('should set buffer', () => {
-        expect(state.buffer).toEqual(Data.TextBlockDataDelta[1]);
+        expect(state.buffer).toEqual(Data.getTextBlockDataDeltas(1));
       });
 
       describe('addText', () => {
         beforeEach(() => {
-          state.pending = Data.TextBlockData;
+          state.pending = Data.getTextBlockData();
           state.buffer = new Delta([{ insert: 'heklo' }]);
           state = state.addText(
             new Delta([{ retain: 2 }, { insert: 'l' }, { delete: 1 }])
@@ -608,7 +612,7 @@ describe('State', () => {
         });
 
         it('should not modify pending', () => {
-          expect(state.pending).toEqual(Data.TextBlockData);
+          expect(state.pending).toEqual(Data.getTextBlockData());
         });
 
         it('should return PendingBufferState', () => {
@@ -618,13 +622,13 @@ describe('State', () => {
 
       describe('pendingConfirmed', () => {
         beforeEach(() => {
-          state.pending = Data.TextBlockData;
-          state.buffer = Data.TextBlockDataDelta[1];
+          state.pending = Data.getTextBlockData();
+          state.buffer = Data.getTextBlockDataDeltas(1);
           state = state.pendingConfirmed();
         });
 
         it('should set pending delta as buffer', () => {
-          expect(state.pending.delta).toEqual(Data.TextBlockDataDelta[1]);
+          expect(state.pending.delta).toEqual(Data.getTextBlockDataDeltas(1));
         });
 
         it('should not modify pending user', () => {
@@ -641,18 +645,18 @@ describe('State', () => {
       });
 
       describe('pendingRejected', () => {
-        const textData: Block.Data.TextData = {
+        const textData: Block.Data.TextData = makeImmutable({
           id: 1,
           user: 'other',
           delta: new Delta([{ retain: 1 }, { insert: '1' }])
-        };
+        });
 
         beforeEach(() => {
-          state.pending = {
+          state.pending = makeImmutable({
             id: 1,
             user: 'me',
             delta: new Delta([{ insert: 'b' }])
-          };
+          });
           state.buffer = new Delta([{ retain: 1 }, { insert: 'c' }]);
           state = state.pendingRejected(textData);
         });
@@ -682,13 +686,13 @@ describe('State', () => {
 
       describe('pendingConfirmed', () => {
         beforeEach(() => {
-          state.pending = Data.TextBlockData;
-          state.buffer = Data.TextBlockDataDelta[1];
+          state.pending = Data.getTextBlockData();
+          state.buffer = Data.getTextBlockDataDeltas(1);
           state = state.pendingConfirmed();
         });
 
         it('should set pending delta as buffer', () => {
-          expect(state.pending.delta).toEqual(Data.TextBlockDataDelta[1]);
+          expect(state.pending.delta).toEqual(Data.getTextBlockDataDeltas(1));
         });
 
         it('should not modify pending user', () => {
@@ -706,11 +710,11 @@ describe('State', () => {
 
       describe('receiveServer', () => {
         describe('pending block', () => {
-          const textData: Block.Data.TextData = {
+          const textData: Block.Data.TextData = makeImmutable({
             id: 0,
             user: 'me',
             delta: new Delta([{ insert: 'abc' }])
-          };
+          });
 
           beforeEach(() => {
             state.pending = textData;
@@ -730,32 +734,32 @@ describe('State', () => {
 
         describe('other block', () => {
           it('should call pendingRejected', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingBufferStateStub.pendingRejected).toHaveBeenCalled();
           });
 
           it('should call pendingRejected with text arg', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(pendingBufferStateStub.pendingRejected).toHaveBeenCalledWith(
@@ -764,16 +768,16 @@ describe('State', () => {
           });
 
           it('should not call pendingConfirmed if identical user', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 1,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(
@@ -782,16 +786,16 @@ describe('State', () => {
           });
 
           it('should not call pendingConfirmed if identical id', () => {
-            state.pending = {
+            state.pending = makeImmutable({
               id: 0,
               user: 'me',
               delta: new Delta([{ insert: 'abc' }])
-            };
-            const textData: Block.Data.TextData = {
+            });
+            const textData: Block.Data.TextData = makeImmutable({
               id: 0,
               user: 'other',
               delta: new Delta([{ insert: 'abc' }])
-            };
+            });
             state = state.receiveServer(textData);
 
             expect(

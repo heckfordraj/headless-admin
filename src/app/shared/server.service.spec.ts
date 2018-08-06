@@ -12,7 +12,8 @@ import {
   Block,
   User,
   isUser,
-  Data
+  Data,
+  makeImmutable
 } from 'testing';
 
 import { of, from } from 'rxjs';
@@ -24,14 +25,6 @@ let firebaseApp: MockFirebaseApp;
 let angularFireDatabase: MockAngularFireDatabase;
 let humanizePipe: jasmine.Spy;
 let service: ServerServiceStub;
-
-const page1: Page = JSON.parse(JSON.stringify(Data.Pages[0]));
-const block1: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['1'][0]));
-const block2: Block.Base = JSON.parse(JSON.stringify(Data.Blocks['2'][2]));
-const data1 = JSON.parse(JSON.stringify(Data.Data[0]));
-const textBlockData: Block.Data.TextData = JSON.parse(
-  JSON.stringify(Data.TextBlockData)
-);
 
 describe('ServerService', () => {
   beforeEach(() => {
@@ -86,7 +79,11 @@ describe('ServerService', () => {
   });
 
   describe('updateBlockContent', () => {
-    beforeEach(() => serverService.updateBlockContent(block1, data1));
+    beforeEach(() =>
+      serverService.updateBlockContent(
+        Data.getBlocks('text'),
+        Data.getTextBlockData()
+      ));
 
     it('should call AngularFireDatabase object', () => {
       expect(angularFireDatabase.object).toHaveBeenCalled();
@@ -101,12 +98,18 @@ describe('ServerService', () => {
     });
 
     it('should call AngularFireDatabase object set with data arg', () => {
-      expect(angularFireDatabase.objectSpy.set).toHaveBeenCalledWith(data1);
+      expect(angularFireDatabase.objectSpy.set).toHaveBeenCalledWith(
+        Data.getTextBlockData()
+      );
     });
   });
 
   describe('updateTextBlockContent', () => {
-    beforeEach(() => serverService.updateTextBlockContent(block1, data1));
+    beforeEach(() =>
+      serverService.updateTextBlockContent(
+        Data.getBlocks('text'),
+        Data.getTextBlockData()
+      ));
 
     it('should call FirebaseApp database', () => {
       expect(firebaseApp.database).toHaveBeenCalled();
@@ -134,7 +137,7 @@ describe('ServerService', () => {
   });
 
   describe('getBlockContent', () => {
-    beforeEach(() => serverService.getBlockContent(block1));
+    beforeEach(() => serverService.getBlockContent(Data.getBlocks('text')));
 
     it('should call AngularFireDatabase list', () => {
       expect(angularFireDatabase.list).toHaveBeenCalled();
@@ -186,12 +189,11 @@ describe('ServerService', () => {
     });
 
     it('should map return as reversed array', () => {
-      angularFireDatabase.listSpy.valueChanges.and.returnValue(
-        of([
-          { name: 'Page 1', status: { draft: true } },
-          { name: 'Page 2', status: { draft: true } }
-        ])
-      );
+      const pages = makeImmutable([
+        { name: 'Page 1', status: { draft: true } },
+        { name: 'Page 2', status: { draft: true } }
+      ]);
+      angularFireDatabase.listSpy.valueChanges.and.returnValue(of(pages));
 
       serverService.getCollection('pages', null).subscribe(pages => {
         const pageNames = pages.map(page => page.name);
@@ -203,7 +205,7 @@ describe('ServerService', () => {
     describe('status: null', () => {
       beforeEach(() =>
         angularFireDatabase.listSpy.valueChanges.and.returnValue(
-          of(JSON.parse(JSON.stringify(Data.Pages)))
+          of(Data.getPages())
         ));
 
       it('should return filtered page status as `draft` or `published`', () => {
@@ -220,7 +222,7 @@ describe('ServerService', () => {
     describe('status: `archived`', () => {
       beforeEach(() =>
         angularFireDatabase.listSpy.valueChanges.and.returnValue(
-          of(JSON.parse(JSON.stringify(Data.Pages)))
+          of(Data.getPages())
         ));
 
       it('should return filtered page status as `archived`', () => {
@@ -261,7 +263,7 @@ describe('ServerService', () => {
   });
 
   describe('getBlocks', () => {
-    beforeEach(() => serverService.getBlocks(page1));
+    beforeEach(() => serverService.getBlocks(Data.getPages('page-1')));
 
     it('should call AngularFireDatabase list', () => {
       expect(angularFireDatabase.list).toHaveBeenCalled();
@@ -280,7 +282,7 @@ describe('ServerService', () => {
   });
 
   describe('addPage', () => {
-    beforeEach(() => serverService.addPage(page1));
+    beforeEach(() => serverService.addPage(Data.getPages('page-1')));
 
     it('should call AngularFireDatabase object', () => {
       expect(angularFireDatabase.object).toHaveBeenCalled();
@@ -296,7 +298,12 @@ describe('ServerService', () => {
   });
 
   describe('orderBlock', () => {
-    beforeEach(() => serverService.orderBlock(page1, block1, block2));
+    beforeEach(() =>
+      serverService.orderBlock(
+        Data.getPages('page-1'),
+        Data.getBlocks('text'),
+        Data.getBlocks('image')
+      ));
 
     it('should call AngularFireDatabase database ref', () => {
       expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
@@ -315,14 +322,18 @@ describe('ServerService', () => {
     it('should call AngularFireDatabase database ref update with order changes', () => {
       expect(angularFireDatabase.databaseRefSpy.update).toHaveBeenCalledWith({
         '1/order': 1,
-        '3/order': 3
+        '2/order': 2
       });
     });
   });
 
   describe('addBlock', () => {
-    const block: Block.Base = { type: 'text', id: 'abc', order: 5 };
-    beforeEach(() => serverService.addBlock(page1, block));
+    const block: Block.Base = makeImmutable({
+      type: 'text',
+      id: 'abc',
+      order: 5
+    });
+    beforeEach(() => serverService.addBlock(Data.getPages('page-1'), block));
 
     it('should call AngularFireDatabase list', () => {
       expect(angularFireDatabase.list).toHaveBeenCalled();
@@ -345,7 +356,8 @@ describe('ServerService', () => {
   });
 
   describe('updatePage', () => {
-    beforeEach(() => serverService.updatePage(page1, 'new-title'));
+    beforeEach(() =>
+      serverService.updatePage(Data.getPages('page-1'), 'new-title'));
 
     it('should call HumanizePipe', () => {
       expect(humanizePipe).toHaveBeenCalled();
@@ -383,7 +395,7 @@ describe('ServerService', () => {
   });
 
   describe('updateUser', () => {
-    const user: User = {
+    const user: User = makeImmutable({
       id: 'xyz',
       colour: '#fff',
       current: {
@@ -394,8 +406,8 @@ describe('ServerService', () => {
           length: 2
         }
       }
-    };
-    beforeEach(() => serverService.updateUser(page1, user));
+    });
+    beforeEach(() => serverService.updateUser(Data.getPages('page-1'), user));
 
     it('should call AngularFireDatabase database ref', () => {
       expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
@@ -438,7 +450,12 @@ describe('ServerService', () => {
   xdescribe('getUsers', () => {});
 
   describe('updateBlock', () => {
-    beforeEach(() => serverService.updateBlock(page1, block1, textBlockData));
+    beforeEach(() =>
+      serverService.updateBlock(
+        Data.getPages('page-1'),
+        Data.getBlocks('text'),
+        Data.getTextBlockData()
+      ));
 
     it('should call AngularFireDatabase list', () => {
       expect(angularFireDatabase.list).toHaveBeenCalled();
@@ -455,13 +472,13 @@ describe('ServerService', () => {
     it('should call AngularFireDatabase list set with data id and data args', () => {
       expect(angularFireDatabase.listSpy.set).toHaveBeenCalledWith(
         '1',
-        textBlockData
+        Data.getTextBlockData()
       );
     });
   });
 
   describe('removePage', () => {
-    beforeEach(() => serverService.removePage(page1));
+    beforeEach(() => serverService.removePage(Data.getPages('page-1')));
 
     it('should call AngularFireDatabase database ref', () => {
       expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
@@ -480,7 +497,7 @@ describe('ServerService', () => {
   });
 
   describe('archivePage', () => {
-    beforeEach(() => serverService.archivePage(page1));
+    beforeEach(() => serverService.archivePage(Data.getPages('page-1')));
 
     it('should call AngularFireDatabase database ref', () => {
       expect(angularFireDatabase.databaseSpy.ref).toHaveBeenCalled();
@@ -504,7 +521,11 @@ describe('ServerService', () => {
   });
 
   describe('removeBlock', () => {
-    beforeEach(() => serverService.removeBlock(page1, block1));
+    beforeEach(() =>
+      serverService.removeBlock(
+        Data.getPages('page-1'),
+        Data.getBlocks('text')
+      ));
 
     it('should call AngularFireDatabase list', () => {
       expect(angularFireDatabase.list).toHaveBeenCalled();
@@ -524,7 +545,7 @@ describe('ServerService', () => {
   });
 
   describe('publishPage', () => {
-    beforeEach(() => serverService.publishPage(page1));
+    beforeEach(() => serverService.publishPage(Data.getPages('page-1')));
 
     it('should call ServerService createId', () => {
       expect(serverService.createId).toHaveBeenCalled();
@@ -562,7 +583,7 @@ describe('ServerService', () => {
 
     it('should call AngularFireDatabase database ref set with blocks arg', () => {
       expect(angularFireDatabase.databaseRefSpy.set).toHaveBeenCalledWith(
-        Data.Blocks
+        Data.getBlocks()
       );
     });
 

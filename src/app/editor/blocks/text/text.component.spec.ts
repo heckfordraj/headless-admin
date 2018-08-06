@@ -10,11 +10,13 @@ import {
   MockLoggerService,
   ServerService,
   MockServerService,
-  Data
+  Data,
+  makeImmutable
 } from 'testing';
 
 import * as Quill from 'quill';
 const Delta: Quill.DeltaStatic = Quill.import('delta');
+import { take, timeout } from 'rxjs/operators';
 
 import { Block } from 'shared';
 import { State, PendingState } from './state';
@@ -77,7 +79,11 @@ describe('TextComponent', () => {
     it(
       'should call State receiveServer',
       fakeAsync(() => {
-        serverService.updateTextBlockContent(null, Data.TextBlockData, false);
+        serverService.updateTextBlockContent(
+          null,
+          Data.getTextBlockData(),
+          false
+        );
         tick(200);
 
         expect(state.receiveServer).toHaveBeenCalled();
@@ -87,10 +93,16 @@ describe('TextComponent', () => {
     it(
       'should call State receiveServer with text arg',
       fakeAsync(() => {
-        serverService.updateTextBlockContent(null, Data.TextBlockData, false);
+        serverService.updateTextBlockContent(
+          null,
+          Data.getTextBlockData(),
+          false
+        );
         tick(200);
 
-        expect(state.receiveServer).toHaveBeenCalledWith(Data.TextBlockData);
+        expect(state.receiveServer).toHaveBeenCalledWith(
+          Data.getTextBlockData()
+        );
       })
     );
 
@@ -395,15 +407,15 @@ describe('TextComponent', () => {
   });
 
   describe('tryTransaction', () => {
-    const block: Block.Base = {
+    const block: Block.Base = makeImmutable({
       id: '1',
       type: 'text',
       order: 1
-    };
-    const pending: Block.Data.TextData = {
+    });
+    const pending: Block.Data.TextData = makeImmutable({
       id: 1,
       user: 'me'
-    };
+    });
 
     beforeEach(() => {
       comp.block = block;
@@ -425,21 +437,33 @@ describe('TextComponent', () => {
   });
 
   describe('selectionChange', () => {
-    let selection;
+    it('should not emit selection if no range', async(() => {
+      comp.selection
+        .pipe(
+          take(1),
+          timeout(100)
+        )
+        .subscribe(
+          selection => expect(selection).toBeUndefined(),
+          error => expect(error).toBeDefined()
+        );
 
-    beforeEach(() => comp.selection.subscribe(sel => (selection = sel)));
-
-    it('should not emit selection if no range', () => {
       comp.selectionChange(null);
+    }));
 
-      expect(selection).toBeUndefined();
-    });
+    it('should emit selection if range', async(() => {
+      comp.selection
+        .pipe(
+          take(1),
+          timeout(100)
+        )
+        .subscribe(
+          selection => expect(selection).toEqual({ index: 0, length: 1 }),
+          error => expect(error).toBeUndefined()
+        );
 
-    it('should emit selection if range', () => {
       comp.selectionChange({ index: 0, length: 1 } as any);
-
-      expect(selection).toEqual({ index: 0, length: 1 });
-    });
+    }));
   });
 
   describe('textChange', () => {
@@ -498,11 +522,11 @@ describe('TextComponent', () => {
     describe('initial text', () => {
       beforeEach(
         fakeAsync(() => {
-          const initialData: Block.Data.TextData = {
+          const initialData: Block.Data.TextData = makeImmutable({
             user: 'client1',
             id: 0,
             delta: new Delta([{ insert: 'abc' }])
-          };
+          });
           serverService.updateTextBlockContent(null, initialData, true);
           tick(200);
         })
@@ -550,11 +574,11 @@ describe('TextComponent', () => {
     describe('remove text', () => {
       beforeEach(
         fakeAsync(() => {
-          const initialData: Block.Data.TextData = {
+          const initialData: Block.Data.TextData = makeImmutable({
             user: 'client1',
             id: 0,
             delta: new Delta([{ insert: 'abc' }])
-          };
+          });
           serverService.updateTextBlockContent(null, initialData, true);
           tick(200);
         })
@@ -592,11 +616,11 @@ describe('TextComponent', () => {
     describe('replace text', () => {
       beforeEach(
         fakeAsync(() => {
-          const initialData: Block.Data.TextData = {
+          const initialData: Block.Data.TextData = makeImmutable({
             user: 'client1',
             id: 0,
             delta: new Delta([{ insert: 'abcd' }])
-          };
+          });
           serverService.updateTextBlockContent(null, initialData, true);
           tick(200);
         })
@@ -639,16 +663,16 @@ describe('TextComponent', () => {
       // bd                                            bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd
       // bcd<-----[{ retain: 1 }, { insert: 'c' }]-----bcd                                           bcd
 
-      const initialData: Block.Data.TextData = {
+      const initialData: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 0,
         delta: new Delta([{ insert: 'abd' }])
-      };
-      const client1Data: Block.Data.TextData = {
+      });
+      const client1Data: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 1,
         delta: new Delta([{ delete: 1 }])
-      };
+      });
       const client2Delta = new Delta([{ retain: 2 }, { insert: 'c' }]);
 
       beforeEach(
@@ -761,16 +785,16 @@ describe('TextComponent', () => {
       // ac                                            abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc
       // abc<-----[{ retain: 1 }, { insert: 'b' }]-----abc                                           abc
 
-      const initialData: Block.Data.TextData = {
+      const initialData: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 0,
         delta: new Delta([{ insert: 'acd' }])
-      };
-      const client1Data: Block.Data.TextData = {
+      });
+      const client1Data: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 1,
         delta: new Delta([{ retain: 2 }, { delete: 1 }])
-      };
+      });
       const client2Delta = new Delta([{ retain: 1 }, { insert: 'b' }]);
 
       beforeEach(
@@ -899,21 +923,21 @@ describe('TextComponent', () => {
       // abc1<-----3: [{ retain: 3 }, -----abc1                              abc1
       //              { insert: '1' }]
 
-      const initialData: Block.Data.TextData = {
+      const initialData: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 0,
         delta: new Delta([{ insert: 'a' }])
-      };
-      const client1Data1: Block.Data.TextData = {
+      });
+      const client1Data1: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 1,
         delta: new Delta([{ retain: 1 }, { insert: 'b' }])
-      };
-      const client1Data2: Block.Data.TextData = {
+      });
+      const client1Data2: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 2,
         delta: new Delta([{ retain: 2 }, { insert: 'c' }])
-      };
+      });
       const client2Delta = new Delta([{ retain: 1 }, { insert: '1' }]);
 
       beforeEach(
@@ -1105,21 +1129,21 @@ describe('TextComponent', () => {
       //               { retain: 3 },
       //               { insert: ')' }]
 
-      const initialData: Block.Data.TextData = {
+      const initialData: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 0,
         delta: new Delta([{ insert: 'a' }])
-      };
-      const client1Data1: Block.Data.TextData = {
+      });
+      const client1Data1: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 1,
         delta: new Delta([{ retain: 1 }, { insert: 'b' }])
-      };
-      const client1Data2: Block.Data.TextData = {
+      });
+      const client1Data2: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 2,
         delta: new Delta([{ retain: 2 }, { insert: 'c' }])
-      };
+      });
       const client2Delta1 = new Delta([{ retain: 1 }, { insert: ')' }]);
       const client2Delta2 = new Delta([{ insert: '(' }]);
 
@@ -1355,16 +1379,16 @@ describe('TextComponent', () => {
       // abc<-----[{ retain: 6 }, -----hello world                          hello world
       //        { insert: 'world' }]
 
-      const initialData: Block.Data.TextData = {
+      const initialData: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 0,
         delta: new Delta([{ insert: 'hllo' }])
-      };
-      const client1Data: Block.Data.TextData = {
+      });
+      const client1Data: Block.Data.TextData = makeImmutable({
         user: 'client1',
         id: 1,
         delta: new Delta([{ retain: 1 }, { insert: 'e' }])
-      };
+      });
       const client2Delta1 = new Delta([{ retain: 4 }, { insert: ' ' }]);
       const client2Delta2 = new Delta([{ retain: 6 }, { insert: 'world' }]);
 

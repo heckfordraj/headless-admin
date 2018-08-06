@@ -2,8 +2,8 @@ import { ElementFinder, Key } from 'protractor';
 import { EditorComponent } from './editor.po';
 import { Data } from './data';
 
-const FirebaseServer = require('firebase-server');
-import * as rules from '../database.rules.json';
+import FirebaseServer = require('firebase-server');
+import rules from '../database.rules.json';
 
 describe('EditorComponent', () => {
   let server: any;

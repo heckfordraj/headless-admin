@@ -1,5 +1,5 @@
-export { Page } from '../app/shared/page';
-import { Page } from '../app/shared/page';
+export { Page } from 'shared';
+import { Page } from 'shared';
 
 export function isPage(page: any): page is Page {
   return (

@@ -1,5 +1,5 @@
-export { Block } from '../app/shared/block';
-import { Block } from '../app/shared/block';
+export { Block } from 'shared';
+import { Block } from 'shared';
 
 export function isBlock(block: any): block is Block.Base {
   return (

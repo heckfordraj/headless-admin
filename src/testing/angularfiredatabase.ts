@@ -30,7 +30,7 @@ export class MockAngularFireDatabase {
   private databaseRefFn = {
     update: () => Promise.resolve(),
     set: () => Promise.resolve(),
-    once: () => Promise.resolve({ val: () => Data.Blocks }),
+    once: () => Promise.resolve({ val: () => Data.getBlocks() }),
     onDisconnect: () => this.databaseRefOnDisconnectFn
   };
 

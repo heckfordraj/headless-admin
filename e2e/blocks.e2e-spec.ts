@@ -1,8 +1,8 @@
 import { BlocksComponent } from './blocks.po';
 import { Data } from './data';
 
-const FirebaseServer = require('firebase-server');
-import * as rules from '../database.rules.json';
+import FirebaseServer = require('firebase-server');
+import rules from '../database.rules.json';
 
 describe('BlocksComponent', () => {
   let server: any;
